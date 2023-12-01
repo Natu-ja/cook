@@ -96,7 +96,8 @@ def main(args):
     model = AutoModelForCausalLM.from_pretrained(args.model)
     print(f'Loaded model from {args.model}, model size {model.num_parameters()}!!')
 
-    model = adapt_peft(model)
+    if args.target_modules != None:
+        model = adapt_peft(model)
     
     train_dataset, eval_dataset = load_tokenize_data(args)
 
@@ -106,9 +107,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--tokenizer', default='novelai/nerdstash-tokenizer-v1', type=str)
-    parser.add_argument('--model', default='stabilityai/japanese-stablelm-instruct-alpha-7b', type=str)
-    parser.add_argument('--data', default='./data/', type=str)
+    parser.add_argument('tokenizer', type=str)
+    parser.add_argument('model', type=str)
+    parser.add_argument('--data', default='./data', type=str)
     parser.add_argument('--input-max-len', default=128, type=int)
 
     # TrainingArguments
@@ -128,7 +129,7 @@ if __name__ == "__main__":
 
     #LoraConfig
     parser.add_argument('--rank', default=8, type=int)
-    parser.add_argument('--target-modules', nargs='*', default=['embed_in', 'query_key_value', 'dense', 'packed_input_proj', 'out_proj', 'embed_out'], type=str)
+    parser.add_argument('--target-modules', nargs='*', type=str)
     parser.add_argument('--lora-alpha', default=16, type=float)
     parser.add_argument('--lora-dropout', default=0, type=float)
     parser.add_argument('--lora-bias', default='none', type=str, choices=['none', 'all', 'lora_only'])
