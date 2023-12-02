@@ -2,11 +2,14 @@ import argparse
 from datasets import load_from_disk
 import os
 from peft import get_peft_model, LoraConfig 
-from transformers import AutoModelForCausalLM, LlamaTokenizer, Trainer, TrainingArguments
+from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer, Trainer, TrainingArguments
 from typing import Any
 
 def load_tokenize_data(args):
-    tokenizer = LlamaTokenizer.from_pretrained(args.tokenizer)
+    if args.tokenizer == 'novelai/nerdstash-tokenizer-v1':
+        tokenizer = LlamaTokenizer.from_pretrained(args.tokenizer)
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
     print(f'Loaded tokenizer from {args.tokenizer}!!')
 
     dataset = load_from_disk(args.data)
@@ -66,6 +69,7 @@ def run_training(args, model, train_dataset, eval_dataset):
         gradient_accumulation_steps=args.gradient_accumulation,
         learning_rate=args.lr,
         weight_decay=args.weight_decay,
+        max_grad_norm=args.max_grad_norm,
         num_train_epochs=args.epochs,
         lr_scheduler_type=args.scheduler,
         warmup_ratio=args.warmup,
@@ -75,7 +79,7 @@ def run_training(args, model, train_dataset, eval_dataset):
         seed=args.seed,
         data_seed=args.seed,
         run_name=args.run_name,
-        remove_unused_columns = True,
+        remove_unused_columns=True,
         load_best_model_at_end=True,
         report_to=args.report_to
     )
@@ -115,11 +119,12 @@ if __name__ == "__main__":
     # TrainingArguments
     parser.add_argument('--save-dir', default='./output', type=str)
     parser.add_argument('--strategy', default='epoch', type=str, choices=['no', 'steps', 'epoch'])
-    parser.add_argument('--per-device-train-batch-size', default=4, type=int)
-    parser.add_argument('--per-device-eval-batch-size', default=1, type=int)
-    parser.add_argument('--gradient-accumulation', default=16, type=int)
+    parser.add_argument('--per-device-train-batch-size', default=8, type=int)
+    parser.add_argument('--per-device-eval-batch-size', default=8, type=int)
+    parser.add_argument('--gradient-accumulation', default=1, type=int)
     parser.add_argument('--lr', default=5e-5, type=float)
     parser.add_argument('--weight-decay', default=0, type=float)
+    parser.add_argument('--max-grad-norm', default=1, type=1)
     parser.add_argument('--epochs', default=5, type=int)
     parser.add_argument('--scheduler', default='linear', type=str, choices=['linear', 'cosine', 'cosine_with_restarts', 'polynomial', 'constant', 'constant_with_warmup'])
     parser.add_argument('--warmup', default=0, type=float)
@@ -130,7 +135,7 @@ if __name__ == "__main__":
     #LoraConfig
     parser.add_argument('--rank', default=8, type=int)
     parser.add_argument('--target-modules', nargs='*', type=str)
-    parser.add_argument('--lora-alpha', default=16, type=float)
+    parser.add_argument('--lora-alpha', default=8, type=float)
     parser.add_argument('--lora-dropout', default=0, type=float)
     parser.add_argument('--lora-bias', default='none', type=str, choices=['none', 'all', 'lora_only'])
 
