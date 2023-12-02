@@ -1,16 +1,12 @@
 import argparse
 from datasets import load_from_disk
+import datetime
 import os
-from peft import get_peft_model, LoraConfig 
+from peft import get_peft_model, LoraConfig, PeftConfig, PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer, Trainer, TrainingArguments
 from typing import Any
 
-def load_tokenize_data(args):
-    if args.tokenizer == 'novelai/nerdstash-tokenizer-v1':
-        tokenizer = LlamaTokenizer.from_pretrained(args.tokenizer)
-    else:
-        tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
-    print(f'Loaded tokenizer from {args.tokenizer}!!')
+def load_tokenize_data(args, tokenizer):
 
     dataset = load_from_disk(args.data)
     train_dataset = dataset['train']
@@ -29,7 +25,8 @@ def load_tokenize_data(args):
     train_dataset = train_dataset.map(
         preprocess,
         batched=True,
-        remove_columns=train_dataset.column_names
+        remove_columns=train_dataset.column_names,
+        num_proc=8
     )
     print(f'train dataset: {len(train_dataset)} samples!!')
     eval_dataset = eval_dataset.map(
@@ -41,20 +38,43 @@ def load_tokenize_data(args):
     
     return train_dataset, eval_dataset
     
-def adapt_peft(model):
-    peft_config = LoraConfig(
-        r=args.rank, 
-        target_modules=args.target_modules, 
-        lora_alpha=args.lora_alpha, 
-        lora_dropout =args.lora_dropout, 
-        bias=args.lora_bias
-    )
+def Tokenizer_Model(args):
+    try:
+        config = PeftConfig.from_pretrained(args.model)
+        tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path)
+        print(f'Loaded tokenizer from {args.tokenizer}!!')
 
-    model = get_peft_model(model, peft_config)
-    print('Adapt LoRA!!')
-    model.print_trainable_parameters()
+        model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path)
+        print(f'Loaded model from {args.model}, model size {model.num_parameters()}!!')
+
+        model = PeftModel.from_pretrained(model, args.model)
+        print('Adapt Peft!!')
+        model.print_trainable_parameters()
     
-    return model
+    except:
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
+        except:
+            tokenizer = LlamaTokenizer.from_pretrained(args.tokenizer)
+        print(f'Loaded tokenizer from {args.tokenizer}!!')
+
+        model = AutoModelForCausalLM.from_pretrained(args.model)
+        print(f'Loaded model from {args.model}, model size {model.num_parameters()}!!')
+
+        if args.target_modules != None:
+            peft_config = LoraConfig(
+                r=args.rank, 
+                target_modules=args.target_modules, 
+                lora_alpha=args.lora_alpha, 
+                lora_dropout =args.lora_dropout, 
+                bias=args.lora_bias
+            )
+
+            model = get_peft_model(model, peft_config)
+            print('Adapt LoRA!!')
+            model.print_trainable_parameters()
+    
+    return tokenizer, model
 
 def run_training(args, model, train_dataset, eval_dataset):
 
@@ -75,7 +95,7 @@ def run_training(args, model, train_dataset, eval_dataset):
         warmup_ratio=args.warmup,
         logging_strategy=args.strategy,
         save_strategy=args.strategy,
-        save_total_limit=5,
+        save_total_limit=2,
         seed=args.seed,
         data_seed=args.seed,
         run_name=args.run_name,
@@ -97,18 +117,13 @@ def run_training(args, model, train_dataset, eval_dataset):
     print('Finish fine-tuning!!')
     
 def main(args):
-    model = AutoModelForCausalLM.from_pretrained(args.model)
-    print(f'Loaded model from {args.model}, model size {model.num_parameters()}!!')
-
-    if args.target_modules != None:
-        model = adapt_peft(model)
-    
-    train_dataset, eval_dataset = load_tokenize_data(args)
-
+    tokenizer, model = Tokenizer_Model(args)
+    train_dataset, eval_dataset = load_tokenize_data(args, tokenizer)
     run_training(model, train_dataset, eval_dataset)
 
 if __name__ == "__main__":
 
+    dt_now = datetime.datetime.now()
     parser = argparse.ArgumentParser()
 
     parser.add_argument('tokenizer', type=str)
@@ -117,7 +132,7 @@ if __name__ == "__main__":
     parser.add_argument('--input-max-len', default=128, type=int)
 
     # TrainingArguments
-    parser.add_argument('--save-dir', default='./output', type=str)
+    parser.add_argument('--save-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
     parser.add_argument('--strategy', default='epoch', type=str, choices=['no', 'steps', 'epoch'])
     parser.add_argument('--per-device-train-batch-size', default=8, type=int)
     parser.add_argument('--per-device-eval-batch-size', default=8, type=int)
