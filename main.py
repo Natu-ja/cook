@@ -2,6 +2,7 @@ import argparse
 from datasets import Dataset, load_from_disk
 import datetime
 import os
+import pandas as pd
 from peft import get_peft_model, LoraConfig, PeftConfig, PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer, Trainer, TrainingArguments
 from typing import Any
@@ -10,7 +11,8 @@ def load_tokenize_data(args, tokenizer):
 
     dataset = load_from_disk(args.data)
     train_dataset = dataset['train']
-    eval_dataset = dataset['eval']
+    val_dataset = dataset['val']
+    test_dataset = dataset['test'] if args.generation == 'yes' else None
     
     if args.instruction != None:
 
@@ -38,7 +40,8 @@ def load_tokenize_data(args, tokenizer):
             return dataset
         
         train_dataset = instruction(train_dataset)
-        eval_dataset = instruction(eval_dataset)
+        val_dataset = instruction(val_dataset)
+        if test_dataset != None: test_dataset = instruction(test_dataset)
 
     def preprocess(data):
 
@@ -57,14 +60,14 @@ def load_tokenize_data(args, tokenizer):
         remove_columns=train_dataset.column_names
     )
     print(f'train dataset: {len(train_dataset)} samples!!')
-    eval_dataset = eval_dataset.map(
+    val_dataset = val_dataset.map(
         preprocess,
         batched=True,
-        remove_columns=eval_dataset.column_names
+        remove_columns=val_dataset.column_names
     )
-    print(f'eval dataset: {len(eval_dataset)} samples!!')
+    print(f'eval dataset: {len(val_dataset)} samples!!')
     
-    return train_dataset, eval_dataset
+    return train_dataset, val_dataset, test_dataset
     
 def load(args):
     try:
@@ -104,13 +107,13 @@ def load(args):
     
     return tokenizer, model
 
-def run_training(args, model, train_dataset, eval_dataset):
+def run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset):
 
     training_args=TrainingArguments(
         output_dir=args.save_dir,
         overwrite_output_dir=False,
         do_train=True,
-        do_eval=True,
+        do_eval=False,
         evaluation_strategy=args.strategy,
         per_device_train_batch_size=args.per_device_train_batch_size,
         per_device_eval_batch_size=args.per_device_eval_batch_size,
@@ -137,18 +140,30 @@ def run_training(args, model, train_dataset, eval_dataset):
         model=model,
         args=training_args,
         train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
-        tokenizer=args.tokenizer
+        eval_dataset=val_dataset,
+        tokenizer=tokenizer
     )
     
-    print('Start fine-tuning!!')
+    print('Start training!!')
     trainer.train()
-    print('Finish fine-tuning!!')
+    print('Finish training!!')
+
+    if args.generation == 'yes':
+        print('Start generation!!')
+        df = pd.DataFrame(columns=['材料', '正解タイトル', '予測タイトル'])
+        for i in range(len(test_dataset)):
+            output = model.generate(tokenizer(test_dataset['材料'][i], add_special_tokens=False, return_tensors='pt')['input_ids'].cuda())
+            df.loc[i, '材料'] = test_dataset['材料'][i]
+            df.loc[i, '正解タイトル'] = test_dataset['正解タイトル'][i]
+            df.loc[i, '予測タイトル'] = tokenizer.decode(output[0].tolist())
+        print('Finish generation!!')
+        df.to_csv(args.save_dir+args.generation_file_name)
+        print(f'Saved in {args.save_dir+args.generation_file_name}')
     
 def main(args):
     tokenizer, model = load(args)
-    train_dataset, eval_dataset = load_tokenize_data(args, tokenizer)
-    run_training(model, train_dataset, eval_dataset)
+    train_dataset, val_dataset, test_dataset = load_tokenize_data(args, tokenizer)
+    run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset)
 
 if __name__ == "__main__":
 
@@ -159,6 +174,8 @@ if __name__ == "__main__":
     parser.add_argument('model', type=str)
     parser.add_argument('--data', default='./data', type=str)
     parser.add_argument('--input-max-len', default=128, type=int)
+    parser.add_argument('--generation', default='no', type=str, choices=['no', 'yes'])
+    parser.add_argument('--generation-file-name', default='/generation.csv', type=str)
 
     # TrainingArguments
     parser.add_argument('--save-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
