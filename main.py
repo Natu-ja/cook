@@ -1,5 +1,5 @@
 import argparse
-from datasets import load_from_disk
+from datasets import Dataset, load_from_disk
 import datetime
 import os
 from peft import get_peft_model, LoraConfig, PeftConfig, PeftModel
@@ -12,7 +12,18 @@ def load_tokenize_data(args, tokenizer):
     train_dataset = dataset['train']
     eval_dataset = dataset['eval']
 
+    def instruction(args, dataset):
+        dataset = dataset.to_pandas()
+        dataset = args.instruction + dataset['食材']
+        dataset = Dataset.from_pandas(dataset)
+        return dataset
+    
+    if args.instruction != None:
+        train_dataset = instruction(train_dataset)
+        eval_dataset = instruction(eval_dataset)
+
     def preprocess(data):
+
         inputs = tokenizer(data['食材'], truncation=True, max_length=args.input_max_len, padding=True)
         labels = tokenizer(data['料理'], truncation=True, max_length=args.input_max_len, padding=True)
 
@@ -38,7 +49,7 @@ def load_tokenize_data(args, tokenizer):
     
     return train_dataset, eval_dataset
     
-def Tokenizer_Model(args):
+def load(args):
     try:
         config = PeftConfig.from_pretrained(args.model)
         tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path)
@@ -117,7 +128,7 @@ def run_training(args, model, train_dataset, eval_dataset):
     print('Finish fine-tuning!!')
     
 def main(args):
-    tokenizer, model = Tokenizer_Model(args)
+    tokenizer, model = load(args)
     train_dataset, eval_dataset = load_tokenize_data(args, tokenizer)
     run_training(model, train_dataset, eval_dataset)
 
@@ -130,6 +141,7 @@ if __name__ == "__main__":
     parser.add_argument('model', type=str)
     parser.add_argument('--data', default='./data', type=str)
     parser.add_argument('--input-max-len', default=128, type=int)
+    parser.add_argument('--instruction', type=str)
 
     # TrainingArguments
     parser.add_argument('--save-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
