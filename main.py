@@ -54,8 +54,7 @@ def load_tokenize_data(args, tokenizer):
     train_dataset = train_dataset.map(
         preprocess,
         batched=True,
-        remove_columns=train_dataset.column_names,
-        num_proc=8
+        remove_columns=train_dataset.column_names
     )
     print(f'train dataset: {len(train_dataset)} samples!!')
     eval_dataset = eval_dataset.map(
@@ -130,7 +129,8 @@ def run_training(args, model, train_dataset, eval_dataset):
         run_name=args.run_name,
         remove_unused_columns=True,
         load_best_model_at_end=True,
-        report_to=args.report_to
+        report_to=args.report_to,
+        auto_find_batch_size=True
     )
 
     trainer = Trainer(
@@ -184,8 +184,8 @@ if __name__ == "__main__":
     parser.add_argument('--lora-bias', default='none', type=str, choices=['none', 'all', 'lora_only'])
 
     # Instruction tuning
-    parser.add_argument('--instruction', type=str)
     parser.add_argument('--system-message', default='', type=str)
+    parser.add_argument('--instruction', type=str)
 
     args = parser.parse_args()
 

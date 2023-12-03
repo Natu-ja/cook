@@ -16,5 +16,5 @@ python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-inst
 
 Instruction tuning をする時の学習方法
 ```
-python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b --instruction 以下の食材を使って作れる料理名を教えてください。 --system-message 以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。
+python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b --system-message 以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。 --instruction 以下の食材を使って作れる料理名を教えてください。
 ```
