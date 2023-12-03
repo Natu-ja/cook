@@ -11,21 +11,39 @@ def load_tokenize_data(args, tokenizer):
     dataset = load_from_disk(args.data)
     train_dataset = dataset['train']
     eval_dataset = dataset['eval']
-
-    def instruction(args, dataset):
-        dataset = dataset.to_pandas()
-        dataset = args.instruction + dataset['食材']
-        dataset = Dataset.from_pandas(dataset)
-        return dataset
     
     if args.instruction != None:
+
+        def instruction(args, dataset):
+
+            def build_prompt(args, inputs="", sep="\n\n### "):
+                system_message = args.system_message
+                roles = ["指示", "応答"]
+                messages = [": \n" + args.instruction, ": "]
+                if inputs:
+                    roles.insert(1, "入力")
+                    messages.insert(1, ": \n" + inputs)
+                for role, message in zip(roles, messages):
+                    system_message += sep + role, message
+                return message
+
+            dataset = dataset.to_pandas()
+            for i in range(len(dataset)):
+                user_inputs = {
+                    "args": args,
+                    "inputs": dataset['材料'][i]
+                }
+                dataset['材料'][i] = build_prompt(**user_inputs)
+            dataset = Dataset.from_pandas(dataset)
+            return dataset
+        
         train_dataset = instruction(train_dataset)
         eval_dataset = instruction(eval_dataset)
 
     def preprocess(data):
 
-        inputs = tokenizer(data['食材'], truncation=True, max_length=args.input_max_len, padding=True)
-        labels = tokenizer(data['料理'], truncation=True, max_length=args.input_max_len, padding=True)
+        inputs = tokenizer(data['材料'], truncation=True, max_length=args.input_max_len, padding=True)
+        labels = tokenizer(data['タイトル'], truncation=True, max_length=args.input_max_len, padding=True)
 
         inputs['input_ids'] = inputs['input_ids']
         inputs['attention_mask'] = inputs['attention_mask']
@@ -141,7 +159,6 @@ if __name__ == "__main__":
     parser.add_argument('model', type=str)
     parser.add_argument('--data', default='./data', type=str)
     parser.add_argument('--input-max-len', default=128, type=int)
-    parser.add_argument('--instruction', type=str)
 
     # TrainingArguments
     parser.add_argument('--save-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
@@ -159,12 +176,16 @@ if __name__ == "__main__":
     parser.add_argument('--run-name', type=str)
     parser.add_argument('--report-to', default='all', type=str, choices=['azure_ml', 'clearml', 'codecarbon', 'comet_ml', 'dagshub', 'flyte', 'mlflow', 'neptune', 'tensorboard', 'wandb'])
 
-    #LoraConfig
+    # LoraConfig
     parser.add_argument('--rank', default=8, type=int)
     parser.add_argument('--target-modules', nargs='*', type=str)
     parser.add_argument('--lora-alpha', default=8, type=float)
     parser.add_argument('--lora-dropout', default=0, type=float)
     parser.add_argument('--lora-bias', default='none', type=str, choices=['none', 'all', 'lora_only'])
+
+    # Instruction tuning
+    parser.add_argument('--instruction', type=str)
+    parser.add_argument('--system-message', default='', type=str)
 
     args = parser.parse_args()
 
