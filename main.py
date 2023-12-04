@@ -152,12 +152,12 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         print('Start generation!!')
         df = pd.DataFrame(columns=['材料', '正解タイトル', '予測タイトル'])
         for i in range(len(test_dataset)):
-            output = model.generate(tokenizer(test_dataset['材料'][i], add_special_tokens=False, return_tensors='pt')['input_ids'].cuda())
             df.loc[i, '材料'] = test_dataset['材料'][i]
             df.loc[i, '正解タイトル'] = test_dataset['正解タイトル'][i]
-            # df.loc[i, '予測タイトル'] = tokenizer.decode(output[0].tolist())
+            inputs = tokenizer(test_dataset['材料'][i], add_special_tokens=False, return_tensors='pt')['input_ids'].cuda()
             for j in range(args.num_beams):
-                df.loc[i, f'予測タイトル_{j+1}'] = tokenizer.decode(output[j].tolist(), num_beams=j+1)
+                outputs = model.generate(**inputs, num_beams=j+1)
+                df.loc[i, f'予測タイトル_{j+1}'] = tokenizer.decode(outputs[0].tolist())
         
         print('Finish generation!!')
         df.to_csv(args.save_dir+args.generation_file_name, index=False)
