@@ -155,9 +155,12 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
             output = model.generate(tokenizer(test_dataset['材料'][i], add_special_tokens=False, return_tensors='pt')['input_ids'].cuda())
             df.loc[i, '材料'] = test_dataset['材料'][i]
             df.loc[i, '正解タイトル'] = test_dataset['正解タイトル'][i]
-            df.loc[i, '予測タイトル'] = tokenizer.decode(output[0].tolist())
+            # df.loc[i, '予測タイトル'] = tokenizer.decode(output[0].tolist())
+            for j in range(args.num_beams):
+                df.loc[i, f'予測タイトル_{j+1}'] = tokenizer.decode(output[j].tolist(), num_beams=j+1)
+        
         print('Finish generation!!')
-        df.to_csv(args.save_dir+args.generation_file_name)
+        df.to_csv(args.save_dir+args.generation_file_name, index=False)
         print(f'Saved in {args.save_dir+args.generation_file_name}')
     
 def main(args):
@@ -174,8 +177,10 @@ if __name__ == "__main__":
     parser.add_argument('model', type=str)
     parser.add_argument('--data', default='./data', type=str)
     parser.add_argument('--input-max-len', default=128, type=int)
+
     parser.add_argument('--generation', default='no', type=str, choices=['no', 'yes'])
     parser.add_argument('--generation-file-name', default='/generation.csv', type=str)
+    parser.add_argument('--num-beams', default=1, type=int)
 
     # TrainingArguments
     parser.add_argument('--save-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)

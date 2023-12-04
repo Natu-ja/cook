@@ -19,7 +19,11 @@ python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-inst
 python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b --system-message 以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。 --instruction 以下の食材を使って作れる料理名を教えてください。
 ```
 
-学習後に，生成をする場合
+学習後に，生成をする場合（デフォルトの場合，貪欲法 (Greedy search) を採用している．）
 ```
 python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b --generation yes
+```
+学習後に，生成する時に，Beam-Search Decoding をしたい場合
+```
+python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b --generation yes --num-beams 2
 ```
