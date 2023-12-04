@@ -132,6 +132,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         run_name=args.run_name,
         remove_unused_columns=True,
         load_best_model_at_end=True,
+        metric_for_best_model=args.metric_for_best_model,
         report_to=args.report_to,
         auto_find_batch_size=True
     )
@@ -158,13 +159,17 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
             for j in range(args.num_beams):
                 outputs = model.generate(
                     **inputs,
+                    max_length=args.max_length,
+                    min_length=args.min_length,
                     do_sample=args.do_sample,
                     num_beams=j+1,
                     num_beams_group=args.num_beams_group,
                     penalty=args.penalty_alpha,
-                    top_k=args.top_k
+                    temperature=args.temperature,
+                    top_k=args.top_k,
+                    top_p=args.top_p
                 )
-                df.loc[i, f'予測タイトル_{j+1}'] = tokenizer.decode(outputs[0].tolist())
+                df.loc[i, f'予測タイトル (num_beams={j+1})'] = tokenizer.decode(outputs[0].tolist())
         
         print('Finish generation!!')
         df.to_csv(args.save_dir+args.generation_file_name, index=False)
@@ -188,11 +193,15 @@ if __name__ == "__main__":
     # generate
     parser.add_argument('--generation', default='no', type=str, choices=['no', 'yes'])
     parser.add_argument('--generation-file-name', default='/generation.csv', type=str)
+    parser.add_argument('--max-length', default=20, type=int)
+    parser.add_argument('--min-length', default=0, type=int)
     parser.add_argument('--do-sample', default=False, type=bool)
     parser.add_argument('--num-beams', default=1, type=int)
     parser.add_argument('--num-beams-group', default=1, type=int)
     parser.add_argument('--penalty-alpha', default=0, type=float)
+    parser.add_argument('--temperature', default=1, type=float)
     parser.add_argument('--top-k', default=50, type=int)
+    parser.add_argument('--top-p', default=1, type=float, choices=[0, 1])
 
     # TrainingArguments
     parser.add_argument('--save-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
@@ -208,6 +217,7 @@ if __name__ == "__main__":
     parser.add_argument('--warmup', default=0, type=float)
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--run-name', type=str)
+    parser.add_argument('--metric-for-best-model', default='eval_loss', type=str)
     parser.add_argument('--report-to', default='all', type=str, choices=['azure_ml', 'clearml', 'codecarbon', 'comet_ml', 'dagshub', 'flyte', 'mlflow', 'neptune', 'tensorboard', 'wandb'])
 
     # LoraConfig
