@@ -1,5 +1,11 @@
 # cook
 
+## 環境構築
+Python 3.11.1
+```
+pip install -r requirements.txt
+```
+
 ## 使い方の例
 一番基本的な学習方法
 ```
