@@ -156,7 +156,14 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
             df.loc[i, '正解タイトル'] = test_dataset['正解タイトル'][i]
             inputs = tokenizer(test_dataset['材料'][i], add_special_tokens=False, return_tensors='pt')['input_ids'].cuda()
             for j in range(args.num_beams):
-                outputs = model.generate(**inputs, num_beams=j+1)
+                outputs = model.generate(
+                    **inputs,
+                    do_sample=args.do_sample,
+                    num_beams=j+1,
+                    num_beams_group=args.num_beams_group,
+                    penalty=args.penalty_alpha,
+                    top_k=args.top_k
+                )
                 df.loc[i, f'予測タイトル_{j+1}'] = tokenizer.decode(outputs[0].tolist())
         
         print('Finish generation!!')
@@ -178,9 +185,14 @@ if __name__ == "__main__":
     parser.add_argument('--data', default='./data', type=str)
     parser.add_argument('--input-max-len', default=128, type=int)
 
+    # generate
     parser.add_argument('--generation', default='no', type=str, choices=['no', 'yes'])
     parser.add_argument('--generation-file-name', default='/generation.csv', type=str)
+    parser.add_argument('--do-sample', default=False, type=bool)
     parser.add_argument('--num-beams', default=1, type=int)
+    parser.add_argument('--num-beams-group', default=1, type=int)
+    parser.add_argument('--penalty-alpha', default=0, type=float)
+    parser.add_argument('--top-k', default=50, type=int)
 
     # TrainingArguments
     parser.add_argument('--save-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
