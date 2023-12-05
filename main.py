@@ -18,7 +18,7 @@ def load_tokenize_data(args, tokenizer):
 
         def instruct(args, dataset):
 
-            def build_prompt(args, inputs="", sep="\n\n### "):
+            def build_prompt(inputs="", sep="\n\n### "):
                 system_message = args.system_message
                 roles = ["指示", "応答"]
                 messages = [": \n" + args.instruction, ": "]
@@ -35,7 +35,7 @@ def load_tokenize_data(args, tokenizer):
                     "args": args,
                     "inputs": dataset['材料'][i]
                 }
-                dataset['材料'][i] = build_prompt(args, **user_inputs)
+                dataset['材料'][i] = build_prompt(**user_inputs)
             dataset = Dataset.from_pandas(dataset)
             return dataset
         
@@ -113,9 +113,9 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         do_train=True,
         do_eval=False,
         evaluation_strategy=args.strategy,
-        per_device_train_batch_size=args.per_device_train_batch_size,
-        per_device_eval_batch_size=args.per_device_eval_batch_size,
-        gradient_accumulation_steps=args.gradient_accumulation,
+        per_device_train_batch_size=args.train_batch_size,
+        per_device_eval_batch_size=args.eval_batch_size,
+        gradient_accumulation_steps=args.gradients,
         learning_rate=args.lr,
         weight_decay=args.weight_decay,
         max_grad_norm=args.max_grad_norm,
@@ -204,14 +204,14 @@ if __name__ == "__main__":
     # TrainingArguments
     parser.add_argument('--save-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
     parser.add_argument('--strategy', default='epoch', type=str, choices=['no', 'steps', 'epoch'])
-    parser.add_argument('--per-device-train-batch-size', default=8, type=int)
-    parser.add_argument('--per-device-eval-batch-size', default=8, type=int)
-    parser.add_argument('--gradient-accumulation', default=1, type=int)
+    parser.add_argument('--train-batch-size', default=8, type=int)
+    parser.add_argument('--eval-batch-size', default=8, type=int)
+    parser.add_argument('--gradients', default=1, type=int)
     parser.add_argument('--lr', default=5e-5, type=float)
     parser.add_argument('--weight-decay', default=0, type=float)
     parser.add_argument('--max-grad-norm', default=1, type=1)
     parser.add_argument('--epochs', default=5, type=int)
-    parser.add_argument('--scheduler', default='linear', type=str, choices=['linear', 'cosine', 'cosine_with_restarts', 'polynomial', 'constant', 'constant_with_warmup'])
+    parser.add_argument('--scheduler', default='linear', type=str, choices=['linear', 'cosine', 'constant'])
     parser.add_argument('--warmup', default=0, type=float)
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--run-name', type=str)
