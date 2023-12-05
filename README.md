@@ -10,6 +10,7 @@ pip install -r requirements.txt
 
 ### 不完全な再現
 ライブラリの環境とかについて，完全に一致してなくても良いと思う人は，こっちを使ってください．
+こちらを使うと，現段階の最新バージョンのライブラリを使うことができます．
 ```
 pip install -r latest_requirements.txt
 ```

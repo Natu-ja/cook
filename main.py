@@ -16,7 +16,7 @@ def load_tokenize_data(args, tokenizer):
     
     if args.instruction != None:
 
-        def instruction(args, dataset):
+        def instruct(args, dataset):
 
             def build_prompt(args, inputs="", sep="\n\n### "):
                 system_message = args.system_message
@@ -35,13 +35,13 @@ def load_tokenize_data(args, tokenizer):
                     "args": args,
                     "inputs": dataset['材料'][i]
                 }
-                dataset['材料'][i] = build_prompt(**user_inputs)
+                dataset['材料'][i] = build_prompt(args, **user_inputs)
             dataset = Dataset.from_pandas(dataset)
             return dataset
         
-        train_dataset = instruction(train_dataset)
-        val_dataset = instruction(val_dataset)
-        if test_dataset != None: test_dataset = instruction(test_dataset)
+        train_dataset = instruct(args, train_dataset)
+        val_dataset = instruct(args, val_dataset)
+        if test_dataset != None: test_dataset = instruct(args, test_dataset)
 
     def preprocess(data):
 
@@ -79,8 +79,7 @@ def load(args):
         print(f'Loaded model from {args.model}, model size {model.num_parameters()}!!')
 
         model = PeftModel.from_pretrained(model, args.model)
-        print('Adapt Peft!!')
-        model.print_trainable_parameters()
+        print(f'Applying LoRA to the model, the trainable parameters is {model.print_trainable_parameters()}!!')
     
     except:
         try:
@@ -102,8 +101,7 @@ def load(args):
             )
 
             model = get_peft_model(model, peft_config)
-            print('Adapt LoRA!!')
-            model.print_trainable_parameters()
+            print(f'Applying LoRA to the model, the trainable parameters is {model.print_trainable_parameters()}!!')
     
     return tokenizer, model
 
@@ -223,7 +221,7 @@ if __name__ == "__main__":
     # LoraConfig
     parser.add_argument('--rank', default=8, type=int)
     parser.add_argument('--target-modules', nargs='*', type=str)
-    parser.add_argument('--lora-alpha', default=8, type=float)
+    parser.add_argument('--lora-alpha', default=8, type=int)
     parser.add_argument('--lora-dropout', default=0, type=float)
     parser.add_argument('--lora-bias', default='none', type=str, choices=['none', 'all', 'lora_only'])
 
