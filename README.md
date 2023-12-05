@@ -1,5 +1,10 @@
 # cook
 
+## すぐに始めたい人向け
+[Google Colaboratory](https://colab.research.google.com/) で始めることができます．以下のボタンを押すと，該当ページに移動できます．
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ad8CKAOHuK5dnqvufVwrDTmIGH7SDTEw?usp=sharing)
+
 ## 環境構築
 
 ### 完全な再現

@@ -162,7 +162,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
                     do_sample=args.do_sample,
                     num_beams=j+1,
                     num_beams_group=args.num_beams_group,
-                    penalty=args.penalty_alpha,
+                    penalty_alpha=args.penalty_alpha,
                     temperature=args.temperature,
                     top_k=args.top_k,
                     top_p=args.top_p
