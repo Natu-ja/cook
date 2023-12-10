@@ -1,6 +1,7 @@
 import argparse
 from datasets import Dataset, load_from_disk
 import datetime
+import json
 import os
 import pandas as pd
 from peft import get_peft_model, LoraConfig, PeftConfig, PeftModel
@@ -162,11 +163,12 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
                     min_length=args.min_length,
                     do_sample=args.do_sample,
                     num_beams=j+1,
-                    num_beams_group=args.num_beams_group,
+                    num_beam_groups=args.num_beam_groups,
                     penalty_alpha=args.penalty_alpha,
                     temperature=args.temperature,
                     top_k=args.top_k,
-                    top_p=args.top_p
+                    top_p=args.top_p,
+                    repetition_penalty=args.repetition_penalty,
                 )
                 df.loc[i, f'予測タイトル (num_beams={j+1})'] = tokenizer.decode(outputs[0].tolist())
         
@@ -175,6 +177,11 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         print(f'Saved in {args.save_dir+args.generation_file_name}')
     
 def main(args):
+
+    with open(args.save_dir+args.args_file_name, 'w') as f:
+        json.dump(args.__dict__, f, indent=4)
+        print('Saved args!!')
+
     tokenizer, model = load(args)
     train_dataset, val_dataset, test_dataset = load_tokenize_data(args, tokenizer)
     run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset)
@@ -186,6 +193,7 @@ if __name__ == "__main__":
 
     parser.add_argument('tokenizer', type=str)
     parser.add_argument('model', type=str)
+    parser.add_argument('--args-file-name', default='/args.json', type=str)
     parser.add_argument('--data', default='./data', type=str)
     parser.add_argument('--input-max-len', default=128, type=int)
 
@@ -196,11 +204,12 @@ if __name__ == "__main__":
     parser.add_argument('--min-length', default=0, type=int)
     parser.add_argument('--do-sample', default=False, type=bool)
     parser.add_argument('--num-beams', default=1, type=int)
-    parser.add_argument('--num-beams-group', default=1, type=int)
-    parser.add_argument('--penalty-alpha', default=0, type=float)
-    parser.add_argument('--temperature', default=1, type=float)
+    parser.add_argument('--num-beam-groups', default=1, type=int)
+    parser.add_argument('--penalty-alpha', default=0.0, type=float)
+    parser.add_argument('--temperature', default=1.0, type=float)
     parser.add_argument('--top-k', default=50, type=int)
-    parser.add_argument('--top-p', default=1, type=float, choices=[0, 1])
+    parser.add_argument('--top-p', default=1.0, type=float, choices=[0, 1])
+    parser.add_argument('--repetition-penalty', default=1.0, type=float)
 
     # TrainingArguments
     parser.add_argument('--save-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
@@ -209,11 +218,11 @@ if __name__ == "__main__":
     parser.add_argument('--eval-batch-size', default=8, type=int)
     parser.add_argument('--gradients', default=1, type=int)
     parser.add_argument('--lr', default=5e-5, type=float)
-    parser.add_argument('--weight-decay', default=0, type=float)
+    parser.add_argument('--weight-decay', default=0.0, type=float)
     parser.add_argument('--max-grad-norm', default=1, type=1)
     parser.add_argument('--epochs', default=5, type=int)
     parser.add_argument('--scheduler', default='linear', type=str, choices=['linear', 'cosine', 'constant'])
-    parser.add_argument('--warmup', default=0, type=float)
+    parser.add_argument('--warmup', default=0.0, type=float)
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--run-name', type=str)
     parser.add_argument('--metric-for-best-model', default='eval_loss', type=str)
@@ -223,7 +232,7 @@ if __name__ == "__main__":
     parser.add_argument('--rank', default=8, type=int)
     parser.add_argument('--target-modules', nargs='*', type=str)
     parser.add_argument('--lora-alpha', default=8, type=int)
-    parser.add_argument('--lora-dropout', default=0, type=float)
+    parser.add_argument('--lora-dropout', default=0.0, type=float)
     parser.add_argument('--lora-bias', default='none', type=str, choices=['none', 'all', 'lora_only'])
 
     # Instruction tuning
