@@ -129,6 +129,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         data_seed=args.seed,
         run_name=args.run_name,
         remove_unused_columns=True,
+        label_names=['labels'],
         load_best_model_at_end=True,
         metric_for_best_model=args.metric_for_best_model,
         report_to=args.report_to,
