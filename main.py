@@ -15,9 +15,7 @@ def load_tokenize_data(args, tokenizer):
     val_dataset = dataset['val']
     test_dataset = dataset['test'] if args.generation == 'yes' else None
     
-    if args.instruction != 'none':
-
-        args.system_message = args.system_message if args.system_message != 'none' else ''
+    if args.instruction != None:
 
         def instruct(args, dataset):
 
@@ -94,7 +92,7 @@ def load(args):
         model = AutoModelForCausalLM.from_pretrained(args.model)
         print(f'Loaded model from {args.model}, model size {model.num_parameters()}!!')
 
-        if args.target_modules != 'none':
+        if args.target_modules != None:
             peft_config = LoraConfig(
                 r=args.rank, 
                 target_modules=args.target_modules, 
@@ -202,20 +200,6 @@ if __name__ == "__main__":
     parser.add_argument('--data', default='./data', type=str)
     parser.add_argument('--input-max-len', default=128, type=int)
 
-    # generate
-    parser.add_argument('--generation', default='no', type=str, choices=['no', 'yes'])
-    parser.add_argument('--generation-file-name', default='/generation.csv', type=str)
-    parser.add_argument('--max-length', default=20, type=int)
-    parser.add_argument('--min-length', default=0, type=int)
-    parser.add_argument('--do-sample', default='False', type=str, choices=['False', 'True'])
-    parser.add_argument('--num-beams', default=1, type=int)
-    parser.add_argument('--num-beam-groups', default=1, type=int)
-    parser.add_argument('--penalty-alpha', default=0.0, type=float)
-    parser.add_argument('--temperature', default=1.0, type=float)
-    parser.add_argument('--top-k', default=50, type=int)
-    parser.add_argument('--top-p', default=1.0, type=float, choices=[0, 1])
-    parser.add_argument('--repetition-penalty', default=1.0, type=float)
-
     # TrainingArguments
     parser.add_argument('--save-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
     parser.add_argument('--strategy', default='epoch', type=str, choices=['no', 'steps', 'epoch'])
@@ -235,14 +219,28 @@ if __name__ == "__main__":
 
     # LoraConfig
     parser.add_argument('--rank', default=8, type=int)
-    parser.add_argument('--target-modules', nargs='*', default='none', type=str)
+    parser.add_argument('--target-modules', nargs='*', type=str)
     parser.add_argument('--lora-alpha', default=8, type=int)
     parser.add_argument('--lora-dropout', default=0.0, type=float)
     parser.add_argument('--lora-bias', default='none', type=str, choices=['none', 'all', 'lora_only'])
 
     # Instruction tuning
-    parser.add_argument('--system-message', default='none', type=str)
-    parser.add_argument('--instruction', default='none', type=str)
+    parser.add_argument('--system-message', default='', type=str)
+    parser.add_argument('--instruction', type=str)
+
+    # generate
+    parser.add_argument('--generation', default='no', type=str, choices=['no', 'yes'])
+    parser.add_argument('--generation-file-name', default='/generation.csv', type=str)
+    parser.add_argument('--max-length', default=20, type=int)
+    parser.add_argument('--min-length', default=0, type=int)
+    parser.add_argument('--do-sample', default='False', type=str, choices=['False', 'True'])
+    parser.add_argument('--num-beams', default=1, type=int)
+    parser.add_argument('--num-beam-groups', default=1, type=int)
+    parser.add_argument('--penalty-alpha', default=0.0, type=float)
+    parser.add_argument('--temperature', default=1.0, type=float)
+    parser.add_argument('--top-k', default=50, type=int)
+    parser.add_argument('--top-p', default=1.0, type=float, choices=[0, 1])
+    parser.add_argument('--repetition-penalty', default=1.0, type=float)
 
     args = parser.parse_args()
 
