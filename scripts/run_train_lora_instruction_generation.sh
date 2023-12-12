@@ -24,8 +24,8 @@ lora_dropout=0.0
 lora_bias=none
 
 # Instruction tuning
-system_message=SYSTEM-MESSAGE
-instruction=INSTRUCTION
+system_message=以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。
+instruction=以下の食材を使って作れる料理名を教えてください。
 
 # generate
 generation=yes
