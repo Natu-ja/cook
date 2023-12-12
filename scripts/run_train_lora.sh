@@ -18,7 +18,7 @@ metric_for_best_model=eval_loss
 
 # LoraConfig
 rank=8
-target_modules=none
+target_modules=TARGET-MODULES
 lora_alpha=8
 lora_dropout=0.0
 lora_bias=none

@@ -17,8 +17,8 @@ seed=42
 metric_for_best_model=eval_loss
 
 # Instruction tuning
-system_message=none
-instruction=none
+system_message=SYSTEM-MESSAGE
+instruction=INSTRUCTION
 
 # Run
 python run_train.py $tokenizer $model \

@@ -16,6 +16,10 @@ warmup=0.0
 seed=42
 metric_for_best_model=eval_loss
 
+# Instruction tuning
+system_message=SYSTEM-MESSAGE
+instruction=INSTRUCTION
+
 # generate
 generation=yes
 max_length=20
@@ -44,6 +48,8 @@ python run_train.py $tokenizer $model \
     --warmup $warmup \
     --seed $seed \
     --metric-for-best-model $metric_for_best_model \
+    --system-message $system_message \
+    --instruction $instruction\
     --generation $generation \
     --max-length $max_length \
     --min-length $min_length \

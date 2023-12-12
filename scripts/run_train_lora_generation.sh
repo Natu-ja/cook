@@ -16,6 +16,13 @@ warmup=0.0
 seed=42
 metric_for_best_model=eval_loss
 
+# LoraConfig
+rank=8
+target_modules=TARGET-MODULES
+lora_alpha=8
+lora_dropout=0.0
+lora_bias=none
+
 # generate
 generation=yes
 max_length=20
@@ -44,14 +51,8 @@ python run_train.py $tokenizer $model \
     --warmup $warmup \
     --seed $seed \
     --metric-for-best-model $metric_for_best_model \
-    --generation $generation \
-    --max-length $max_length \
-    --min-length $min_length \
-    --do-sample $do_sample \
-    --num-beams $num_beams \
-    --num-beam-groups $num_beam_groups \
-    --penalty-alpha $penalty_alpha \
-    --temperature $temperature \
-    --top-k $top_k \
-    --top-p $top_p \
-    --repetition_penalty $repetition_penalty \
+    --rank $rank \
+    --target-modules $target_modules \
+    --lora-alpha $lora_alpha \
+    --lora-dropout $lora_dropout \
+    --lora-bias $lora_bias \
