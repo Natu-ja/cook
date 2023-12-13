@@ -18,7 +18,7 @@ metric_for_best_model=eval_loss
 
 # LoraConfig
 rank=8
-target_modules=TARGET-MODULES
+target_modules=(TARGET-MODULES1 TARGET-MODULES2 ...)
 lora_alpha=8
 lora_dropout=0.0
 lora_bias=none
@@ -56,7 +56,7 @@ python run_train.py $tokenizer $model \
     --seed $seed \
     --metric-for-best-model $metric_for_best_model \
     --rank $rank \
-    --target-modules $target_modules \
+    --target-modules ${target_modules[@]} \
     --lora-alpha $lora_alpha \
     --lora-dropout $lora_dropout \
     --lora-bias $lora_bias \
