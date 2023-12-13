@@ -8,14 +8,14 @@
 </h4>
 
 ## すること
-- removing stop words
-    - e.g. salt, water
-- data augmentation
-    - noising
-        - deletion
-        - insertion
-        - substitution
-        - swapping
+- ストップワードの除去
+    - 例. 塩, 水
+- データ拡張
+    - ノイズ
+        - 削除
+        - 挿入
+        - 置換
+        - 交換
 
 ## Google Colaboratory
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ad8CKAOHuK5dnqvufVwrDTmIGH7SDTEw?usp=sharing)
