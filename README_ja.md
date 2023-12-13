@@ -2,12 +2,12 @@
 
 <h4 align="center">
     <p>
-        <b>English</b> | 
-        <a href='https://github.com/Natu-ja/cook/blob/main/README_ja.md'>日本語</a>
+        <a href='https://github.com/Natu-ja/cook/'>English</a> | 
+        <b>日本語</b>
     </p>
 </h4>
 
-## To do
+## すること
 - removing stop words
     - e.g. salt, water
 - data augmentation
@@ -20,18 +20,18 @@
 ## Google Colaboratory
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ad8CKAOHuK5dnqvufVwrDTmIGH7SDTEw?usp=sharing)
 
-## Datasets
-- [COOKPAD Dataset](https://www.nii.ac.jp/dsc/idr/cookpad/cookpad.html)
-    - Recipe Data
+## データセット
+- [クックパッドデータセット](https://www.nii.ac.jp/dsc/idr/cookpad/cookpad.html)
+    - レシピデータ
 
-## Environments
+## 環境
 Python 3.11.1
 ```
 pip install -r requirements.txt
 ```
 
-## Example of use
-### Standard
+## 使用例
+### 基本
 ```
 python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b
 ```
@@ -52,7 +52,7 @@ or
 bash run_train_lora.sh
 ```
 
-### Instruction tuning
+### 指示チューニング
 ```
 python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b --system-message 以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。 --instruction 以下の食材を使って作れる料理名を教えてください。
 ```
@@ -61,7 +61,7 @@ or
 bash run_train_instruction.sh
 ```
 
-### Generation
+### 生成
 ```
 python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b --generation yes
 ```
