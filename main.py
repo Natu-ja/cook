@@ -125,7 +125,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         warmup_ratio=args.warmup,
         logging_strategy=args.strategy,
         save_strategy=args.strategy,
-        save_total_limit=2,
+        save_total_limit=1,
         seed=args.seed,
         data_seed=args.seed,
         run_name=args.run_name,
