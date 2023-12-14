@@ -29,6 +29,11 @@
 ## 環境
 Python 3.11.1
 ```
+pyenv install 3.11.1
+pyenv local 3.11.1
+```
+
+```
 pip install -r requirements.txt
 ```
 
