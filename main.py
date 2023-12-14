@@ -5,8 +5,8 @@ import json
 import datetime
 from transformers import Trainer, TrainingArguments
 
-from pre.data import *
-from pre.model import *
+from src.data import *
+from src.model import *
 
 def run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset):
 
