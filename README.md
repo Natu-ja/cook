@@ -8,8 +8,10 @@
 </h4>
 
 ## To do
-- removing stop words
-    - e.g. salt, water
+- Normalization
+    - Orthographic Variation
+    - removing stop words
+        - e.g. salt, water
 - data augmentation
     - noising
         - deletion
