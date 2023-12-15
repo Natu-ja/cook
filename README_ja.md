@@ -8,16 +8,10 @@
 </h4>
 
 ## すること
-- 正規化
-    - 文字種の統一
+- テキスト前処理
+    - データクリーニング
+    - 単語の正規化
     - ストップワードの除去
-        - 例. 塩, 水
-- データ拡張
-    - ノイズ
-        - 削除
-        - 挿入
-        - 置換
-        - 交換
 
 ## Google Colaboratory
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ad8CKAOHuK5dnqvufVwrDTmIGH7SDTEw?usp=sharing)
