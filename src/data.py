@@ -4,8 +4,9 @@ def load_tokenize_data(args, tokenizer):
 
     dataset = load_from_disk(args.data)
     train_dataset = dataset['train']
-    val_dataset = dataset['val']
-    test_dataset = dataset['test'] if args.generation == 'yes' else None
+    val_dataset = dataset['validation']
+    test_dataset = dataset['test']
+    print(f'train : val : test = {len(train_dataset)} : {len(val_dataset)} : {len(test_dataset)}!!')
     
     if args.instruction != None:
 
@@ -34,7 +35,7 @@ def load_tokenize_data(args, tokenizer):
         
         train_dataset = instruct(args, train_dataset)
         val_dataset = instruct(args, val_dataset)
-        if test_dataset != None: test_dataset = instruct(args, test_dataset)
+        test_dataset = instruct(args, test_dataset)
 
     def preprocess(data):
 

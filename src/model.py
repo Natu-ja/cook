@@ -11,7 +11,8 @@ def load(args):
         print(f'Loaded model from {args.model}, model size {model.num_parameters()}!!')
 
         model = PeftModel.from_pretrained(model, args.model)
-        print(f'Applying LoRA to the model, the trainable parameters is {model.print_trainable_parameters()}!!')
+        model.print_trainable_parameters()
+        print(f'model size {model.num_parameters()}!!')
     
     except:
         try:
@@ -33,6 +34,7 @@ def load(args):
             )
 
             model = get_peft_model(model, peft_config)
-            print(f'Applying LoRA to the model, the trainable parameters is {model.print_trainable_parameters()}!!')
+            model.print_trainable_parameters()
+            print(f'model size {model.num_parameters()}!!')
     
     return tokenizer, model

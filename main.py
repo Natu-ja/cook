@@ -80,7 +80,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         print('Finish generation!!')
         df.to_csv(args.save_dir+args.generation_file_name, index=False)
         print(f'Saved in {args.save_dir+args.generation_file_name}')
-    
+
 def main(args):
 
     with open(args.save_dir+args.args_file_name, 'w') as f:
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     parser.add_argument('--repetition-penalty', default=1.0, type=float)
 
     args = parser.parse_args()
-
+    
     os.makedirs(name=args.save_dir, exist_ok=True)
     
     main(args)
