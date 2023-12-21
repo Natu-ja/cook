@@ -1,5 +1,6 @@
 import argparse
-import pandas as pd
+# import pandas as pd
+import fireducks.pandas as pd
 import os
 import json
 import datetime
@@ -47,9 +48,9 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         tokenizer=tokenizer
     )
     
-    print('Start training!!')
+    print('Starting main loop!!')
     trainer.train()
-    print('Finish training!!')
+    print('Finishing main loop!!')
 
     if args.generation == 'yes':
 
