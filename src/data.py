@@ -39,8 +39,8 @@ def load_tokenize_data(args, tokenizer):
 
     def preprocess(data):
 
-        inputs = tokenizer(data['材料'], truncation=True, max_length=args.input_max_len, padding=True)
-        labels = tokenizer(data['タイトル'], truncation=True, max_length=args.input_max_len, padding=True)
+        inputs = tokenizer(data['材料'], truncation=True, max_length=args.input_max_len)
+        labels = tokenizer(data['タイトル'], truncation=True, max_length=args.input_max_len)
 
         inputs['input_ids'] = inputs['input_ids']
         inputs['attention_mask'] = inputs['attention_mask']

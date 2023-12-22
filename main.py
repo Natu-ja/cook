@@ -4,7 +4,7 @@ import fireducks.pandas as pd
 import os
 import json
 import datetime
-from transformers import Trainer, TrainingArguments
+from transformers import DataCollatorWithPadding, Trainer, TrainingArguments
 
 from src.data import *
 from src.model import *
@@ -43,14 +43,15 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
     trainer = Trainer(
         model=model,
         args=training_args,
+        data_collator=DataCollatorWithPadding(tokenizer=tokenizer),
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
-        tokenizer=tokenizer
+        tokenizer=tokenizer,
     )
     
-    print('Starting main loop!!')
+    print('Start main loop!!')
     trainer.train()
-    print('Finishing main loop!!')
+    print('Finish main loop!!')
 
     if args.generation == 'yes':
 
