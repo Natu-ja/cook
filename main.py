@@ -119,24 +119,26 @@ def main(args):
         print('Saved args!!')
 
     dataset = load_raw_dataset(args)
-    train_dataset, test_dataset = train_test_data_split(args, dataset)
+    train_val_dataset, test_dataset = train_test_data_split(args, dataset)
 
     if args.kfold == 1:
         tokenizer, model = load(args)
-        train_dataset, val_dataset = train_val_data_split(args, train_dataset)
+        train_dataset, val_dataset = train_val_data_split(args, train_val_dataset)
         train_dataset = load_tokenize_data(args, tokenizer, train_dataset)
         val_dataset = load_tokenize_data(args, tokenizer, val_dataset)
+        print(f'train : val : test = {len(train_dataset)} : {len(val_dataset)} : {len(test_dataset)}!!')
         run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset)
     elif args.kfold > 1:
         kf = KFold(n_splits=args.kfold, shuffle=True, random_state=args.seed)
-        for fold, (train_idx, val_idx) in enumerate(kf.split(train_dataset)):
+        for fold, (train_idx, val_idx) in enumerate(kf.split(train_val_dataset)):
             print(f'Fold {fold+1} / {args.kfold}')
             tokenizer, model = load(args)
-            train_dataset_fold = train_dataset.select(train_idx)
-            val_dataset_fold = train_dataset.select(val_idx)
-            train_dataset_fold = load_tokenize_data(args, tokenizer, train_dataset_fold)
-            val_dataset_fold = load_tokenize_data(args, tokenizer, val_dataset_fold)
-            run_training(args, tokenizer, model, train_dataset_fold, val_dataset_fold, test_dataset, fold)
+            train_dataset = train_dataset.select(train_idx)
+            val_dataset = train_dataset.select(val_idx)
+            train_dataset = load_tokenize_data(args, tokenizer, train_dataset)
+            val_dataset = load_tokenize_data(args, tokenizer, val_dataset)
+            print(f'train : val : test = {len(train_dataset)} : {len(val_dataset)} : {len(test_dataset)}!!')
+            run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset, fold)
 
 if __name__ == "__main__":
 

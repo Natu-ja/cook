@@ -6,14 +6,10 @@ def load_raw_dataset(args):
     return dataset
 
 def train_test_data_split(args, dataset):
-    train_dataset, test_dataset = dataset.train_test_split(test_size=0.25, train_size=0.75, shuffle=True, random_state=args.seed)
-    print(f'train : test = {len(train_dataset)} : {len(test_dataset)}!!')
-    return train_dataset, test_dataset
+    return dataset.train_test_split(test_size=0.25, train_size=0.75, shuffle=True, random_state=args.seed)
 
 def train_val_data_split(args, dataset):
-    train_dataset, val_dataset = dataset.train_test_split(test_size=0.25, train_size=0.75, shuffle=True, random_state=args.seed)
-    print(f'train : val = {len(train_dataset)} : {len(val_dataset)}!!')
-    return train_dataset, val_dataset
+    return dataset.train_test_split(test_size=0.25, train_size=0.75, shuffle=True, random_state=args.seed)
 
 def instruct(args, dataset):
 
