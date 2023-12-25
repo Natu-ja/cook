@@ -1,41 +1,47 @@
 from datasets import Dataset, load_from_disk
 
-def load_tokenize_data(args, tokenizer):
-
+def load_raw_dataset(args):
     dataset = load_from_disk(args.data)
-    train_dataset = dataset['train']
-    val_dataset = dataset['validation']
-    test_dataset = dataset['test']
-    print(f'train : val : test = {len(train_dataset)} : {len(val_dataset)} : {len(test_dataset)}!!')
+    print(f'dataset: {len(dataset)} samples!!')
+    return dataset
+
+def train_test_data_split(args, dataset):
+    train_dataset, test_dataset = dataset.train_test_split(test_size=0.25, train_size=0.75, shuffle=True, random_state=args.seed)
+    print(f'train : test = {len(train_dataset)} : {len(test_dataset)}!!')
+    return train_dataset, test_dataset
+
+def train_val_data_split(args, dataset):
+    train_dataset, val_dataset = dataset.train_test_split(test_size=0.25, train_size=0.75, shuffle=True, random_state=args.seed)
+    print(f'train : val = {len(train_dataset)} : {len(val_dataset)}!!')
+    return train_dataset, val_dataset
+
+def instruct(args, dataset):
+
+    def build_prompt(inputs="", sep="\n\n### "):
+        system_message = args.system_message
+        roles = ["指示", "応答"]
+        messages = [": \n" + args.instruction, ": "]
+        if inputs:
+            roles.insert(1, "入力")
+            messages.insert(1, ": \n" + inputs)
+        for role, message in zip(roles, messages):
+            system_message += sep + role, message
+        return message
+
+    dataset = dataset.to_pandas()
+    for i in range(len(dataset)):
+        user_inputs = {
+            "args": args,
+            "inputs": dataset['材料'][i]
+        }
+        dataset['材料'][i] = build_prompt(**user_inputs)
+    dataset = Dataset.from_pandas(dataset)
+    return dataset
+
+def load_tokenize_data(args, tokenizer, dataset):
     
     if args.instruction != None:
-
-        def instruct(args, dataset):
-
-            def build_prompt(inputs="", sep="\n\n### "):
-                system_message = args.system_message
-                roles = ["指示", "応答"]
-                messages = [": \n" + args.instruction, ": "]
-                if inputs:
-                    roles.insert(1, "入力")
-                    messages.insert(1, ": \n" + inputs)
-                for role, message in zip(roles, messages):
-                    system_message += sep + role, message
-                return message
-
-            dataset = dataset.to_pandas()
-            for i in range(len(dataset)):
-                user_inputs = {
-                    "args": args,
-                    "inputs": dataset['材料'][i]
-                }
-                dataset['材料'][i] = build_prompt(**user_inputs)
-            dataset = Dataset.from_pandas(dataset)
-            return dataset
-        
-        train_dataset = instruct(args, train_dataset)
-        val_dataset = instruct(args, val_dataset)
-        test_dataset = instruct(args, test_dataset)
+        dataset = instruct(args, dataset)
 
     def preprocess(data):
 
@@ -48,17 +54,9 @@ def load_tokenize_data(args, tokenizer):
         
         return inputs
     
-    train_dataset = train_dataset.map(
+    dataset = dataset.map(
         preprocess,
         batched=True,
-        remove_columns=train_dataset.column_names
+        remove_columns=dataset.column_names
     )
-    print(f'train dataset: {len(train_dataset)} samples!!')
-    val_dataset = val_dataset.map(
-        preprocess,
-        batched=True,
-        remove_columns=val_dataset.column_names
-    )
-    print(f'eval dataset: {len(val_dataset)} samples!!')
-    
-    return train_dataset, val_dataset, test_dataset
+    return dataset

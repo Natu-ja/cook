@@ -1,4 +1,5 @@
 import argparse
+from sklearn.model_selection import KFold
 # import pandas as pd
 import fireducks.pandas as pd
 import os
@@ -63,21 +64,20 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
             df.loc[i, '材料'] = test_dataset['材料'][i]
             df.loc[i, '正解タイトル'] = test_dataset['正解タイトル'][i]
             inputs = tokenizer(test_dataset['材料'][i], add_special_tokens=False, return_tensors='pt')['input_ids'].cuda()
-            for j in range(args.num_beams):
-                outputs = model.generate(
-                    **inputs,
-                    max_length=args.max_length,
-                    min_length=args.min_length,
-                    do_sample=args.do_sample,
-                    num_beams=j+1,
-                    num_beam_groups=args.num_beam_groups,
-                    penalty_alpha=args.penalty_alpha,
-                    temperature=args.temperature,
-                    top_k=args.top_k,
-                    top_p=args.top_p,
-                    repetition_penalty=args.repetition_penalty,
-                )
-                df.loc[i, f'予測タイトル (num_beams={j+1})'] = tokenizer.decode(outputs[0].tolist())
+            outputs = model.generate(
+                **inputs,
+                max_length=args.max_length,
+                min_length=args.min_length,
+                do_sample=args.do_sample,
+                num_beams=args.num_beams,
+                num_beam_groups=args.num_beam_groups,
+                penalty_alpha=args.penalty_alpha,
+                temperature=args.temperature,
+                top_k=args.top_k,
+                top_p=args.top_p,
+                repetition_penalty=args.repetition_penalty,
+            )
+            df.loc[i, '予測タイトル'] = tokenizer.decode(outputs[0].tolist())
         
         print('Finish generation!!')
         df.to_csv(args.save_dir+args.generation_file_name, index=False)
@@ -89,9 +89,25 @@ def main(args):
         json.dump(args.__dict__, f, indent=4)
         print('Saved args!!')
 
-    tokenizer, model = load(args)
-    train_dataset, val_dataset, test_dataset = load_tokenize_data(args, tokenizer)
-    run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset)
+    dataset = load_raw_dataset(args)
+    train_dataset, test_dataset = train_test_data_split(args, dataset)
+
+    if args.kfold == 1:
+        tokenizer, model = load(args)
+        train_dataset, val_dataset = train_val_data_split(args, train_dataset)
+        train_dataset = load_tokenize_data(args, tokenizer, train_dataset)
+        val_dataset = load_tokenize_data(args, tokenizer, val_dataset)
+        run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset)
+    elif args.kfold > 1:
+        kf = KFold(n_splits=args.kfold, shuffle=True, random_state=args.seed)
+        for fold, (train_idx, val_idx) in enumerate(kf.split(train_dataset)):
+            print(f'Fold {fold+1} / {args.kfold}')
+            tokenizer, model = load(args)
+            train_dataset_fold = train_dataset.select(train_idx)
+            val_dataset_fold = train_dataset.select(val_idx)
+            train_dataset_fold = load_tokenize_data(args, tokenizer, train_dataset_fold)
+            val_dataset_fold = load_tokenize_data(args, tokenizer, val_dataset_fold)
+            run_training(args, tokenizer, model, train_dataset_fold, val_dataset_fold, test_dataset)
 
 if __name__ == "__main__":
 
@@ -103,6 +119,7 @@ if __name__ == "__main__":
     parser.add_argument('--args-file-name', default='/args.json', type=str)
     parser.add_argument('--data', default='./data', type=str)
     parser.add_argument('--input-max-len', default=128, type=int)
+    parser.add_argument('--kfold', default=1, type=int)
 
     # TrainingArguments
     parser.add_argument('--save-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)

@@ -2,6 +2,7 @@ tokenizer=TOKENIZER-NAME
 model=MODEL-NAME
 data=./data
 input_max_len=128
+kfold=1
 
 # TrainingArguments
 train_batch_size=8
@@ -37,6 +38,7 @@ repetition_penalty=1.0
 python run_train.py $tokenizer $model \
     --data $data \
     --input-max-len $input_max_len \
+    --kfold $kfold \
     --train-batch-size $train_batch_size \
     --eval-batch-size $eval_batch_size \
     --gradients $gradients \

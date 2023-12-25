@@ -2,6 +2,7 @@ tokenizer=TOKENIZER-NAME
 model=MODEL-NAME
 data=./data
 input_max_len=128
+kfold=1
 
 # TrainingArguments
 train_batch_size=8
@@ -31,6 +32,7 @@ instruction=以下の食材を使って作れる料理名を教えてくださ�
 python run_train.py $tokenizer $model \
     --data $data \
     --input-max-len $input_max_len \
+    --kfold $kfold \
     --train-batch-size $train_batch_size \
     --eval-batch-size $eval_batch_size \
     --gradients $gradients \
