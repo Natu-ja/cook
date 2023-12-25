@@ -10,36 +10,65 @@ from transformers import DataCollatorWithPadding, Trainer, TrainingArguments
 from src.data import *
 from src.model import *
 
-def run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset):
-
-    training_args=TrainingArguments(
-        output_dir=args.save_dir,
-        overwrite_output_dir=False,
-        do_train=True,
-        do_eval=False,
-        evaluation_strategy=args.strategy,
-        per_device_train_batch_size=args.train_batch_size,
-        per_device_eval_batch_size=args.eval_batch_size,
-        gradient_accumulation_steps=args.gradients,
-        learning_rate=args.lr,
-        weight_decay=args.weight_decay,
-        max_grad_norm=args.max_grad_norm,
-        num_train_epochs=args.epochs,
-        lr_scheduler_type=args.scheduler,
-        warmup_ratio=args.warmup,
-        logging_strategy=args.strategy,
-        save_strategy=args.strategy,
-        save_total_limit=1,
-        seed=args.seed,
-        data_seed=args.seed,
-        run_name=args.run_name,
-        remove_unused_columns=True,
-        label_names=['labels'],
-        load_best_model_at_end=True,
-        metric_for_best_model=args.metric_for_best_model,
-        report_to=args.report_to,
-        auto_find_batch_size=True
-    )
+def run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset, fold):
+    if args.kfold == 1:
+        training_args=TrainingArguments(
+            output_dir=args.save_dir,
+            overwrite_output_dir=False,
+            do_train=True,
+            do_eval=False,
+            evaluation_strategy=args.strategy,
+            per_device_train_batch_size=args.train_batch_size,
+            per_device_eval_batch_size=args.eval_batch_size,
+            gradient_accumulation_steps=args.gradients,
+            learning_rate=args.lr,
+            weight_decay=args.weight_decay,
+            max_grad_norm=args.max_grad_norm,
+            num_train_epochs=args.epochs,
+            lr_scheduler_type=args.scheduler,
+            warmup_ratio=args.warmup,
+            logging_strategy=args.strategy,
+            save_strategy=args.strategy,
+            save_total_limit=1,
+            seed=args.seed,
+            data_seed=args.seed,
+            run_name=args.run_name,
+            remove_unused_columns=True,
+            label_names=['labels'],
+            load_best_model_at_end=True,
+            metric_for_best_model=args.metric_for_best_model,
+            report_to=args.report_to,
+            auto_find_batch_size=True
+        )
+    elif args.kfold > 1:
+        training_args=TrainingArguments(
+            output_dir=args.save_dir+f'/fold_{fold+1}',
+            overwrite_output_dir=False,
+            do_train=True,
+            do_eval=False,
+            evaluation_strategy=args.strategy,
+            per_device_train_batch_size=args.train_batch_size,
+            per_device_eval_batch_size=args.eval_batch_size,
+            gradient_accumulation_steps=args.gradients,
+            learning_rate=args.lr,
+            weight_decay=args.weight_decay,
+            max_grad_norm=args.max_grad_norm,
+            num_train_epochs=args.epochs,
+            lr_scheduler_type=args.scheduler,
+            warmup_ratio=args.warmup,
+            logging_strategy=args.strategy,
+            save_strategy=args.strategy,
+            save_total_limit=1,
+            seed=args.seed,
+            data_seed=args.seed,
+            run_name=args.run_name+f'_fold_{fold+1}',
+            remove_unused_columns=True,
+            label_names=['labels'],
+            load_best_model_at_end=True,
+            metric_for_best_model=args.metric_for_best_model,
+            report_to=args.report_to,
+            auto_find_batch_size=True
+        )
 
     trainer = Trainer(
         model=model,
@@ -47,7 +76,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         data_collator=DataCollatorWithPadding(tokenizer=tokenizer),
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
-        tokenizer=tokenizer,
+        tokenizer=tokenizer
     )
     
     print('Start main loop!!')
@@ -107,7 +136,7 @@ def main(args):
             val_dataset_fold = train_dataset.select(val_idx)
             train_dataset_fold = load_tokenize_data(args, tokenizer, train_dataset_fold)
             val_dataset_fold = load_tokenize_data(args, tokenizer, val_dataset_fold)
-            run_training(args, tokenizer, model, train_dataset_fold, val_dataset_fold, test_dataset)
+            run_training(args, tokenizer, model, train_dataset_fold, val_dataset_fold, test_dataset, fold)
 
 if __name__ == "__main__":
 
