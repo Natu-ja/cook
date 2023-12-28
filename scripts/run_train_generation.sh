@@ -18,10 +18,8 @@ seed=42
 metric_for_best_model=eval_loss
 
 # generate
-generation=yes
 max_length=20
 min-length=0
-do_sample=False
 num_beams=1
 num_beam_groups=1
 penalty_alpha=0.0
@@ -46,10 +44,9 @@ python run_train.py $tokenizer $model \
     --warmup $warmup \
     --seed $seed \
     --metric-for-best-model $metric_for_best_model \
-    --generation $generation \
+    --generation \
     --max-length $max_length \
     --min-length $min_length \
-    --do-sample $do_sample \
     --num-beams $num_beams \
     --num-beam-groups $num_beam_groups \
     --penalty-alpha $penalty_alpha \

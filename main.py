@@ -10,13 +10,13 @@ from transformers import DataCollatorWithPadding, Trainer, TrainingArguments
 from src.data import *
 from src.model import *
 
-def run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset, fold):
+def run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset, fold=None):
     if args.kfold == 1:
         training_args=TrainingArguments(
-            output_dir=args.save_dir,
+            output_dir=args.output_dir,
             overwrite_output_dir=False,
             do_train=True,
-            do_eval=False,
+            do_eval=True,
             evaluation_strategy=args.strategy,
             per_device_train_batch_size=args.train_batch_size,
             per_device_eval_batch_size=args.eval_batch_size,
@@ -42,10 +42,10 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         )
     elif args.kfold > 1:
         training_args=TrainingArguments(
-            output_dir=args.save_dir+f'/fold_{fold+1}',
+            output_dir=args.output_dir+f'/fold_{fold+1}',
             overwrite_output_dir=False,
             do_train=True,
-            do_eval=False,
+            do_eval=True,
             evaluation_strategy=args.strategy,
             per_device_train_batch_size=args.train_batch_size,
             per_device_eval_batch_size=args.eval_batch_size,
@@ -83,9 +83,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
     trainer.train()
     print('Finish main loop!!')
 
-    if args.generation == 'yes':
-
-        args.do_sample = True if args.do_sample=='True' else False
+    if args.generation:
 
         print('Start generation!!')
         df = pd.DataFrame(columns=['材料', '正解タイトル', '予測タイトル'])
@@ -128,6 +126,7 @@ def main(args):
         val_dataset = load_tokenize_data(args, tokenizer, val_dataset)
         print(f'train : val : test = {len(train_dataset)} : {len(val_dataset)} : {len(test_dataset)}!!')
         run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset)
+        
     elif args.kfold > 1:
         kf = KFold(n_splits=args.kfold, shuffle=True, random_state=args.seed)
         for fold, (train_idx, val_idx) in enumerate(kf.split(train_val_dataset)):
@@ -153,7 +152,7 @@ if __name__ == "__main__":
     parser.add_argument('--kfold', default=1, type=int)
 
     # TrainingArguments
-    parser.add_argument('--save-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
+    parser.add_argument('--output-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
     parser.add_argument('--strategy', default='epoch', type=str, choices=['no', 'steps', 'epoch'])
     parser.add_argument('--train-batch-size', default=8, type=int)
     parser.add_argument('--eval-batch-size', default=8, type=int)
@@ -181,11 +180,11 @@ if __name__ == "__main__":
     parser.add_argument('--instruction', type=str)
 
     # generate
-    parser.add_argument('--generation', default='no', type=str, choices=['no', 'yes'])
+    parser.add_argument('--generation', action='store_true')
     parser.add_argument('--generation-file-name', default='/generation.csv', type=str)
     parser.add_argument('--max-length', default=20, type=int)
     parser.add_argument('--min-length', default=0, type=int)
-    parser.add_argument('--do-sample', default='False', type=str, choices=['False', 'True'])
+    parser.add_argument('--do-sample', action='store_true')
     parser.add_argument('--num-beams', default=1, type=int)
     parser.add_argument('--num-beam-groups', default=1, type=int)
     parser.add_argument('--penalty-alpha', default=0.0, type=float)

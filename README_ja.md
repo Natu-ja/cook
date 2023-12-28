@@ -64,7 +64,7 @@ bash run_train_instruction.sh
 
 ### 生成
 ```
-python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b --generation yes
+python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b --generation
 ```
 または
 ```

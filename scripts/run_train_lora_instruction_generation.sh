@@ -29,10 +29,8 @@ system_message=以下は、タスクを説明する指示です。要求を適�
 instruction=以下の食材を使って作れる料理名を教えてください。
 
 # generate
-generation=yes
 max_length=20
 min-length=0
-do_sample=False
 num_beams=1
 num_beam_groups=1
 penalty_alpha=0.0
@@ -64,10 +62,9 @@ python run_train.py $tokenizer $model \
     --lora-bias $lora_bias \
     --system-message $system_message \
     --instruction $instruction\
-    --generation $generation \
+    --generation \
     --max-length $max_length \
     --min-length $min_length \
-    --do-sample $do_sample \
     --num-beams $num_beams \
     --num-beam-groups $num_beam_groups \
     --penalty-alpha $penalty_alpha \

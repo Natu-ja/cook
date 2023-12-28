@@ -25,10 +25,8 @@ lora_dropout=0.0
 lora_bias=none
 
 # generate
-generation=yes
 max_length=20
 min-length=0
-do_sample=False
 num_beams=1
 num_beam_groups=1
 penalty_alpha=0.0
@@ -58,3 +56,13 @@ python run_train.py $tokenizer $model \
     --lora-alpha $lora_alpha \
     --lora-dropout $lora_dropout \
     --lora-bias $lora_bias \
+    --generation \
+    --max-length $max_length \
+    --min-length $min_length \
+    --num-beams $num_beams \
+    --num-beam-groups $num_beam_groups \
+    --penalty-alpha $penalty_alpha \
+    --temperature $temperature \
+    --top-k $top_k \
+    --top-p $top_p \
+    --repetition_penalty $repetition_penalty \
