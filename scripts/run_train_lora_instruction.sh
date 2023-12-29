@@ -50,4 +50,4 @@ python run_train.py $tokenizer $model \
     --lora-dropout $lora_dropout \
     --lora-bias $lora_bias \
     --system-message $system_message \
-    --instruction $instruction
+    --instruction $instruction \

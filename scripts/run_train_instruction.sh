@@ -38,4 +38,4 @@ python run_train.py $tokenizer $model \
     --seed $seed \
     --metric-for-best-model $metric_for_best_model \
     --system-message $system_message \
-    --instruction $instruction
+    --instruction $instruction \

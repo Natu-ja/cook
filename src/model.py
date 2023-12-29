@@ -30,7 +30,7 @@ def load(args):
                 target_modules=args.target_modules, 
                 lora_alpha=args.lora_alpha, 
                 lora_dropout =args.lora_dropout, 
-                fan_in_fan_out=False, 
+                fan_in_fan_out=args.fan_in_fan_out, 
                 bias=args.lora_bias
             )
 

@@ -23,14 +23,21 @@ instruction=以下の食材を使って作れる料理名を教えてくださ�
 
 # generate
 max_length=20
-min-length=0
+min_length=0
 num_beams=1
 num_beam_groups=1
 penalty_alpha=0.0
 temperature=1.0
-top-k=50
+top_k=50
 top_p=1.0
+typical_p=1.0
+epsilon_cutoff=0.0
+eta_cutoff=0.0
+diversity_penalty=0.0
 repetition_penalty=1.0
+encoder_repetition_penalty=1.0
+length_penalty=1.0
+no_repeat_ngram_size=0
 
 # Run
 python run_train.py $tokenizer $model \
@@ -59,4 +66,11 @@ python run_train.py $tokenizer $model \
     --temperature $temperature \
     --top-k $top_k \
     --top-p $top_p \
+    --typical-p $typical_p \
+    --epsilon-cutoff $epsilon_cutoff \
+    --eta-cutoff $eta_cutoff \
+    --diversity-penalty $diversity_penalty \
     --repetition_penalty $repetition_penalty \
+    --encoder-repetition-penalty $encoder_repetition_penalty \
+    --length-penalty $length_penalty \
+    --no-repeat-ngram-size $no_repeat_ngram_size \
