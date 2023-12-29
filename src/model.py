@@ -24,7 +24,7 @@ def load(args):
         model = AutoModelForCausalLM.from_pretrained(args.model, trust_remote_code=True)
         print(f'Loaded model from {args.model}, model size {model.num_parameters()}!!')
 
-        if args.target_modules != None:
+        if args.target_modules is not None:
             peft_config = LoraConfig(
                 r=args.rank, 
                 target_modules=args.target_modules, 

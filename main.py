@@ -10,72 +10,42 @@ from src.data import *
 from src.model import *
 
 def run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset, fold=None):
-    if args.kfold == 1:
-        training_args=TrainingArguments(
-            output_dir=args.output_dir,
-            overwrite_output_dir=False,
-            do_train=True,
-            do_eval=True,
-            evaluation_strategy=args.strategy,
-            per_device_train_batch_size=args.train_batch_size,
-            per_device_eval_batch_size=args.eval_batch_size,
-            gradient_accumulation_steps=args.gradients,
-            learning_rate=args.lr,
-            weight_decay=args.weight_decay,
-            max_grad_norm=args.max_grad_norm,
-            num_train_epochs=args.epochs,
-            lr_scheduler_type=args.scheduler,
-            warmup_ratio=args.warmup,
-            logging_strategy=args.strategy,
-            save_strategy=args.strategy,
-            save_total_limit=1,
-            seed=args.seed,
-            data_seed=args.seed,
-            bf16=args.bf16,
-            fp16=args.fp16,
-            fp16_opt_level=args.fp16_opt_level,
-            run_name=args.run_name,
-            remove_unused_columns=True,
-            label_names=['labels'],
-            load_best_model_at_end=True,
-            metric_for_best_model=args.metric_for_best_model,
-            deepspeed=args.deepspeed,
-            report_to=args.report_to,
-            auto_find_batch_size=True
-        )
-    elif args.kfold > 1:
-        training_args=TrainingArguments(
-            output_dir=args.output_dir+f'/fold_{fold+1}',
-            overwrite_output_dir=False,
-            do_train=True,
-            do_eval=True,
-            evaluation_strategy=args.strategy,
-            per_device_train_batch_size=args.train_batch_size,
-            per_device_eval_batch_size=args.eval_batch_size,
-            gradient_accumulation_steps=args.gradients,
-            learning_rate=args.lr,
-            weight_decay=args.weight_decay,
-            max_grad_norm=args.max_grad_norm,
-            num_train_epochs=args.epochs,
-            lr_scheduler_type=args.scheduler,
-            warmup_ratio=args.warmup,
-            logging_strategy=args.strategy,
-            save_strategy=args.strategy,
-            save_total_limit=1,
-            seed=args.seed,
-            data_seed=args.seed,
-            bf16=args.bf16,
-            fp16=args.fp16,
-            fp16_opt_level=args.fp16_opt_level,
-            run_name=args.run_name+f'_fold_{fold+1}',
-            remove_unused_columns=True,
-            label_names=['labels'],
-            load_best_model_at_end=True,
-            metric_for_best_model=args.metric_for_best_model,
-            deepspeed=args.deepspeed,
-            report_to=args.report_to,
-            auto_find_batch_size=True
-        )
+    training_args=TrainingArguments(
+        output_dir=args.output_dir if fold is None else args.output_dir+f'/{fold}',
+        overwrite_output_dir=True,
+        do_train=True,
+        do_eval=True,
+        evaluation_strategy=args.strategy,
+        per_device_train_batch_size=args.train_batch_size,
+        per_device_eval_batch_size=args.eval_batch_size,
+        gradient_accumulation_steps=args.gradients,
+        learning_rate=args.lr,
+        weight_decay=args.weight_decay,
+        adam_beta1=args.adam_beta1,
+        adam_beta2=args.adam_beta2,
+        adam_epsilon=args.adam_epsilon,
+        max_grad_norm=args.max_grad_norm,
+        num_train_epochs=args.epochs,
+        lr_scheduler_type=args.scheduler,
+        warmup_ratio=args.warmup,
+        logging_strategy=args.strategy,
+        save_strategy=args.strategy,
+        save_total_limit=1,
+        seed=args.seed,
+        data_seed=args.seed,
+        bf16=args.bf16,
+        fp16=args.fp16,
+        fp16_opt_level=args.fp16_opt_level,
+        run_name=args.run_name,
+        remove_unused_columns=True,
+        label_names=['labels'],
+        load_best_model_at_end=True,
+        metric_for_best_model=args.metric_for_best_model,
+        deepspeed=args.deepspeed,
+        group_by_length=args.group_by_length,
+        report_to=args.report_to,
+        auto_find_batch_size=True
+    )
 
     trainer = Trainer(
         model=model,
@@ -179,6 +149,9 @@ if __name__ == "__main__":
     parser.add_argument('--gradients', default=1, type=int)
     parser.add_argument('--lr', default=5e-5, type=float)
     parser.add_argument('--weight-decay', default=0.0, type=float)
+    parser.add_argument('--adam-beta1', default=0.9, type=float)
+    parser.add_argument('--adam-beta2', default=0.999, type=float)
+    parser.add_argument('--adam-epsilon', default=1e-8, type=float)
     parser.add_argument('--max-grad-norm', default=1.0, type=float)
     parser.add_argument('--epochs', default=3.0, type=float)
     parser.add_argument('--scheduler', default='linear', type=str, choices=['linear', 'cosine', 'constant'])
@@ -190,6 +163,7 @@ if __name__ == "__main__":
     parser.add_argument('--run-name', default=dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
     parser.add_argument('--metric-for-best-model', default='eval_loss', type=str)
     parser.add_argument('--deepspeed', type=str)
+    parser.add_argument('--group-by-length', action='store_true')
     parser.add_argument('--report-to', default='all', type=str, choices=['azure_ml', 'clearml', 'codecarbon', 'comet_ml', 'dagshub', 'flyte', 'mlflow', 'neptune', 'tensorboard', 'wandb'])
 
     # LoraConfig

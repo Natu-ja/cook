@@ -10,6 +10,9 @@ eval_batch_size=8
 gradients=1
 lr=5e-5
 weight_decay=0.0
+adam_beta1=0.9
+adam_beta2=0.999
+adam_epsilon=1e-8
 max_grad_norm=1.0
 epochs=3.0
 scheduler=linear
@@ -31,6 +34,9 @@ python run_train.py $tokenizer $model \
     --gradients $gradients \
     --lr $lr \
     --weight-decay $weight_decay \
+    --adam-beta1 $adam_beta1 \
+    --adam-beta2 $adam_beta2 \
+    --adam-epsilon $adam_epsilon \
     --max-grad-norm $max_grad_norm \
     --epochs $epochs \
     --scheduler $scheduler \

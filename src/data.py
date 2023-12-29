@@ -36,7 +36,7 @@ def instruct(args, dataset):
 
 def load_tokenize_data(args, tokenizer, dataset):
     
-    if args.instruction != None:
+    if args.instruction is not None:
         dataset = instruct(args, dataset)
 
     def preprocess(data):
