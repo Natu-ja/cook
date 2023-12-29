@@ -98,7 +98,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         for i, test_data in enumerate(test_dataset):
             df.loc[i, '材料'] = test_data['材料']
             df.loc[i, '正解タイトル'] = test_data['正解タイトル']
-            inputs = tokenizer(test_data['材料'], add_special_tokens=False, return_tensors='pt')['input_ids'].cuda()
+            inputs = tokenizer(test_data['材料'], add_special_tokens=True, return_tensors='pt')['input_ids'].cuda()
             outputs = model.generate(
                 **inputs,
                 max_length=args.max_length,
@@ -121,9 +121,14 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
                 encoder_repetition_penalty=args.encoder_repetition_penalty,
                 length_penalty=args.length_penalty,
                 no_repeat_ngram_size=args.no_repeat_ngram_size,
-                renormalize_logits=args.renormalize_logits
+                bad_words_ids=[[tokenizer.unk_token_id]],
+                renormalize_logits=args.renormalize_logits,
+                num_return_sequences=1,
+                pad_token_id=tokenizer.pad_token_id,
+                bos_token_id=tokenizer.bos_token_id,
+                eos_token_id=tokenizer.eos_token_id,
             )
-            df.loc[i, '予測タイトル'] = tokenizer.decode(outputs[0].tolist())
+            df.loc[i, '予測タイトル'] = tokenizer.decode(outputs[0].tolist(), skip_special_tokens=True)
         
         print('Finish generation!!')
         df.to_csv(args.save_dir+args.generation_file_name, index=False)
@@ -132,7 +137,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
 def main(args):
 
     dataset = load_raw_dataset(args)
-    train_val_dataset, test_dataset = train_test_data_split(args, dataset)
+    train_val_dataset, test_dataset = tv_test_data_split(args, dataset)
 
     if args.kfold == 1:
         tokenizer, model = load(args)

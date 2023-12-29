@@ -5,7 +5,7 @@ def load_raw_dataset(args):
     print(f'dataset: {len(dataset)} samples!!')
     return dataset
 
-def train_test_data_split(args, dataset):
+def tv_test_data_split(args, dataset):
     return dataset.train_test_split(test_size=0.25, train_size=0.75, shuffle=True, random_state=args.seed)
 
 def train_val_data_split(args, dataset):
@@ -50,9 +50,6 @@ def load_tokenize_data(args, tokenizer, dataset):
         
         return inputs
     
-    dataset = dataset.map(
-        preprocess,
-        batched=True,
-        remove_columns=dataset.column_names
-    )
+    dataset = dataset.map(preprocess, batched=True, remove_columns=dataset.column_names)
+
     return dataset

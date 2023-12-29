@@ -7,7 +7,7 @@ def load(args):
         tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path)
         print(f'Loaded tokenizer from {args.tokenizer}!!')
 
-        model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path)
+        model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path, trust_remote_code=True)
         print(f'Loaded model from {args.model}, model size {model.num_parameters()}!!')
 
         model = PeftModel.from_pretrained(model, args.model)
@@ -21,7 +21,7 @@ def load(args):
             tokenizer = LlamaTokenizer.from_pretrained(args.tokenizer)
         print(f'Loaded tokenizer from {args.tokenizer}!!')
 
-        model = AutoModelForCausalLM.from_pretrained(args.model)
+        model = AutoModelForCausalLM.from_pretrained(args.model, trust_remote_code=True)
         print(f'Loaded model from {args.model}, model size {model.num_parameters()}!!')
 
         if args.target_modules != None:
