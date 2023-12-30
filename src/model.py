@@ -25,17 +25,21 @@ def load(args):
         print(f'Loaded model from {args.model}, model size {model.num_parameters()}!!')
 
         if args.target_modules is not None:
-            peft_config = LoraConfig(
-                r=args.rank, 
-                target_modules=args.target_modules, 
-                lora_alpha=args.lora_alpha, 
-                lora_dropout =args.lora_dropout, 
-                fan_in_fan_out=args.fan_in_fan_out, 
-                bias=args.lora_bias
-            )
-
-            model = get_peft_model(model, peft_config)
-            model.print_trainable_parameters()
-            print(f'model size {model.num_parameters()}!!')
+            model = get_lora_model(args, model)
     
     return tokenizer, model
+
+def get_lora_model(args, model):
+    peft_config = LoraConfig(
+        r=args.rank, 
+        target_modules=args.target_modules, 
+        lora_alpha=args.lora_alpha, 
+        lora_dropout =args.lora_dropout, 
+        fan_in_fan_out=args.fan_in_fan_out, 
+        bias=args.lora_bias
+    )
+
+    model = get_peft_model(model, peft_config)
+    model.print_trainable_parameters()
+    print(f'model size {model.num_parameters()}!!')
+    return model

@@ -105,8 +105,8 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
             df.loc[i, '予測タイトル'] = tokenizer.decode(outputs[0].tolist(), skip_special_tokens=True)
         
         print('Finish generation!!')
-        df.to_csv(args.save_dir+args.generation_file_name, index=False)
-        print(f'Saved in {args.save_dir+args.generation_file_name}')
+        df.to_csv(args.dir+args.generation_file_name, index=False)
+        print(f'Saved in {args.dir+args.generation_file_name}')
 
 def main(args):
 
