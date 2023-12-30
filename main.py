@@ -171,13 +171,22 @@ if __name__ == "__main__":
     parser.add_argument('--group-by-length', action='store_true')
     parser.add_argument('--report-to', default='all', type=str, choices=['azure_ml', 'clearml', 'codecarbon', 'comet_ml', 'dagshub', 'flyte', 'mlflow', 'neptune', 'tensorboard', 'wandb'])
 
-    # LoraConfig
+    # PEFT
+    parser.add_argument('--peft-method', default='lora', type=str, choices=['lora', 'adalora'])
     parser.add_argument('--rank', default=8, type=int)
     parser.add_argument('--target-modules', nargs='*', type=str)
     parser.add_argument('--lora-alpha', default=8, type=int)
     parser.add_argument('--lora-dropout', default=0.0, type=float)
     parser.add_argument('--fan-in-fan-out', action='store_true')
-    parser.add_argument('--lora-bias', default='none', type=str, choices=['none', 'all', 'lora_only'])
+    parser.add_argument('--peft-bias', default='none', type=str, choices=['none', 'all', 'lora_only'])
+    parser.add_argument('--target-r', default=8, type=int)
+    parser.add_argument('--init-r', default=12, type=int)
+    parser.add_argument('--tinit', default=0, type=int)
+    parser.add_argument('--tfinal', default=0, type=int)
+    parser.add_argument('--deltaT', default=1, type=int)
+    parser.add_argument('--peft-beta1', default=0.85, type=float)
+    parser.add_argument('--peft-beta2', default=0.85, type=float)
+    parser.add_argument('--orth-reg-weight', default=0.5, type=float)
 
     # Instruction tuning
     parser.add_argument('--system-message', default='', type=str)

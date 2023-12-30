@@ -22,11 +22,20 @@ local_rank=-1
 metric_for_best_model=eval_loss
 
 # LoraConfig
+peft_method=lora
 rank=8
 target_modules=(TARGET-MODULES1 TARGET-MODULES2 ...)
 lora_alpha=8
 lora_dropout=0.0
-lora_bias=none
+peft_bias=none
+target_r=8
+init_r=12
+tinit=0
+tfinal=0
+deltaT=1
+peft_beta1=0.85
+peft_beta2=0.85
+orth_reg_weight=0.5
 
 # generate
 max_length=20
@@ -66,11 +75,20 @@ python run_train.py $tokenizer $model \
     --seed $seed \
     --local_rank $local_rank \
     --metric-for-best-model $metric_for_best_model \
+    --peft-method $peft_method \
     --rank $rank \
     --target-modules ${target_modules[@]} \
     --lora-alpha $lora_alpha \
     --lora-dropout $lora_dropout \
-    --lora-bias $lora_bias \
+    --peft-bias $peft_bias \
+    --target-r $target_r \
+    --init-r $init_r \
+    --tinit $tinit \
+    --tfinal $tfinal \
+    --deltaT $deltaT \
+    --peft-beta1 $peft_beta1 \
+    --peft-beta2 $peftbeta2 \
+    --orth-reg-weight $orth_reg_weight \
     --generation \
     --max-length $max_length \
     --min-length $min_length \

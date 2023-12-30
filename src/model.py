@@ -1,5 +1,5 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer
-from peft import get_peft_model, LoraConfig, PeftConfig, PeftModel
+from peft import AdaLoraConfig, AdaLoraModel, get_peft_model, LoraConfig, PeftConfig, PeftModel
 
 def load(args):
     try:
@@ -25,21 +25,39 @@ def load(args):
         print(f'Loaded model from {args.model}, model size {model.num_parameters()}!!')
 
         if args.target_modules is not None:
-            model = get_lora_model(args, model)
+            peft_config = get_lora_config(args) if args.peft_method == 'lora' else get_adalora_config(args)
+            model = get_peft_model(model, peft_config)
+            model.print_trainable_parameters()
+            print(f'model size {model.num_parameters()}!!')
     
     return tokenizer, model
 
-def get_lora_model(args, model):
+def get_lora_config(args):
     peft_config = LoraConfig(
         r=args.rank, 
         target_modules=args.target_modules, 
         lora_alpha=args.lora_alpha, 
         lora_dropout =args.lora_dropout, 
         fan_in_fan_out=args.fan_in_fan_out, 
-        bias=args.lora_bias
+        bias=args.peft_bias
     )
+    return peft_config
 
-    model = get_peft_model(model, peft_config)
-    model.print_trainable_parameters()
-    print(f'model size {model.num_parameters()}!!')
-    return model
+def get_adalora_config(args):
+    peft_config = AdaLoraConfig(
+        r=args.rank, 
+        target_modules=args.target_modules, 
+        lora_alpha=args.lora_alpha, 
+        lora_dropout =args.lora_dropout, 
+        fan_in_fan_out=args.fan_in_fan_out, 
+        bias=args.peft_bias,
+        target_r=args.target_r,
+        init_r=args.init_r,
+        tinit=args.tinit,
+        tfinal=args.tfinal,
+        deltaT=args.deltaT,
+        beta1=args.peft_beta1,
+        beta2=args.peft_beta2,
+        orth_reg_weight=args.orth_reg_weight
+    )
+    return peft_config
