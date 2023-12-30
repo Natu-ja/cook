@@ -18,6 +18,7 @@ epochs=3.0
 scheduler=linear
 warmup=0.0
 seed=42
+local_rank=-1
 metric_for_best_model=eval_loss
 
 # Run
@@ -38,4 +39,5 @@ python run_train.py $tokenizer $model \
     --scheduler $scheduler \
     --warmup $warmup \
     --seed $seed \
+    --local_rank $local_rank \
     --metric-for-best-model $metric_for_best_model \

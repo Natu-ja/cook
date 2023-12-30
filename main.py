@@ -11,7 +11,7 @@ from src.model import *
 
 def run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset, fold=None):
     training_args=TrainingArguments(
-        output_dir=args.output_dir if fold is None else args.output_dir+f'/{fold}',
+        output_dir=args.dir if fold is None else args.dir+f'/{fold}',
         overwrite_output_dir=True,
         do_train=True,
         do_eval=True,
@@ -28,6 +28,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         num_train_epochs=args.epochs,
         lr_scheduler_type=args.scheduler,
         warmup_ratio=args.warmup,
+        logging_dir=args.dir if fold is None else args.dir+f'/{fold}',
         logging_strategy=args.strategy,
         save_strategy=args.strategy,
         save_total_limit=1,
@@ -36,6 +37,9 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         bf16=args.bf16,
         fp16=args.fp16,
         fp16_opt_level=args.fp16_opt_level,
+        bf16_full_eval=args.bf16,
+        fp16_full_eval=args.fp16,
+        local_rank=args.local_rank,
         run_name=args.run_name,
         remove_unused_columns=True,
         label_names=['labels'],
@@ -109,7 +113,7 @@ def main(args):
     dataset = load_raw_dataset(args)
     train_val_dataset, test_dataset = tv_test_data_split(args, dataset)
 
-    if args.kfold == 1:
+    if args.n_splits == 1:
         tokenizer, model = load(args)
         train_dataset, val_dataset = train_val_data_split(args, train_val_dataset)
         train_dataset = load_tokenize_data(args, tokenizer, train_dataset)
@@ -117,10 +121,10 @@ def main(args):
         print(f'train : val : test = {len(train_dataset)} : {len(val_dataset)} : {len(test_dataset)}!!')
         run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset)
         
-    elif args.kfold > 1:
-        kf = KFold(n_splits=args.kfold, shuffle=True, random_state=args.seed)
+    elif args.n_splits > 1:
+        kf = KFold(n_splits=args.n_splits, shuffle=True, random_state=args.seed)
         for fold, (train_idx, val_idx) in enumerate(kf.split(train_val_dataset)):
-            print(f'Fold {fold+1} / {args.kfold}')
+            print(f'Fold {fold+1} / {args.n_splits}')
             tokenizer, model = load(args)
             train_dataset = train_dataset.select(train_idx)
             val_dataset = train_dataset.select(val_idx)
@@ -139,10 +143,10 @@ if __name__ == "__main__":
     parser.add_argument('--args-file-name', default='/args.json', type=str)
     parser.add_argument('--data', default='./data', type=str)
     parser.add_argument('--input-max-len', default=128, type=int)
-    parser.add_argument('--kfold', default=1, type=int)
+    parser.add_argument('--n-splits', default=1, type=int)
 
     # TrainingArguments
-    parser.add_argument('--output-dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
+    parser.add_argument('--dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
     parser.add_argument('--strategy', default='epoch', type=str, choices=['no', 'steps', 'epoch'])
     parser.add_argument('--train-batch-size', default=8, type=int)
     parser.add_argument('--eval-batch-size', default=8, type=int)
@@ -160,6 +164,7 @@ if __name__ == "__main__":
     parser.add_argument('--bf16', action='store_true')
     parser.add_argument('--fp16', action='store_true')
     parser.add_argument('--fp16-opt-level', default='O1', type=str, choices=['O0', 'O1', 'O2', 'O3'])
+    parser.add_argument('--local_rank', default=-1, type=int)
     parser.add_argument('--run-name', default=dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
     parser.add_argument('--metric-for-best-model', default='eval_loss', type=str)
     parser.add_argument('--deepspeed', type=str)
@@ -205,6 +210,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     
-    os.makedirs(name=args.save_dir, exist_ok=True)
+    os.makedirs(name=args.dir, exist_ok=True)
     
     main(args)
