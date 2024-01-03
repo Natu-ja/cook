@@ -26,7 +26,7 @@ system_message=以下は、タスクを説明する指示です。要求を適�
 instruction=以下の食材を使って作れる料理名を教えてください。
 
 # Run
-python run_train.py \
+python main.py \
     --tokenizer $tokenizer \
     --model $model \
     --data $data \

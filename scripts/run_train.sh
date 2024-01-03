@@ -22,7 +22,7 @@ local_rank=-1
 metric_for_best_model=eval_loss
 
 # Run
-python run_train.py \
+python main.py \
     --tokenizer $tokenizer \
     --model $model \
     --data $data \

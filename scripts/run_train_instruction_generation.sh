@@ -44,7 +44,7 @@ length_penalty=1.0
 no_repeat_ngram_size=0
 
 # Run
-python run_train.py \
+python main.py \
     --tokenizer $tokenizer \
     --model $model \
     --data $data \

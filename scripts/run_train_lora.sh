@@ -38,7 +38,7 @@ peft_beta2=0.85
 orth_reg_weight=0.5
 
 # Run
-python run_train.py \
+python main.py \
     --tokenizer $tokenizer \
     --model $model \
     --data $data \

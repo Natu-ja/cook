@@ -140,7 +140,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--tokenizer', default='tokyotech-llm/Swallow-7b-hf', type=str)
-    parser.add_argument('--model', 'tokyotech-llm/Swallow-7b-hf', type=str)
+    parser.add_argument('--model', default='tokyotech-llm/Swallow-7b-hf', type=str)
     parser.add_argument('--input', default='title', type=str)
     parser.add_argument('--output', default='description', type=str)
     parser.add_argument('--args-file-name', default='/args.json', type=str)
