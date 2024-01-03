@@ -34,10 +34,10 @@ pip install -r requirements.txt
 ## Example of use
 ### Standard
 ```
-python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b
+python main.py
 ```
 ```
-python main.py rinna/japanese-gpt2-medium rinna/japanese-gpt2-medium
+python main.py --tokenizer novelai/nerdstash-tokenizer-v1 --model stabilityai/japanese-stablelm-instruct-alpha-7b
 ```
 or 
 ```
@@ -46,7 +46,7 @@ bash run_train.sh
 
 ### LoRA
 ```
-python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b --target-modules embed_in query_key_value dense packed_input_proj out_proj embed_out
+python main.py --target-modules q_proj v_proj
 ```
 or 
 ```
@@ -55,7 +55,7 @@ bash run_train_lora.sh
 
 ### Instruction tuning
 ```
-python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b --system-message 以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。 --instruction 以下の食材を使って作れる料理名を教えてください。
+python main.py --system-message 以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。 --instruction 以下の料理のレシピを教えてください。
 ```
 or 
 ```
@@ -64,7 +64,7 @@ bash run_train_instruction.sh
 
 ### Generation
 ```
-python main.py novelai/nerdstash-tokenizer-v1 stabilityai/japanese-stablelm-instruct-alpha-7b --generation
+python main.py --generation
 ```
 or 
 ```

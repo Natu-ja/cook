@@ -1,15 +1,26 @@
-from datasets import Dataset, load_from_disk
+import pandas as pd
+import os
+from datasets import Dataset
 
 def load_raw_dataset(args):
-    dataset = load_from_disk(args.data)
+    dataset = pd.read_csv(args.data, sep='\t')
+
+    dataset = Dataset.from_pandas(dataset)
     print(f'dataset: {len(dataset)} samples!!')
+
     return dataset
 
 def tv_test_data_split(args, dataset):
-    return dataset.train_test_split(test_size=0.25, train_size=0.75, shuffle=True, random_state=args.seed)
+    dataset = dataset.train_test_split(test_size=0.0025, train_size=0.0075, shuffle=True, seed=args.seed)
+    train_val_dataset = dataset['train']
+    test_dataset = dataset['test']
+    return train_val_dataset, test_dataset
 
 def train_val_data_split(args, dataset):
-    return dataset.train_test_split(test_size=0.25, train_size=0.75, shuffle=True, random_state=args.seed)
+    dataset = dataset.train_test_split(test_size=0.25, train_size=0.75, shuffle=True, seed=args.seed)
+    train_dataset = dataset['train']
+    val_dataset = dataset['test']
+    return train_dataset, val_dataset
 
 def instruct(args, dataset):
 
@@ -28,9 +39,9 @@ def instruct(args, dataset):
     for i in range(len(dataset)):
         user_inputs = {
             "args": args,
-            "inputs": dataset['材料'][i]
+            "inputs": dataset[args.input][i]
         }
-        dataset['材料'][i] = build_prompt(**user_inputs)
+        dataset[args.input][i] = build_prompt(**user_inputs)
     dataset = Dataset.from_pandas(dataset)
     return dataset
 
@@ -41,8 +52,8 @@ def load_tokenize_data(args, tokenizer, dataset):
 
     def preprocess(data):
 
-        inputs = tokenizer(data['材料'], truncation=True, max_length=args.input_max_len)
-        labels = tokenizer(data['タイトル'], truncation=True, max_length=args.input_max_len)
+        inputs = tokenizer(data[args.input], add_special_tokens=True, truncation=True, max_length=args.input_max_len)
+        labels = tokenizer(data[args.output], add_special_tokens=True, truncation=True, max_length=args.input_max_len)
 
         inputs['input_ids'] = inputs['input_ids']
         inputs['attention_mask'] = inputs['attention_mask']
@@ -50,6 +61,11 @@ def load_tokenize_data(args, tokenizer, dataset):
         
         return inputs
     
-    dataset = dataset.map(preprocess, batched=True, remove_columns=dataset.column_names)
+    dataset = dataset.map(
+        preprocess,
+        batched=True,
+        remove_columns=dataset.column_names,
+        num_proc=None if args.num_proc else len(os.sched_getaffinity(0))
+    )
 
     return dataset

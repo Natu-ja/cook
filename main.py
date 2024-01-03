@@ -1,10 +1,10 @@
 import argparse
 from sklearn.model_selection import KFold
-# import pandas as pd
-import fireducks.pandas as pd
+import pandas as pd
+# import fireducks.pandas as pd
 import os
 import datetime
-from transformers import DataCollatorWithPadding, Trainer, TrainingArguments
+from transformers import DataCollatorForLanguageModeling, Trainer, TrainingArguments
 
 from src.data import *
 from src.model import *
@@ -40,6 +40,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         bf16_full_eval=args.bf16,
         fp16_full_eval=args.fp16,
         local_rank=args.local_rank,
+        dataloader_num_workers=0 if args.dataloader_num_workers else len(os.sched_getaffinity(0)),
         run_name=args.run_name,
         remove_unused_columns=True,
         label_names=['labels'],
@@ -54,7 +55,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
     trainer = Trainer(
         model=model,
         args=training_args,
-        data_collator=DataCollatorWithPadding(tokenizer=tokenizer),
+        data_collator=DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False),
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         tokenizer=tokenizer
@@ -68,11 +69,11 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
 
         print('Start generation!!')
         
-        df = pd.DataFrame(columns=['材料', '正解タイトル', '予測タイトル'])
+        df = pd.DataFrame(columns=[args.input, f'ground_truth({args.ouput})', f'prediction({args.ouput})'])
         for i, test_data in enumerate(test_dataset):
-            df.loc[i, '材料'] = test_data['材料']
-            df.loc[i, '正解タイトル'] = test_data['正解タイトル']
-            inputs = tokenizer(test_data['材料'], add_special_tokens=True, return_tensors='pt')['input_ids'].cuda()
+            df.loc[i, args.input] = test_data[args.input]
+            df.loc[i, f'ground_truth({args.ouput})'] = test_data[args.ouput]
+            inputs = tokenizer(test_data[args.input], add_special_tokens=True, return_tensors='pt')['input_ids'].cuda()
             outputs = model.generate(
                 **inputs,
                 max_length=args.max_length,
@@ -102,7 +103,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
                 bos_token_id=tokenizer.bos_token_id,
                 eos_token_id=tokenizer.eos_token_id,
             )
-            df.loc[i, '予測タイトル'] = tokenizer.decode(outputs[0].tolist(), skip_special_tokens=True)
+            df.loc[i, f'prediction({args.ouput})'] = tokenizer.decode(outputs[0].tolist(), skip_special_tokens=True)
         
         print('Finish generation!!')
         df.to_csv(args.dir+args.generation_file_name, index=False)
@@ -138,12 +139,15 @@ if __name__ == "__main__":
     dt_now = datetime.datetime.now()
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('tokenizer', type=str)
-    parser.add_argument('model', type=str)
+    parser.add_argument('--tokenizer', default='tokyotech-llm/Swallow-7b-hf', type=str)
+    parser.add_argument('--model', 'tokyotech-llm/Swallow-7b-hf', type=str)
+    parser.add_argument('--input', default='title', type=str)
+    parser.add_argument('--output', default='description', type=str)
     parser.add_argument('--args-file-name', default='/args.json', type=str)
-    parser.add_argument('--data', default='./data', type=str)
+    parser.add_argument('--data', default='./data/recipes.tsv', type=str)
     parser.add_argument('--input-max-len', default=128, type=int)
     parser.add_argument('--n-splits', default=1, type=int)
+    parser.add_argument('--num-proc', action='store_false')
 
     # TrainingArguments
     parser.add_argument('--dir', default='./output/'+dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
@@ -165,6 +169,7 @@ if __name__ == "__main__":
     parser.add_argument('--fp16', action='store_true')
     parser.add_argument('--fp16-opt-level', default='O1', type=str, choices=['O0', 'O1', 'O2', 'O3'])
     parser.add_argument('--local_rank', default=-1, type=int)
+    parser.add_argument('--dataloader-num-workers', action='store_false')
     parser.add_argument('--run-name', default=dt_now.strftime('%Y_%m_%d_%H_%M_%S'), type=str)
     parser.add_argument('--metric-for-best-model', default='eval_loss', type=str)
     parser.add_argument('--deepspeed', type=str)

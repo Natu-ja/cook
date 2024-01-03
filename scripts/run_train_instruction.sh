@@ -1,6 +1,6 @@
-tokenizer=TOKENIZER-NAME
-model=MODEL-NAME
-data=./data
+tokenizer=tokyotech-llm/Swallow-7b-hf
+model=tokyotech-llm/Swallow-7b-hf
+data=./data/recipes.tsv
 input_max_len=128
 kfold=1
 
@@ -26,7 +26,9 @@ system_message=以下は、タスクを説明する指示です。要求を適�
 instruction=以下の食材を使って作れる料理名を教えてください。
 
 # Run
-python run_train.py $tokenizer $model \
+python run_train.py \
+    --tokenizer $tokenizer \
+    --model $model \
     --data $data \
     --input-max-len $input_max_len \
     --kfold $kfold \

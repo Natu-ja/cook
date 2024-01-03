@@ -1,6 +1,6 @@
-tokenizer=TOKENIZER-NAME
-model=MODEL-NAME
-data=./data
+tokenizer=tokyotech-llm/Swallow-7b-hf
+model=tokyotech-llm/Swallow-7b-hf
+data=./data/recipes.tsv
 input_max_len=128
 kfold=1
 
@@ -38,7 +38,9 @@ peft_beta2=0.85
 orth_reg_weight=0.5
 
 # Run
-python run_train.py $tokenizer $model \
+python run_train.py \
+    --tokenizer $tokenizer \
+    --model $model \
     --data $data \
     --input-max-len $input_max_len \
     --kfold $kfold \
