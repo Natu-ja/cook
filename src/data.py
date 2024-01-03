@@ -11,7 +11,7 @@ def load_raw_dataset(args):
     return dataset
 
 def tv_test_data_split(args, dataset):
-    dataset = dataset.train_test_split(test_size=0.0025, train_size=0.0075, shuffle=True, seed=args.seed)
+    dataset = dataset.train_test_split(test_size=0.25, train_size=0.75, shuffle=True, seed=args.seed)
     train_val_dataset = dataset['train']
     test_dataset = dataset['test']
     return train_val_dataset, test_dataset

@@ -13,12 +13,15 @@
     - 単語の正規化
     - ストップワードの除去
 
-## Google Colaboratory
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ad8CKAOHuK5dnqvufVwrDTmIGH7SDTEw?usp=sharing)
 
 ## データセット
 - [クックパッドデータセット](https://www.nii.ac.jp/dsc/idr/cookpad/cookpad.html)
     - レシピデータ
+
+```
+mysql -u root -p -e "select * from recipes" cookpad > recipes.tsv
+```
+
 
 ## 環境
 Python 3.11.1

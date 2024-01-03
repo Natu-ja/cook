@@ -24,7 +24,7 @@ metric_for_best_model=eval_loss
 # LoraConfig
 peft_method=lora
 rank=8
-target_modules=(TARGET-MODULES1 TARGET-MODULES2 ...)
+target_modules=(q_proj v_proj)
 lora_alpha=8
 lora_dropout=0.0
 peft_bias=none

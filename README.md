@@ -13,12 +13,14 @@
     - (word) normalization
     - removing stop words
 
-## Google Colaboratory
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ad8CKAOHuK5dnqvufVwrDTmIGH7SDTEw?usp=sharing)
-
 ## Datasets
 - [COOKPAD Dataset](https://www.nii.ac.jp/dsc/idr/cookpad/cookpad.html)
     - Recipe Data
+
+
+```
+mysql -u root -p -e "select * from recipes" cookpad > recipes.tsv
+```
 
 ## Environments
 Python 3.11.1
