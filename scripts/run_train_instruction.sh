@@ -1,5 +1,5 @@
-tokenizer=tokyotech-llm/Swallow-7b-hf
-model=tokyotech-llm/Swallow-7b-hf
+tokenizer=tokyotech-llm/Swallow-7b-instruct-hf
+model=tokyotech-llm/Swallow-7b-instruct-hf
 data=./data/recipes.tsv
 input_max_len=128
 kfold=1
