@@ -30,6 +30,8 @@ def load(args):
             model.print_trainable_parameters()
             print(f'model size {model.num_parameters()}!!')
     
+    tokenizer.add_special_tokens({'pad_token': '[PAD]'}) if '[PAD]' not in tokenizer.all_special_tokens else None
+
     return tokenizer, model
 
 def get_lora_config(args):

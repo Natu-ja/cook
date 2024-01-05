@@ -1,7 +1,7 @@
 tokenizer=tokyotech-llm/Swallow-7b-instruct-hf
 model=tokyotech-llm/Swallow-7b-instruct-hf
 data=./data/recipes.tsv
-input_max_len=128
+max_len=128
 kfold=1
 
 # TrainingArguments
@@ -48,7 +48,7 @@ python main.py \
     --tokenizer $tokenizer \
     --model $model \
     --data $data \
-    --input-max-len $input_max_len \
+    --max-len $max_len \
     --kfold $kfold \
     --train-batch-size $train_batch_size \
     --eval-batch-size $eval_batch_size \

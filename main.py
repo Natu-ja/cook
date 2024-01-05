@@ -69,13 +69,13 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
 
         print('Start generation!!')
         
-        df = pd.DataFrame(columns=[args.input, f'ground_truth({args.ouput})', f'prediction({args.ouput})'])
+        df = pd.DataFrame(columns=[args.input, f'ground_truth({args.output})', f'prediction({args.output})'])
         for i, test_data in enumerate(test_dataset):
             df.loc[i, args.input] = test_data[args.input]
-            df.loc[i, f'ground_truth({args.ouput})'] = test_data[args.ouput]
+            df.loc[i, f'ground_truth({args.output})'] = test_data[args.output]
             inputs = tokenizer(test_data[args.input], add_special_tokens=True, return_tensors='pt')['input_ids'].cuda()
             outputs = model.generate(
-                **inputs,
+                inputs,
                 max_length=args.max_length,
                 max_new_tokens=args.max_new_tokens,
                 min_length=args.min_length,
@@ -100,10 +100,10 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
                 renormalize_logits=args.renormalize_logits,
                 num_return_sequences=1,
                 pad_token_id=tokenizer.pad_token_id,
-                bos_token_id=tokenizer.bos_token_id,
-                eos_token_id=tokenizer.eos_token_id,
+                bos_token_id=tokenizer.bos_token_id if tokenizer.bos_token_id is not None else None,
+                eos_token_id=tokenizer.eos_token_id if tokenizer.eos_token_id is not None else None,
             )
-            df.loc[i, f'prediction({args.ouput})'] = tokenizer.decode(outputs[0].tolist(), skip_special_tokens=True)
+            df.loc[i, f'prediction({args.output})'] = tokenizer.decode(outputs[0].tolist(), skip_special_tokens=True)
         
         print('Finish generation!!')
         df.to_csv(args.dir+args.generation_file_name, index=False)
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     parser.add_argument('--output', default='description', type=str)
     parser.add_argument('--args-file-name', default='/args.json', type=str)
     parser.add_argument('--data', default='./data/recipes.tsv', type=str)
-    parser.add_argument('--input-max-len', default=128, type=int)
+    parser.add_argument('--max-len', default=128, type=int)
     parser.add_argument('--n-splits', default=1, type=int)
     parser.add_argument('--num-proc', action='store_false')
 

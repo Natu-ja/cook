@@ -5,6 +5,8 @@ from datasets import Dataset
 def load_raw_dataset(args):
     dataset = pd.read_csv(args.data, sep='\t')
 
+    dataset = dataset.dropna(subset=[args.input, args.output])
+
     dataset = Dataset.from_pandas(dataset)
     print(f'dataset: {len(dataset)} samples!!')
 
@@ -22,9 +24,7 @@ def train_val_data_split(args, dataset):
     val_dataset = dataset['test']
     return train_dataset, val_dataset
 
-def instruct(args, dataset):
-
-    def build_prompt(inputs="", sep="\n\n### "):
+def build_prompt(args, inputs="", sep="\n\n### "):
         system_message = args.system_message
         roles = ["指示", "応答"]
         messages = [": \n" + args.instruction, ": "]
@@ -35,13 +35,15 @@ def instruct(args, dataset):
             system_message += sep + role, message
         return message
 
+def instruct(args, dataset):
+
     dataset = dataset.to_pandas()
     for i in range(len(dataset)):
         user_inputs = {
             "args": args,
             "inputs": dataset[args.input][i]
         }
-        dataset[args.input][i] = build_prompt(**user_inputs)
+        dataset[args.input][i] = build_prompt(args, **user_inputs)
     dataset = Dataset.from_pandas(dataset)
     return dataset
 
@@ -52,8 +54,22 @@ def load_tokenize_data(args, tokenizer, dataset):
 
     def preprocess(data):
 
-        inputs = tokenizer(data[args.input], add_special_tokens=True, padding='max_length', truncation=True, max_length=args.input_max_len)
-        labels = tokenizer(data[args.output], add_special_tokens=True, padding='max_length', truncation=True, max_length=args.input_max_len)
+        inputs = tokenizer(
+            data[args.input],
+            add_special_tokens=True,
+            padding='max_length',
+            truncation=True,
+            max_length=args.max_len,
+            return_tensors='pt'
+        )
+        labels = tokenizer(
+            data[args.output],
+            add_special_tokens=True,
+            padding='max_length',
+            truncation=True,
+            max_length=args.max_len,
+            return_tensors='pt'
+        )
 
         inputs['input_ids'] = inputs['input_ids']
         inputs['attention_mask'] = inputs['attention_mask']
