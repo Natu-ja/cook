@@ -1,10 +1,9 @@
 import argparse
-from sklearn.model_selection import KFold
 import pandas as pd
 # import fireducks.pandas as pd
 import os
 import datetime
-from transformers import DataCollatorForLanguageModeling, Trainer, TrainingArguments
+from transformers import Trainer, TrainingArguments
 
 from src.data import *
 from src.model import *
@@ -55,19 +54,21 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
     trainer = Trainer(
         model=model,
         args=training_args,
-        data_collator=DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False),
+        data_collator=CustomDataCollator(tokenizer=tokenizer),
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         tokenizer=tokenizer
     )
     
-    print('Start main loop!!')
+    print('Start main loop')
     trainer.train()
-    print('Finish main loop!!')
+    print('Finish main loop')
 
     if args.generation:
 
-        print('Start generation!!')
+        del train_dataset, val_dataset
+
+        print('Start generation')
         
         df = pd.DataFrame(columns=[args.input, f'ground_truth({args.output})', f'prediction({args.output})'])
         for i, test_data in enumerate(test_dataset):
@@ -105,34 +106,24 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
             )
             df.loc[i, f'prediction({args.output})'] = tokenizer.decode(outputs[0].tolist(), skip_special_tokens=True)
         
-        print('Finish generation!!')
-        df.to_csv(args.dir+args.generation_file_name, index=False)
-        print(f'Saved in {args.dir+args.generation_file_name}')
+        print('Finish generation')
+        dir = args.dir if fold is None else args.dir+f'/{fold}'
+        df.to_csv(dir+args.generation_file_name, index=False)
+        print(f'Saved in {dir+args.generation_file_name}')
 
 def main(args):
 
     dataset = load_raw_dataset(args)
     train_val_dataset, test_dataset = tv_test_data_split(args, dataset)
 
-    if args.n_splits == 1:
-        tokenizer, model = load(args)
-        train_dataset, val_dataset = train_val_data_split(args, train_val_dataset)
-        train_dataset = load_tokenize_data(args, tokenizer, train_dataset)
-        val_dataset = load_tokenize_data(args, tokenizer, val_dataset)
-        print(f'train : val : test = {len(train_dataset)} : {len(val_dataset)} : {len(test_dataset)}!!')
-        run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset)
-        
-    elif args.n_splits > 1:
-        kf = KFold(n_splits=args.n_splits, shuffle=True, random_state=args.seed)
-        for fold, (train_idx, val_idx) in enumerate(kf.split(train_val_dataset)):
-            print(f'Fold {fold+1} / {args.n_splits}')
-            tokenizer, model = load(args)
-            train_dataset = train_dataset.select(train_idx)
-            val_dataset = train_dataset.select(val_idx)
-            train_dataset = load_tokenize_data(args, tokenizer, train_dataset)
-            val_dataset = load_tokenize_data(args, tokenizer, val_dataset)
-            print(f'train : val : test = {len(train_dataset)} : {len(val_dataset)} : {len(test_dataset)}!!')
-            run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset, fold)
+    del dataset
+
+    tokenizer, model = load(args)
+    train_dataset, val_dataset = train_val_data_split(args, train_val_dataset)
+    print(f'train : val : test = {len(train_dataset)} : {len(val_dataset)} : {len(test_dataset)}')
+    train_dataset = load_tokenize_data(args, tokenizer, train_dataset)
+    val_dataset = load_tokenize_data(args, tokenizer, val_dataset)
+    run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset)
 
 if __name__ == "__main__":
 
@@ -145,8 +136,6 @@ if __name__ == "__main__":
     parser.add_argument('--output', default='description', type=str)
     parser.add_argument('--args-file-name', default='/args.json', type=str)
     parser.add_argument('--data', default='./data/recipes.tsv', type=str)
-    parser.add_argument('--max-len', default=128, type=int)
-    parser.add_argument('--n-splits', default=1, type=int)
     parser.add_argument('--num-proc', action='store_false')
 
     # TrainingArguments
