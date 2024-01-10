@@ -1,6 +1,8 @@
-tokenizer=tokyotech-llm/Swallow-7b-instruct-hf
-model=tokyotech-llm/Swallow-7b-instruct-hf
+tokenizer=llm-jp/llm-jp-1.3b-v1.0
+model=llm-jp/llm-jp-1.3b-v1.0
 data=./data/recipes.tsv
+input=title
+label=description
 
 # TrainingArguments
 train_batch_size=8
@@ -28,6 +30,8 @@ python main.py \
     --tokenizer $tokenizer \
     --model $model \
     --data $data \
+    --input $input \
+    --label $label \
     --train-batch-size $train_batch_size \
     --eval-batch-size $eval_batch_size \
     --gradients $gradients \
