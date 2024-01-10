@@ -20,15 +20,15 @@ def data_cleaning(args, dataset):
 
     print('Start data cleaning')
 
-    dataset = dataset.dropna(subset=[args.input, args.output])
-    dataset = dataset.drop_duplicates(subset=[args.input, args.output])
+    dataset = dataset.dropna(subset=[args.input, args.label])
+    dataset = dataset.drop_duplicates(subset=[args.input, args.label])
 
     print('Finish data cleaning')
 
     return dataset
 
 def tv_test_data_split(args, dataset):
-    dataset = dataset.train_test_split(test_size=0.0001, train_size=0.01, shuffle=True, seed=args.seed)
+    dataset = dataset.train_test_split(test_size=0.25, train_size=0.75, shuffle=True, seed=args.seed)
     train_val_dataset = dataset['train']
     test_dataset = dataset['test']
     return train_val_dataset, test_dataset
@@ -70,7 +70,7 @@ def load_tokenize_data(args, tokenizer, dataset):
     def preprocess(data):
 
         inputs = tokenizer(data[args.input], add_special_tokens=True)
-        labels = tokenizer(data[args.output], add_special_tokens=True)
+        labels = tokenizer(data[args.label], add_special_tokens=True)
 
         inputs['input_ids'] = inputs['input_ids']
         inputs['attention_mask'] = inputs['attention_mask']

@@ -8,9 +8,9 @@ from transformers import Trainer, TrainingArguments
 from src.data import *
 from src.model import *
 
-def run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset, fold=None):
+def run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset):
     training_args=TrainingArguments(
-        output_dir=args.dir if fold is None else args.dir+f'/{fold}',
+        output_dir=args.dir,
         overwrite_output_dir=True,
         do_train=True,
         do_eval=True,
@@ -27,7 +27,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
         num_train_epochs=args.epochs,
         lr_scheduler_type=args.scheduler,
         warmup_ratio=args.warmup,
-        logging_dir=args.dir if fold is None else args.dir+f'/{fold}',
+        logging_dir=args.dir,
         logging_strategy=args.strategy,
         save_strategy=args.strategy,
         save_total_limit=1,
@@ -54,7 +54,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
     trainer = Trainer(
         model=model,
         args=training_args,
-        data_collator=CustomDataCollator(tokenizer=tokenizer),
+        data_collator=CustomDataCollator(tokenizer=tokenizer, mlm=False),
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         tokenizer=tokenizer
@@ -70,10 +70,10 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
 
         print('Start generation')
         
-        df = pd.DataFrame(columns=[args.input, f'ground_truth({args.output})', f'prediction({args.output})'])
+        df = pd.DataFrame(columns=[args.input, f'ground_truth({args.label})', f'prediction({args.label})'])
         for i, test_data in enumerate(test_dataset):
             df.loc[i, args.input] = test_data[args.input]
-            df.loc[i, f'ground_truth({args.output})'] = test_data[args.output]
+            df.loc[i, f'ground_truth({args.label})'] = test_data[args.label]
             inputs = tokenizer(test_data[args.input], add_special_tokens=True, return_tensors='pt')['input_ids'].cuda()
             outputs = model.generate(
                 inputs,
@@ -104,11 +104,10 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
                 bos_token_id=tokenizer.bos_token_id if tokenizer.bos_token_id is not None else None,
                 eos_token_id=tokenizer.eos_token_id if tokenizer.eos_token_id is not None else None,
             )
-            df.loc[i, f'prediction({args.output})'] = tokenizer.decode(outputs[0].tolist(), skip_special_tokens=True)
+            df.loc[i, f'prediction({args.label})'] = tokenizer.decode(outputs[0].tolist(), skip_special_tokens=True)
         
         print('Finish generation')
-        dir = args.dir if fold is None else args.dir+f'/{fold}'
-        df.to_csv(dir+args.generation_file_name, index=False)
+        df.to_csv(args.dir+args.generation_file_name, index=False)
         print(f'Saved in {dir+args.generation_file_name}')
 
 def main(args):
@@ -119,10 +118,12 @@ def main(args):
     del dataset
 
     tokenizer, model = load(args)
+
     train_dataset, val_dataset = train_val_data_split(args, train_val_dataset)
     print(f'train : val : test = {len(train_dataset)} : {len(val_dataset)} : {len(test_dataset)}')
     train_dataset = load_tokenize_data(args, tokenizer, train_dataset)
     val_dataset = load_tokenize_data(args, tokenizer, val_dataset)
+
     run_training(args, tokenizer, model, train_dataset, val_dataset, test_dataset)
 
 if __name__ == "__main__":
@@ -130,12 +131,11 @@ if __name__ == "__main__":
     dt_now = datetime.datetime.now()
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--tokenizer', default='tokyotech-llm/Swallow-7b-hf', type=str)
-    parser.add_argument('--model', default='tokyotech-llm/Swallow-7b-hf', type=str)
-    parser.add_argument('--input', default='title', type=str)
-    parser.add_argument('--output', default='description', type=str)
-    parser.add_argument('--args-file-name', default='/args.json', type=str)
+    parser.add_argument('--tokenizer', default='llm-jp/llm-jp-1.3b-v1.0', type=str)
+    parser.add_argument('--model', default='llm-jp/llm-jp-1.3b-v1.0', type=str)
     parser.add_argument('--data', default='./data/recipes.tsv', type=str)
+    parser.add_argument('--input', default='title', type=str)
+    parser.add_argument('--label', default='description', type=str)
     parser.add_argument('--num-proc', action='store_false')
 
     # TrainingArguments
