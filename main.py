@@ -76,7 +76,7 @@ def generation(args, tokenizer, model, test_dataset):
     for i, test_data in enumerate(test_dataset):
         df.loc[i, args.input] = test_data[args.input]
         df.loc[i, f'ground_truth({args.label})'] = test_data[args.label]
-        inputs = tokenizer(test_data[args.input], add_special_tokens=True, return_tensors='pt')['input_ids'].cuda()
+        inputs = tokenizer(test_data[args.input], add_special_tokens=True, return_tensors='pt')['input_ids']
         outputs = model.generate(
             inputs,
             max_length=args.max_length,
@@ -110,7 +110,7 @@ def generation(args, tokenizer, model, test_dataset):
     
     print('Finish generation')
     df.to_csv(args.dir+args.generation_file_name, index=False)
-    print(f'Saved in {dir+args.generation_file_name}')
+    print(f'Saved in {args.dir+args.generation_file_name}')
 
 def main(args):
 

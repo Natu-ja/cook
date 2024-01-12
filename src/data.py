@@ -36,6 +36,7 @@ def train_val_data_split(args, dataset):
     return train_dataset, val_dataset
 
 def build_prompt(args, inputs="", sep="\n\n### "):
+        
         system_message = args.system_message
         roles = ["指示", "応答"]
         messages = [": \n" + args.instruction, ": "]
@@ -43,7 +44,7 @@ def build_prompt(args, inputs="", sep="\n\n### "):
             roles.insert(1, "入力")
             messages.insert(1, ": \n" + inputs)
         for role, message in zip(roles, messages):
-            system_message += sep + role, message
+            system_message += sep + role + message
         return message
 
 def instruct(args, dataset):
@@ -54,7 +55,7 @@ def instruct(args, dataset):
             "args": args,
             "inputs": dataset[args.input][i]
         }
-        dataset[args.input][i] = build_prompt(args, **user_inputs)
+        dataset[args.input][i] = build_prompt(**user_inputs)
     dataset = Dataset.from_pandas(dataset)
     return dataset
 

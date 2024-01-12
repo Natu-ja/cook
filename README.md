@@ -48,7 +48,7 @@ bash run_train.sh
 
 ### Instruction tuning
 ```
-python main.py --system-message 以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。 --instruction 以下の料理のレシピを教えてください。
+python main.py --system-message 以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。 --instruction 以下の料理の説明を教えてください。
 ```
 or 
 ```
