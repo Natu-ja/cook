@@ -40,20 +40,11 @@ pip install -r requirements.txt
 python main.py
 ```
 ```
-python main.py  --tokenizer rinna/japanese-gpt2-medium --model rinna/japanese-gpt2-medium
+python main.py --tokenizer rinna/japanese-gpt2-xsmall --model rinna/japanese-gpt2-xsmall
 ```
 または
 ```
 bash run_train.sh
-```
-
-### LoRA
-```
-python main.py --target-modules q_proj v_proj
-```
-または
-```
-bash run_train_lora.sh
 ```
 
 ### 指示チューニング

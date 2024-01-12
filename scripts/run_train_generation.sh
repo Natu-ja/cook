@@ -1,5 +1,5 @@
-tokenizer=llm-jp/llm-jp-1.3b-v1.0
-model=llm-jp/llm-jp-1.3b-v1.0
+tokenizer=rinna/japanese-gpt2-xsmall
+model=rinna/japanese-gpt2-xsmall
 data=./data/recipes.tsv
 input=title
 label=description

@@ -1,5 +1,5 @@
-tokenizer=llm-jp/llm-jp-1.3b-v1.0
-model=llm-jp/llm-jp-1.3b-v1.0
+tokenizer=rinna/japanese-gpt2-xsmall
+model=rinna/japanese-gpt2-xsmall
 data=./data/recipes.tsv
 input=title
 label=description
@@ -24,7 +24,7 @@ metric_for_best_model=eval_loss
 # LoraConfig
 peft_method=lora
 rank=8
-target_modules=(q_proj v_proj)
+target_modules=(c_attn c_proj)
 lora_alpha=8
 lora_dropout=0.0
 peft_bias=none

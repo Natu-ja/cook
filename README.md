@@ -39,20 +39,11 @@ pip install -r requirements.txt
 python main.py
 ```
 ```
-python main.py --tokenizer novelai/nerdstash-tokenizer-v1 --model stabilityai/japanese-stablelm-instruct-alpha-7b
+python main.py --tokenizer rinna/japanese-gpt2-xsmall --model rinna/japanese-gpt2-xsmall
 ```
 or 
 ```
 bash run_train.sh
-```
-
-### LoRA
-```
-python main.py --target-modules q_proj v_proj
-```
-or 
-```
-bash run_train_lora.sh
 ```
 
 ### Instruction tuning

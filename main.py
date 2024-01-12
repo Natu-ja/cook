@@ -3,7 +3,7 @@ import pandas as pd
 # import fireducks.pandas as pd
 import os
 import datetime
-from transformers import Trainer, TrainingArguments
+from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
 
 from src.data import *
 from src.model import *
@@ -54,7 +54,7 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
     trainer = Trainer(
         model=model,
         args=training_args,
-        data_collator=CustomDataCollator(tokenizer=tokenizer, mlm=False),
+        data_collator=DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False),
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         tokenizer=tokenizer
@@ -65,50 +65,52 @@ def run_training(args, tokenizer, model, train_dataset, val_dataset, test_datase
     print('Finish main loop')
 
     if args.generation:
-
         del train_dataset, val_dataset
+        generation(args, tokenizer, model, test_dataset)
+        
 
-        print('Start generation')
-        
-        df = pd.DataFrame(columns=[args.input, f'ground_truth({args.label})', f'prediction({args.label})'])
-        for i, test_data in enumerate(test_dataset):
-            df.loc[i, args.input] = test_data[args.input]
-            df.loc[i, f'ground_truth({args.label})'] = test_data[args.label]
-            inputs = tokenizer(test_data[args.input], add_special_tokens=True, return_tensors='pt')['input_ids'].cuda()
-            outputs = model.generate(
-                inputs,
-                max_length=args.max_length,
-                max_new_tokens=args.max_new_tokens,
-                min_length=args.min_length,
-                min_new_tokens=args.min_new_tokens,
-                early_stopping=args.early_stopping,
-                do_sample=args.do_sample,
-                num_beams=args.num_beams,
-                num_beam_groups=args.num_beam_groups,
-                penalty_alpha=args.penalty_alpha,
-                temperature=args.temperature,
-                top_k=args.top_k,
-                top_p=args.top_p,
-                typical_p=args.typical_p,
-                epsilon_cutoff=args.epsilon_cutoff,
-                eta_cutoff=args.eta_cutoff,
-                diversity_penalty=args.diversity_penalty,
-                repetition_penalty=args.repetition_penalty,
-                encoder_repetition_penalty=args.encoder_repetition_penalty,
-                length_penalty=args.length_penalty,
-                no_repeat_ngram_size=args.no_repeat_ngram_size,
-                bad_words_ids=[[tokenizer.unk_token_id]],
-                renormalize_logits=args.renormalize_logits,
-                num_return_sequences=1,
-                pad_token_id=tokenizer.pad_token_id,
-                bos_token_id=tokenizer.bos_token_id if tokenizer.bos_token_id is not None else None,
-                eos_token_id=tokenizer.eos_token_id if tokenizer.eos_token_id is not None else None,
-            )
-            df.loc[i, f'prediction({args.label})'] = tokenizer.decode(outputs[0].tolist(), skip_special_tokens=True)
-        
-        print('Finish generation')
-        df.to_csv(args.dir+args.generation_file_name, index=False)
-        print(f'Saved in {dir+args.generation_file_name}')
+def generation(args, tokenizer, model, test_dataset):
+
+    print('Start generation')
+    df = pd.DataFrame(columns=[args.input, f'ground_truth({args.label})', f'prediction({args.label})'])
+    for i, test_data in enumerate(test_dataset):
+        df.loc[i, args.input] = test_data[args.input]
+        df.loc[i, f'ground_truth({args.label})'] = test_data[args.label]
+        inputs = tokenizer(test_data[args.input], add_special_tokens=True, return_tensors='pt')['input_ids'].cuda()
+        outputs = model.generate(
+            inputs,
+            max_length=args.max_length,
+            max_new_tokens=args.max_new_tokens,
+            min_length=args.min_length,
+            min_new_tokens=args.min_new_tokens,
+            early_stopping=args.early_stopping,
+            do_sample=args.do_sample,
+            num_beams=args.num_beams,
+            num_beam_groups=args.num_beam_groups,
+            penalty_alpha=args.penalty_alpha,
+            temperature=args.temperature,
+            top_k=args.top_k,
+            top_p=args.top_p,
+            typical_p=args.typical_p,
+            epsilon_cutoff=args.epsilon_cutoff,
+            eta_cutoff=args.eta_cutoff,
+            diversity_penalty=args.diversity_penalty,
+            repetition_penalty=args.repetition_penalty,
+            encoder_repetition_penalty=args.encoder_repetition_penalty,
+            length_penalty=args.length_penalty,
+            no_repeat_ngram_size=args.no_repeat_ngram_size,
+            bad_words_ids=[[tokenizer.unk_token_id]],
+            renormalize_logits=args.renormalize_logits,
+            num_return_sequences=1,
+            pad_token_id=tokenizer.pad_token_id,
+            bos_token_id=tokenizer.bos_token_id if tokenizer.bos_token_id is not None else None,
+            eos_token_id=tokenizer.eos_token_id if tokenizer.eos_token_id is not None else None,
+        )
+        df.loc[i, f'prediction({args.label})'] = tokenizer.decode(outputs[0].tolist(), skip_special_tokens=True)
+    
+    print('Finish generation')
+    df.to_csv(args.dir+args.generation_file_name, index=False)
+    print(f'Saved in {dir+args.generation_file_name}')
 
 def main(args):
 
@@ -164,23 +166,6 @@ if __name__ == "__main__":
     parser.add_argument('--deepspeed', type=str)
     parser.add_argument('--group-by-length', action='store_true')
     parser.add_argument('--report-to', default='all', type=str, choices=['azure_ml', 'clearml', 'codecarbon', 'comet_ml', 'dagshub', 'flyte', 'mlflow', 'neptune', 'tensorboard', 'wandb'])
-
-    # PEFT
-    parser.add_argument('--peft-method', default='lora', type=str, choices=['lora', 'adalora'])
-    parser.add_argument('--rank', default=8, type=int)
-    parser.add_argument('--target-modules', nargs='*', type=str)
-    parser.add_argument('--lora-alpha', default=8, type=int)
-    parser.add_argument('--lora-dropout', default=0.0, type=float)
-    parser.add_argument('--fan-in-fan-out', action='store_true')
-    parser.add_argument('--peft-bias', default='none', type=str, choices=['none', 'all', 'lora_only'])
-    parser.add_argument('--target-r', default=8, type=int)
-    parser.add_argument('--init-r', default=12, type=int)
-    parser.add_argument('--tinit', default=0, type=int)
-    parser.add_argument('--tfinal', default=0, type=int)
-    parser.add_argument('--deltaT', default=1, type=int)
-    parser.add_argument('--peft-beta1', default=0.85, type=float)
-    parser.add_argument('--peft-beta2', default=0.85, type=float)
-    parser.add_argument('--orth-reg-weight', default=0.5, type=float)
 
     # Instruction tuning
     parser.add_argument('--system-message', default='', type=str)

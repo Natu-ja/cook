@@ -1,9 +1,5 @@
 import pandas as pd
 import os
-import torch
-from torch.nn.utils.rnn import pad_sequence
-from transformers import DataCollatorForLanguageModeling
-from transformers.tokenization_utils_base import PreTrainedTokenizerBase
 from datasets import Dataset
 
 def load_raw_dataset(args):
@@ -68,9 +64,8 @@ def load_tokenize_data(args, tokenizer, dataset):
         dataset = instruct(args, dataset)
 
     def preprocess(data):
-
-        inputs = tokenizer(data[args.input], add_special_tokens=True)
-        labels = tokenizer(data[args.label], add_special_tokens=True)
+        inputs = tokenizer(data[args.input], add_special_tokens=True, truncation=True, padding='max_length', max_length=128, return_tensors='pt')
+        labels = tokenizer(data[args.label], add_special_tokens=True, truncation=True, padding='max_length', max_length=128, return_tensors='pt')
 
         inputs['input_ids'] = inputs['input_ids']
         inputs['attention_mask'] = inputs['attention_mask']
@@ -86,18 +81,3 @@ def load_tokenize_data(args, tokenizer, dataset):
     )
 
     return dataset
-
-class CustomDataCollator(DataCollatorForLanguageModeling):
-    tokenizer: PreTrainedTokenizerBase
-    mlm: bool = False
-
-    def __call__(self, examples):
-        input_ids = [example['input_ids'] for example in examples]
-        labels = [example['labels'] for example in examples]
-
-        max_length = max(max(len(ids) for ids in input_ids), max(len(ids) for ids in labels))
-
-        padded_input_ids = pad_sequence([torch.tensor(ids + [self.tokenizer.pad_token_id] * (max_length - len(ids))) for ids in input_ids], batch_first=True)
-        padded_labels = pad_sequence([torch.tensor(ids + [-100] * (max_length - len(ids))) for ids in labels], batch_first=True)
-
-        return {"input_ids": padded_input_ids, "labels": padded_labels}
