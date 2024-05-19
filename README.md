@@ -1,4 +1,4 @@
-# cook
+# Cooking
 
 <h4 align="center">
     <p>
@@ -7,8 +7,20 @@
     </p>
 </h4>
 
-## To do
-- text preprocessing
-    - data cleaning
-    - (word) normalization
-    - removing stop words
+## Data
+- [Cookpad dataset](https://www.nii.ac.jp/dsc/idr/cookpad/)
+    - Recipe data
+
+## Train
+
+```
+python main.py \
+    --dataset dataset.tsv \
+    --tokenizer rinna/japanese-gpt2-xsmall \
+    --model rinna/japanese-gpt2-xsmall \
+    --output-dir output_dir \
+    --evaluation-strategy steps \
+    --num-train-epochs 1.0 \
+    --load-best-model-at-end \
+    --group-by-length
+```
