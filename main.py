@@ -2,12 +2,17 @@ import argparse
 from tqdm.contrib import tzip
 import pandas as pd
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments
+from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, GenerationConfig
 from datasets import Dataset
 from trl import DataCollatorForCompletionOnlyLM, SFTTrainer
 
 def load_dataset(args):
+
     dataset = pd.read_csv(args.dataset, sep="\t")
+
+    dataset = dataset.dropna()
+    dataset = dataset.drop_duplicates()
+
     dataset = Dataset.from_pandas(dataset)
 
     dataset = dataset.train_test_split(test_size=0.25, shuffle=True, seed=args.seed)
@@ -31,6 +36,11 @@ def load_checkpoint(args):
         args.torch_dtype = torch.bfloat16
     elif args.torch_dtype=="float32":
         args.torch_dtype = torch.float32
+    
+    if args.bnb_4bit_compute_dtype=="float32":
+        args.bnb_4bit_compute_dtype = torch.float32
+    elif args.bnb_4bit_compute_dtype=="bfloat16":
+        args.bnb_4bit_compute_dtype = torch.bfloat16
 
     if args.load_in_8bit or args.load_in_4bit:
 
@@ -38,7 +48,14 @@ def load_checkpoint(args):
 
         quantization_config = BitsAndBytesConfig(
             load_in_8bit=args.load_in_8bit,
-            load_in_4bit=args.load_in_4bit
+            load_in_4bit=args.load_in_4bit,
+            llm_int8_threshold=args.llm_int8_threshold,
+            llm_int8_skip_modules=args.llm_int8_skip_modules,
+            llm_int8_has_fp16_weight=args.llm_int8_has_fp16_weight,
+            bnb_4bit_compute_dtype=args.bnb_4bit_compute_dtype,
+            bnb_4bit_quant_type=args.bnb_4bit_quant_type,
+            bnb_4bit_use_double_quant=args.bnb_4bit_use_double_quant,
+            bnb_4bit_quant_storage=args.bnb_4bit_quant_storage
         )
 
         if args.attn_implementation is not None:
@@ -106,6 +123,7 @@ def run_training(args, train_dataset, eval_dataset):
         num_train_epochs=args.num_train_epochs,
         lr_scheduler_type=args.lr_scheduler_type,
         warmup_ratio=args.warmup_ratio,
+        logging_dir=args.logging_dir,
         logging_strategy=args.logging_strategy,
         logging_steps=args.logging_steps,
         save_strategy=args.save_strategy,
@@ -114,6 +132,7 @@ def run_training(args, train_dataset, eval_dataset):
         seed=args.seed,
         data_seed=args.data_seed,
         dataloader_num_workers=args.dataloader_num_workers,
+        run_name=args.run_name,
         load_best_model_at_end=args.load_best_model_at_end,
         optim=args.optim,
         group_by_length=args.group_by_length,
@@ -127,7 +146,7 @@ def run_training(args, train_dataset, eval_dataset):
         instruction_template=tokenizer.encode("# ユーザ\n", add_special_tokens=False),
         mlm=False
     )
-
+    
     if args.peft_type is not None:
 
         if args.init_lora_weights is None or args.init_lora_weights=="true":
@@ -220,6 +239,32 @@ def run_training(args, train_dataset, eval_dataset):
                 beta2=args.beta2,
                 orth_reg_weight=args.orth_reg_weight
             )
+        elif args.peft_type=="BOFT":
+            from peft import BOFTConfig
+            peft_config = BOFTConfig(
+                peft_type=args.peft_type,
+                task_type="CAUSAL_LM",
+                inference_mode=False,
+                boft_block_size=args.boft_block_size,
+                boft_block_num=args.boft_block_num,
+                boft_n_butterfly_factor=args.boft_n_butterfly_factor,
+                target_modules=args.target_modules,
+                boft_dropout=args.boft_dropout,
+                fan_in_fan_out=args.fan_in_fan_out,
+                bias=args.bias,
+                init_weights=args.init_weights
+            )
+        elif args.peft_type=="IA3":
+            from peft import IA3Config
+            peft_config = IA3Config(
+                peft_type=args.peft_type,
+                task_type="CAUSAL_LM",
+                inference_mode=False,
+                target_modules=args.target_modules,
+                feedforward_modules=args.feedforward_modules,
+                fan_in_fan_out=args.fan_in_fan_out,
+                init_weights=args.init_weights
+            )
         elif args.peft_type=="LOHA":
             from peft import LoHaConfig
             peft_config = LoHaConfig(
@@ -250,6 +295,28 @@ def run_training(args, train_dataset, eval_dataset):
                 target_modules=args.target_modules,
                 init_weights=args.init_weights
             )
+        elif args.peft_type=="OFT":
+            from peft import OFTConfig
+            peft_config = OFTConfig(
+                peft_type=args.peft_type,
+                task_type="CAUSAL_LM",
+                inference_mode=False,
+                r=args.r,
+                module_dropout=args.module_dropout,
+                target_modules=args.target_modules,
+                init_weights=args.init_weights,
+                coft=args.coft,
+                eps=args.eps,
+                block_share=args.block_share
+            )
+        elif args.peft_type=="LN_TUNING":
+            from peft import LNTuningConfig
+            peft_config = LNTuningConfig(
+                peft_type=args.peft_type,
+                task_type="CAUSAL_LM",
+                inference_mode=False,
+                target_modules=args.target_modules
+            )
 
         trainer = SFTTrainer(
             model=model,
@@ -263,9 +330,9 @@ def run_training(args, train_dataset, eval_dataset):
             max_seq_length=args.max_seq_length,
             dataset_batch_size=args.dataset_batch_size
         )
+        trainer.model.print_trainable_parameters()
     
     else:
-
         trainer = SFTTrainer(
             model=model,
             args=training_args,
@@ -297,61 +364,81 @@ def generation(args, tokenizer, model, test_dataset):
         print("Text generation strategy is contrastive search.")
     if args.num_beams>1 and args.num_beam_groups>1:
         print("Text generation strategy is diverse beam-search decoding.")
+    if args.force_words is not None:
+        print("Text generation strategy is constrained beam-search decoding.")
     if args.assistant_model is not None or args.prompt_lookup_num_tokens is not None:
         print("Text generation strategy is assisted decoding.")
 
-    generation_config = {
-        "max_length" : args.max_length,
-        "max_new_tokens" : args.max_new_tokens,
-        "min_length" : args.min_length,
-        "min_new_tokens" : args.min_new_tokens,
-        "early_stopping" : args.early_stopping,
-        "do_sample" : args.do_sample,
-        "num_beams" : args.num_beams,
-        "num_beam_groups" : args.num_beam_groups,
-        "penalty_alpha" : args.penalty_alpha,
-        "use_cache" : args.use_cache,
-        "temperature" : args.temperature,
-        "top_k" : args.top_k,
-        "top_p" : args.top_p,
-        "min_p" : args.min_p,
-        "typical_p": args.typical_p,
-        "epsilon_cutoff" : args.epsilon_cutoff,
-        "eta_cutoff" : args.eta_cutoff,
-        "diversity_penalty" : args.diversity_penalty,
-        "repetition_penalty" : args.repetition_penalty,
-        "encoder_repetition_penalty" : args.encoder_repetition_penalty,
-        "length_penalty" : args.length_penalty,
-        "no_repeat_ngram_size" : args.no_repeat_ngram_size,
-        "renormalize_logits" : args.renormalize_logits,
-        "guidance_scale" : args.guidance_scale,
-        "num_return_sequences" : args.num_return_sequences,
-        "output_attentions" : args.output_attentions,
-        "pad_token_id" : tokenizer.pad_token_id,
-        "bos_token_id" : tokenizer.bos_token_id,
-        "eos_token_id" : tokenizer.eos_token_id,
-        "prompt_lookup_num_tokens" : args.prompt_lookup_num_tokens,
-        "max_matching_ngram_size" : args.max_matching_ngram_size
-    }
+    generation_config = GenerationConfig(
+        max_length=args.max_length,
+        max_new_tokens=args.max_new_tokens,
+        min_length=args.min_length,
+        min_new_tokens=args.min_new_tokens,
+        early_stopping=args.early_stopping,
+        max_time=args.max_time,
+        stop_strings=args.stop_strings,
+        do_sample=args.do_sample,
+        num_beams=args.num_beams,
+        num_beam_groups=args.num_beam_groups,
+        penalty_alpha=args.penalty_alpha,
+        use_cache=args.use_cache,
+        temperature=args.temperature,
+        top_k=args.top_k,
+        top_p=args.top_p,
+        min_p=args.min_p,
+        typical_p=args.typical_p,
+        epsilon_cutoff=args.epsilon_cutoff,
+        eta_cutoff=args.eta_cutoff,
+        diversity_penalty=args.diversity_penalty,
+        repetition_penalty=args.repetition_penalty,
+        encoder_repetition_penalty=args.encoder_repetition_penalty,
+        length_penalty=args.length_penalty,
+        no_repeat_ngram_size=args.no_repeat_ngram_size,
+        renormalize_logits=args.renormalize_logits,
+        forced_bos_token_id= model.config.forced_bos_token_id,
+        forced_eos_token_id=model.config.forced_eos_token_id,
+        guidance_scale=args.guidance_scale,
+        num_return_sequences=args.num_return_sequences,
+        output_attentions=args.output_attentions,
+        pad_token_id=model.config.pad_token_id,
+        bos_token_id=model.config.bos_token_id,
+        eos_token_id=model.config.eos_token_id,
+        num_assistant_tokens=args.num_assistant_tokens,
+        num_assistant_tokens_schedule=args.num_assistant_tokens_schedule,
+        prompt_lookup_num_tokens=args.prompt_lookup_num_tokens,
+        max_matching_ngram_size=args.max_matching_ngram_size
+    )
 
     assistant_model = load_checkpoint(args)[1] if args.assistant_model is not None else None
 
     output_lists = []
-    for title, name, position in tzip(test_dataset["title"]), test_dataset["name"], test_dataset["position"]:
-        input_text = f"# ユーザ\n{title}\n\n# アシスタント\n## 食材\n{name}\n## 作り方\n{position}"
-        input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
-        output_text = model.generate(
-            **input_text,
-            **generation_config,
-            assistant_model=assistant_model
-        )
-        output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
-        output_lists.append(output_list)
+    with torch.no_grad():
+
+        if args.assistant_model is None:  
+            for title, name, position in tzip(test_dataset["title"], test_dataset["name"], test_dataset["position"]):
+                input_text = f"# ユーザ\n{title}\n\n# アシスタント\n## 食材\n{name}\n## 作り方\n{position}"
+                input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
+                output_text = model.generate(
+                    **input_text,
+                    generation_config=generation_config
+                )
+                output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
+                output_lists.append(output_list)
+        else:
+            for title, name, position in tzip(test_dataset["title"]), test_dataset["name"], test_dataset["position"]:
+                input_text = f"# ユーザ\n{title}\n\n# アシスタント\n## 食材\n{name}\n## 作り方\n{position}"
+                input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
+                output_text = model.generate(
+                    **input_text,
+                    generation_config=generation_config,
+                    assistant_model=assistant_model
+                )
+                output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
+                output_lists.append(output_list)
 
     output_lists = pd.DataFrame(output_lists)
-    output_lists.to_csv(args.dir+"/results.csv", header=False, index=False)
+    output_lists.to_csv(args.output_dir+"/outputs.csv", header=False, index=False)
         
-
 def main(args):
     train_dataset, eval_dataset, test_dataset = load_dataset(args)
     tokenizer, model = run_training(args, train_dataset, eval_dataset)
@@ -360,13 +447,21 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--dataset", type=str)
+    # Main Config
+    parser.add_argument("--dataset", default="./data.tsv", type=str)
     parser.add_argument("--tokenizer", type=str)
     parser.add_argument("--model", type=str)
     
     # Bits And Bytes Config
     parser.add_argument("--load-in-8bit", action="store_true")
     parser.add_argument("--load-in-4bit", action="store_true")
+    parser.add_argument("--llm-int8-threshold", default=6.0, type=float)
+    parser.add_argument("--llm-int8-skip-modules", nargs="*", type=str)
+    parser.add_argument("--llm-int8-has-fp16-weight", action="store_true")
+    parser.add_argument("--bnb-4bit-compute-dtype", default="float32", type=str, choices=["float32", "bfloat16"])
+    parser.add_argument("--bnb-4bit-quant-type", default="fp4", type=str, choices=["fp4", "nf4"])
+    parser.add_argument("--bnb-4bit-use-double-quant", action="store_true")
+    parser.add_argument("--bnb-4bit-quant-storage", default="uint8", type=str, choices=["uint8"])
 
     # From Pretrained
     parser.add_argument("--torch-dtype", default="auto", type=str, choices=["auto", "float16", "bfloat16", "float32"])
@@ -387,6 +482,7 @@ if __name__ == "__main__":
     parser.add_argument("--num-train-epochs", default=3.0, type=float)
     parser.add_argument("--lr-scheduler-type", default="linear", type=str, choices=["linear", "cosine", "constant"])
     parser.add_argument("--warmup-ratio", default=0.0, type=float)
+    parser.add_argument("--logging-dir", type=str)
     parser.add_argument("--logging-strategy", default="steps", type=str, choices=["no", "steps", "epoch"])
     parser.add_argument("--logging-steps", default=500, type=int)
     parser.add_argument("--save-strategy", default="steps", type=str, choices=["no", "steps", "epoch"])
@@ -394,6 +490,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=42, type=int)
     parser.add_argument("--data-seed", type=int)
     parser.add_argument("--dataloader-num-workers", default=0, type=int)
+    parser.add_argument("--run-name", type=str)
     parser.add_argument("--load-best-model-at-end", action="store_true")
     parser.add_argument("--optim", default="adamw_torch", type=str, choices=["adamw_torch", "adamw_hf", "adamw_torch", "adamw_torch_fused", "adamw_apex_fused", "adamw_anyprecision", "adafactor", "adamw_bnb_8bit", "galore_adamw", "galore_adamw_8bit", "galore_adafactor"])
     parser.add_argument("--group-by-length", action="store_true")
@@ -402,26 +499,36 @@ if __name__ == "__main__":
     parser.add_argument("--optim-target-modules", nargs="*", type=str)
 
     # Peft Config
-    parser.add_argument("--peft-type", type=str, choices=["PROMPT_TUNING", "P_TUNING", "PREFIX_TUNING", "LORA", "ADALORA", "LOHA", "LOKR"])
-    ## Lora Config, Adalora Config, Loha Config and Lokr Config
-    parser.add_argument("--r", default=8, type=int)
+    parser.add_argument("--peft-type", type=str, choices=["PROMPT_TUNING", "P_TUNING", "PREFIX_TUNING", "LORA", "ADALORA", "BOFT", "IA3", "LOHA", "LOKR", "OFT", "LN_TUNING"])
+    ## Lora Config, Adalora Config, Boft Config, IA3 Config, Loha Config, Lokr Config, OFT Config and LN Tuning Config
     parser.add_argument("--target-modules", nargs="*", type=str)
+    ## Lora Config, Adalora Config, Loha Config, Lokr Config and OFT Config
+    parser.add_argument("--r", default=8, type=int)
+    ## Lora Config, Adalora Config, Boft Config and IA3 Config
+    parser.add_argument("--fan-in-fan-out", action="store_true")
     ## Prompt Tuning Config, Prompt Encoder Config and Prefix Tuning Config
     parser.add_argument("--num-virtual-tokens", type=int)
     parser.add_argument("--token-dim", type=int)
     parser.add_argument("--num-transformer-submodules", type=int)
     parser.add_argument("--num-attention-heads", type=int)
     parser.add_argument("--num-layers", type=int)
+    ## Lora Config, Adalora Config and Boft Config
+    parser.add_argument("--bias", type=str, choices=["none", "all", "lora_only", "boft_only"])
+    ## Loha Config, Lokr Config and OFT Config
+    parser.add_argument("--module-dropout", default=0.0, type=float)
+    parser.add_argument("--init-weights", action="store_false")
     ## Prompt Encoder Config and Prefix Tuning Config
     parser.add_argument("--encoder-hidden-size", type=int)
     ## Lora Config and Adalora Config
     parser.add_argument("--lora-alpha", default=8, type=int)
     parser.add_argument("--lora-dropout", default=0.0, type=float)
-    parser.add_argument("--fan-in-fan-out", action="store_true")
-    parser.add_argument("--bias", type=str, choices=["none", "all", "lora_only"])
     parser.add_argument("--use-rslora", action="store_true")
     parser.add_argument("--init-lora-weights", type=str, choices=["true", "false", "gaussian", "pissa", "pissa_niter_[number of iters]", "loftq"])
     parser.add_argument("--use-dora", action="store_true")
+    ## Loha Config and Lokr Config
+    parser.add_argument("--alpha", default=8, type=int)
+    parser.add_argument("--rank-dropout", default=0.0, type=float)
+    parser.add_argument("--use-effective-conv2d", action="store_true")
     ## Prompt Tuning Config
     parser.add_argument("--prompt-tuning-init", default="RANDOM", type=str, choices=["RANDOM", "TEXT"])
     parser.add_argument("--prompt-tuning-init-text", type=str)
@@ -440,17 +547,24 @@ if __name__ == "__main__":
     parser.add_argument("--beta1", default=0.85, type=float)
     parser.add_argument("--beta2", default=0.85, type=float)
     parser.add_argument("--orth-reg-weight", default=0.5, type=float)
-    ## Loha Config and Lokr Config
-    parser.add_argument("--alpha", default=8, type=int)
-    parser.add_argument("--rank-dropout", default=0.0, type=float)
-    parser.add_argument("--module-dropout", default=0.0, type=float)
-    parser.add_argument("--use-effective-conv2d", action="store_true")
+    ## Boft Config
+    parser.add_argument("--boft-block-size", default=4, type=int)
+    parser.add_argument("--boft-block-num", default=0, type=int)
+    parser.add_argument("--boft-n-butterfly-factor", default=1, type=int)
+    parser.add_argument("--boft-dropout", default=0.0, type=float)
     parser.add_argument("--init-weights", action="store_false")
+    ## IA3 Config
+    parser.add_argument("--feedforward-modules", nargs="*", type=str)
+    parser.add_argument("--init-ia3-weights", action="store_false")
     ## Lokr Config
     parser.add_argument("--decompose-both", action="store_true")
     parser.add_argument("--decompose-factor", default=-1, type=int)
+    ## OFT Config
+    parser.add_argument("--coft", action="store_true")
+    parser.add_argument("--eps", default=6e-05, type=float)
+    parser.add_argument("--block-share", action="store_true")
 
-    # SFT Trainer
+    # Sft Trainer
     parser.add_argument("--max-seq-length", type=int)
     parser.add_argument("--dataset-batch-size", type=int)
 
@@ -463,6 +577,8 @@ if __name__ == "__main__":
     parser.add_argument("--min-length", default=0, type=int)
     parser.add_argument("--min-new-tokens", type=int)
     parser.add_argument("--early-stopping", action="store_true")
+    parser.add_argument("--max-time", type=float)
+    parser.add_argument("--stop-strings", nargs="*", type=str)
     parser.add_argument("--do-sample", action="store_true")
     parser.add_argument("--num-beams", default=1, type=int)
     parser.add_argument("--num-beam-groups", default=1, type=int)
@@ -484,6 +600,8 @@ if __name__ == "__main__":
     parser.add_argument("--guidance-scale", type=float)
     parser.add_argument("--num-return-sequences", default=1, type=int)
     parser.add_argument("--output-attentions", action="store_true")
+    parser.add_argument("--num-assistant-tokens", default=5, type=int)
+    parser.add_argument("--num-assistant-tokens-schedule", default="heuristic", type=str, choices=["heuristic", "heuristic_transient", "constant"])
     parser.add_argument("--prompt-lookup-num-tokens", type=int)
     parser.add_argument("--max-matching-ngram-size", type=int)
 
