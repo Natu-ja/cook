@@ -10,6 +10,31 @@
 ## Data
 - [Cookpad dataset](https://www.nii.ac.jp/dsc/idr/cookpad/)
     - Recipe data
+- [Erik/data_recipes_instructor](https://huggingface.co/datasets/Erik/data_recipes_instructor)
+
+## Implemented
+- Quantization
+- Flash Attention
+- PEFT
+    - Prompt Tuning
+    - P-Tuning
+    - Prefix Tuning
+    - LoRA
+    - AdaLoRA
+    - BOFT
+    - IA3
+    - LoHa
+    - LoKr
+    - OFT
+    - Layernorm Tuning
+- Generation Strategy
+    - Greedy Decoding
+    - Multinomial Sampling
+    - Beam-Search Decoding
+    - Beam-Search Multinomial Sampling
+    - Contrastive Search
+    - Diverse Beam-Search Decoding
+    - Assisted Decoding
 
 ## Train
 
