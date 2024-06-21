@@ -7,6 +7,8 @@
     </p>
 </h4>
 
+<img src='image.webp' style="display: block; margin: auto;">
+
 ## Data
 - [Cookpad dataset (Recipe data)](https://www.nii.ac.jp/dsc/idr/cookpad/)
 ---
@@ -61,5 +63,9 @@
 
 ```
 python main.py \
+    --eval-strategy steps \
     --load-best-model-at-end \
+    --group-by-length \
+    --auto-find-batch-size \
+    --max-new-tokens 512
 ```

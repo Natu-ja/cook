@@ -7,12 +7,14 @@
     </p>
 </h4>
 
+<img src='image.webp' style="display: block; margin: auto;">
+
 ## データ
 - [クックパッドデータセット（レシピデータ）](https://www.nii.ac.jp/dsc/idr/cookpad/)
 ---
 - [AWeirdDev/zh-tw-recipes-sm](https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm)
     - データセットのサイズ
-        - train data: $1,799$
+        - 訓練データ: $1,799$
     - 言語
         - 中国語
 - [Erik/data_recipes_instructor](https://huggingface.co/datasets/Erik/data_recipes_instructor)
@@ -61,5 +63,9 @@
 
 ```
 python main.py \
+    --eval-strategy steps \
     --load-best-model-at-end \
+    --group-by-length \
+    --auto-find-batch-size \
+    --max-new-tokens 512
 ```
