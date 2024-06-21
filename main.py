@@ -1,12 +1,14 @@
+from typing import Tuple
 import argparse
-from tqdm.contrib import tzip
+from argparse import Namespace
+from tqdm import tqdm
 import pandas as pd
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, GenerationConfig
+from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig, PreTrainedModel, PreTrainedTokenizerBase
 from datasets import Dataset, load_dataset
-from trl import DataCollatorForCompletionOnlyLM, SFTTrainer
+from trl import SFTConfig, SFTTrainer
 
-def load_raw_dataset(args):
+def load_raw_dataset(args: Namespace) -> Tuple[Dataset, Dataset, Dataset]:
 
     dataset = pd.read_csv(args.dataset, sep="\t")
 
@@ -19,12 +21,12 @@ def load_raw_dataset(args):
     tv_dataset, test_dataset = dataset["train"], dataset["test"]
     tv_dataset = tv_dataset.train_test_split(test_size=0.25, shuffle=False, seed=args.seed)
     train_dataset, eval_dataset = tv_dataset["train"], tv_dataset["test"]
-    
-    print(f"Train size : validation size : test size = {len(train_dataset)} : {len(eval_dataset)} : {len(test_dataset)}.")
+
+    print(f"Train dataset : validation dataset : test dataset = {len(train_dataset)} : {len(eval_dataset)} : {len(test_dataset)}")
 
     return train_dataset, eval_dataset, test_dataset
 
-def load_checkpoint(args):
+def load_checkpoint(args: Namespace) -> Tuple[PreTrainedTokenizerBase, PreTrainedModel]:
 
     tokenizer = AutoTokenizer.from_pretrained(
         pretrained_model_name_or_path=args.tokenizer,
@@ -92,7 +94,7 @@ def load_checkpoint(args):
                 device_map="auto"
             )
 
-    if tokenizer.pad_token_id is None:
+    if tokenizer.pad_token_id is None and model.config.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
         model.config.pad_token_id = model.config.eos_token_id
     
@@ -104,17 +106,25 @@ def formatting_func_cookpad(example):
     output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
     return output_texts
 
+def formatting_func_zh_tw_recipes_sm(example):
+    output_texts = [f"# 標題\n{example['title'][i]}\n\n# 腳步\n{example['steps'][i]}" for i in range(len(example))]
+    return output_texts
+
 def formatting_func_data_recipes_instructor(example):
     output_texts = [f"# Instruction\n{example['instruction'][i]}\n\n# Input\n{example['input'][i]}\n\n# Output\n{example['output'][i]}" for i in range(len(example))]
     return output_texts
 
-def run_training(args, train_dataset, eval_dataset=None):
+def formatting_func_aya_telugu_food_recipes(example):
+    output_texts = [f"# ఇన్పుట్\n{example['inputs'][i]}\n\n# లక్ష్యం\n{example['target'][i]}" for i in range(len(example))]
+    return output_texts
+
+def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | Dataset = None) -> Tuple[PreTrainedTokenizerBase, PreTrainedModel]:
 
     tokenizer, model = load_checkpoint(args)
 
-    training_args = TrainingArguments(
+    sft_config = SFTConfig(
         output_dir=args.output_dir,
-        evaluation_strategy=args.evaluation_strategy,
+        eval_strategy=args.eval_strategy,
         per_device_train_batch_size=args.per_device_train_batch_size,
         per_device_eval_batch_size=args.per_device_eval_batch_size,
         gradient_accumulation_steps=args.gradient_accumulation_steps,
@@ -125,6 +135,7 @@ def run_training(args, train_dataset, eval_dataset=None):
         adam_epsilon=args.adam_epsilon,
         max_grad_norm=args.max_grad_norm,
         num_train_epochs=args.num_train_epochs,
+        max_steps=args.max_steps,
         lr_scheduler_type=args.lr_scheduler_type,
         warmup_ratio=args.warmup_ratio,
         logging_dir=args.logging_dir,
@@ -135,32 +146,77 @@ def run_training(args, train_dataset, eval_dataset=None):
         save_total_limit=1,
         seed=args.seed,
         data_seed=args.data_seed,
+        fp16_opt_level=args.fp16_opt_level,
+        half_precision_backend=args.half_precision_backend,
         dataloader_num_workers=args.dataloader_num_workers,
         run_name=args.run_name,
         load_best_model_at_end=args.load_best_model_at_end,
+        metric_for_best_model=args.metric_for_best_model,
         optim=args.optim,
         group_by_length=args.group_by_length,
         report_to=args.report_to,
+        auto_find_batch_size=args.auto_find_batch_size,
+        split_batches=args.split_batches,
+        include_tokens_per_second=args.include_tokens_per_second,
+        include_num_input_tokens_seen=args.include_num_input_tokens_seen,
         neftune_noise_alpha=args.neftune_noise_alpha,
         optim_target_modules=args.optim_target_modules,
+        packing=args.packing,
+        max_seq_length=min(tokenizer.model_max_length, args.max_seq_length),
+        dataset_num_proc=args.dataset_num_proc,
+        dataset_batch_size=args.dataset_batch_size,
+        num_of_sequences=args.num_of_sequences,
+        chars_per_token=args.chars_per_token
     )
 
-    if args.dataset=="Erik/data_recipes_instructor":
-        data_collator = DataCollatorForCompletionOnlyLM(
-            response_template=tokenizer.encode("# Output\n", add_special_tokens=False),
-            instruction_template=tokenizer.encode("# Instruction\n", add_special_tokens=False),
-            mlm=False,
-            tokenizer=tokenizer
-        )
+    if args.data_collator=="CompletionOnlyLM":
+        from trl import DataCollatorForCompletionOnlyLM
+        if args.dataset=="AWeirdDev/zh-tw-recipes-sm":
+            data_collator = DataCollatorForCompletionOnlyLM(
+                response_template=tokenizer.encode("# 腳步歩\n", add_special_tokens=False),
+                instruction_template=tokenizer.encode("# 標題\n", add_special_tokens=False),
+                mlm=False,
+                tokenizer=tokenizer
+            )
+        elif args.dataset=="Erik/data_recipes_instructor":
+            data_collator = DataCollatorForCompletionOnlyLM(
+                response_template=tokenizer.encode("# Output\n", add_special_tokens=False),
+                instruction_template=tokenizer.encode("# Instruction\n", add_special_tokens=False),
+                mlm=False,
+                tokenizer=tokenizer
+            )
+        elif args.dataset=="mertbozkurt/llama2-TR-recipe":
+            data_collator = DataCollatorForCompletionOnlyLM(
+                response_template=tokenizer.encode("[/INST] ", add_special_tokens=False),
+                instruction_template=tokenizer.encode("[INST] ", add_special_tokens=False),
+                mlm=False,
+                tokenizer=tokenizer
+            )
+        elif args.dataset=="SuryaKrishna02/aya-telugu-food-recipes":
+            data_collator = DataCollatorForCompletionOnlyLM(
+                response_template=tokenizer.encode("# లక్ష్యం\n", add_special_tokens=False),
+                instruction_template=tokenizer.encode("# ఇన్పుట్\n", add_special_tokens=False),
+                mlm=False,
+                tokenizer=tokenizer
+            )
+        else:
+            data_collator = DataCollatorForCompletionOnlyLM(
+                response_template=tokenizer.encode("# アシスタント\n", add_special_tokens=False),
+                instruction_template=tokenizer.encode("# ユーザ\n", add_special_tokens=False),
+                mlm=False,
+                tokenizer=tokenizer
+            )
     else:
-        data_collator = DataCollatorForCompletionOnlyLM(
-            response_template=tokenizer.encode("# アシスタント\n", add_special_tokens=False),
-            instruction_template=tokenizer.encode("# ユーザ\n", add_special_tokens=False),
+        from transformers import DataCollatorForLanguageModeling
+        data_collator = DataCollatorForLanguageModeling(
+            tokenizer=tokenizer,
             mlm=False,
-            tokenizer=tokenizer
+            return_tensors="pt"
         )
     
     if args.peft_type is not None:
+
+        args.target_modules = "all-linear" if args.target_modules is None else args.target_modules
 
         if args.init_lora_weights is None or args.init_lora_weights=="true":
             args.init_lora_weights = True
@@ -267,6 +323,16 @@ def run_training(args, train_dataset, eval_dataset=None):
                 bias=args.bias,
                 init_weights=args.init_weights
             )
+        elif args.peft_type=="ADAPTION_PROMPT":
+            from peft import AdaptionPromptConfig
+            peft_config = AdaptionPromptConfig(
+                peft_type=args.peft_type,
+                task_type="CAUSAL_LM",
+                inference_mode=False,
+                target_modules=args.target_modules,
+                adapter_len=args.adapter_len,
+                adapter_layers=args.adapter_layers
+            )
         elif args.peft_type=="IA3":
             from peft import IA3Config
             peft_config = IA3Config(
@@ -322,6 +388,19 @@ def run_training(args, train_dataset, eval_dataset=None):
                 eps=args.eps,
                 block_share=args.block_share
             )
+        elif args.peft_type=="POLY":
+            from peft import PolyConfig
+            peft_config = PolyConfig(
+                peft_type=args.peft_type,
+                task_type="CAUSAL_LM",
+                inference_mode=False,
+                r=args.r,
+                target_modules=args.target_modules,
+                init_weights=args.init_weights,
+                n_tasks=args.n_tasks,
+                n_skills=args.n_skills,
+                n_splits=args.n_splits
+            )
         elif args.peft_type=="LN_TUNING":
             from peft import LNTuningConfig
             peft_config = LNTuningConfig(
@@ -331,67 +410,121 @@ def run_training(args, train_dataset, eval_dataset=None):
                 target_modules=args.target_modules
             )
 
-        if args.dataset=="Erik/data_recipes_instructor":
+        if args.dataset=="AWeirdDev/zh-tw-recipes-sm":
             trainer = SFTTrainer(
                 model=model,
-                args=training_args,
+                args=sft_config,
                 data_collator=data_collator,
                 train_dataset=train_dataset,
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 peft_config=peft_config,
-                formatting_func=formatting_func_data_recipes_instructor,
-                max_seq_length=args.max_seq_length,
-                dataset_batch_size=args.dataset_batch_size
+                formatting_func=formatting_func_zh_tw_recipes_sm
+            )
+        elif args.dataset=="Erik/data_recipes_instructor":
+            trainer = SFTTrainer(
+                model=model,
+                args=sft_config,
+                data_collator=data_collator,
+                train_dataset=train_dataset,
+                eval_dataset=eval_dataset,
+                tokenizer=tokenizer,
+                peft_config=peft_config,
+                formatting_func=formatting_func_data_recipes_instructor
+            )
+        elif args.dataset=="mertbozkurt/llama2-TR-recipe":
+            sft_config.dataset_text_field="text"
+            trainer = SFTTrainer(
+                model=model,
+                args=sft_config,
+                data_collator=data_collator,
+                train_dataset=train_dataset,
+                eval_dataset=eval_dataset,
+                tokenizer=tokenizer,
+                peft_config=peft_config
+            )
+        elif args.dataset=="SuryaKrishna02/aya-telugu-food-recipes":
+            trainer = SFTTrainer(
+                model=model,
+                args=sft_config,
+                data_collator=data_collator,
+                train_dataset=train_dataset,
+                eval_dataset=eval_dataset,
+                tokenizer=tokenizer,
+                peft_config=peft_config,
+                formatting_func=formatting_func_aya_telugu_food_recipes
             )
         else:
             trainer = SFTTrainer(
                 model=model,
-                args=training_args,
+                args=sft_config,
                 data_collator=data_collator,
                 train_dataset=train_dataset,
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 peft_config=peft_config,
-                formatting_func=formatting_func_cookpad,
-                max_seq_length=args.max_seq_length,
-                dataset_batch_size=args.dataset_batch_size
+                formatting_func=formatting_func_cookpad
             )
 
         trainer.model.print_trainable_parameters()
     
     else:
-        if args.dataset=="Erik/data_recipes_instructor":
+        if args.dataset=="AWeirdDev/zh-tw-recipes-sm":
             trainer = SFTTrainer(
                 model=model,
-                args=training_args,
+                args=sft_config,
                 data_collator=data_collator,
                 train_dataset=train_dataset,
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
-                formatting_func=formatting_func_data_recipes_instructor,
-                max_seq_length=args.max_seq_length,
-                dataset_batch_size=args.dataset_batch_size
+                formatting_func=formatting_func_zh_tw_recipes_sm
+            )
+        elif args.dataset=="Erik/data_recipes_instructor":
+            trainer = SFTTrainer(
+                model=model,
+                args=sft_config,
+                data_collator=data_collator,
+                train_dataset=train_dataset,
+                eval_dataset=eval_dataset,
+                tokenizer=tokenizer,
+                formatting_func=formatting_func_data_recipes_instructor
+            )
+        elif args.dataset=="mertbozkurt/llama2-TR-recipe":
+            sft_config.dataset_text_field="text"
+            trainer = SFTTrainer(
+                model=model,
+                args=sft_config,
+                data_collator=data_collator,
+                train_dataset=train_dataset,
+                eval_dataset=eval_dataset,
+                tokenizer=tokenizer,
+            )
+        elif args.dataset=="SuryaKrishna02/aya-telugu-food-recipes":
+            trainer = SFTTrainer(
+                model=model,
+                args=sft_config,
+                data_collator=data_collator,
+                train_dataset=train_dataset,
+                eval_dataset=eval_dataset,
+                tokenizer=tokenizer,
+                formatting_func=formatting_func_aya_telugu_food_recipes
             )
         else:
             trainer = SFTTrainer(
                 model=model,
-                args=training_args,
+                args=sft_config,
                 data_collator=data_collator,
                 train_dataset=train_dataset,
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
-                formatting_func=formatting_func_cookpad,
-                max_seq_length=args.max_seq_length,
-                dataset_batch_size=args.dataset_batch_size
+                formatting_func=formatting_func_cookpad
             )
 
-    print("Training started.")
     trainer.train()
 
     return tokenizer, model
 
-def generation(args, tokenizer, model, test_dataset):
+def generation(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTrainedModel, test_dataset: Dataset) -> None:
 
     if args.num_beams==1 and not args.do_sample:
         print("Text generation strategy is greedy decoding.")
@@ -448,39 +581,41 @@ def generation(args, tokenizer, model, test_dataset):
         max_matching_ngram_size=args.max_matching_ngram_size
     )
 
-    assistant_model = load_checkpoint(args)[1] if args.assistant_model is not None else None
-
     output_lists = []
     with torch.no_grad():
 
         if args.assistant_model is None:  
-            for title, name, position in tzip(test_dataset["title"], test_dataset["name"], test_dataset["position"]):
-                input_text = f"# ユーザ\n{title}\n\n# アシスタント\n## 食材\n{name}\n## 作り方\n{position}"
+            for title in tqdm(test_dataset["title"]):
+                input_text = f"# ユーザ\n{title}\n\n# アシスタント\n"
                 input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
-                output_text = model.generate(
-                    **input_text,
-                    generation_config=generation_config
-                )
+                output_text = model.generate(**input_text, generation_config=generation_config)
                 output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
                 output_lists.append(output_list)
         else:
-            for title, name, position in tzip(test_dataset["title"]), test_dataset["name"], test_dataset["position"]:
-                input_text = f"# ユーザ\n{title}\n\n# アシスタント\n## 食材\n{name}\n## 作り方\n{position}"
+            assistant_model = load_checkpoint(args)[1]
+
+            for title in tqdm(test_dataset["title"]):
+                input_text = f"# ユーザ\n{title}\n\n# アシスタント\n"
                 input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
-                output_text = model.generate(
-                    **input_text,
-                    generation_config=generation_config,
-                    assistant_model=assistant_model
-                )
+                output_text = model.generate(**input_text, generation_config=generation_config, assistant_model=assistant_model)
                 output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
                 output_lists.append(output_list)
 
     output_lists = pd.DataFrame(output_lists)
     output_lists.to_csv(args.output_dir+"/outputs.csv", header=False, index=False)
         
-def main(args):
-    if args.dataset=="Erik/data_recipes_instructor":
+def main(args: Namespace) -> None:
+    if args.dataset=="AWeirdDev/zh-tw-recipes-sm":
+        train_dataset = load_dataset("AWeirdDev/zh-tw-recipes-sm", split="train")
+        run_training(args, train_dataset)
+    elif args.dataset=="Erik/data_recipes_instructor":
         train_dataset = load_dataset("Erik/data_recipes_instructor", split="train")
+        run_training(args, train_dataset)
+    elif args.dataset=="mertbozkurt/llama2-TR-recipe":
+        train_dataset = load_dataset("mertbozkurt/llama2-TR-recipe", split="train")
+        run_training(args, train_dataset)
+    elif args.dataset=="SuryaKrishna02/aya-telugu-food-recipes":
+        train_dataset = load_dataset("SuryaKrishna02/aya-telugu-food-recipes", split="train")
         run_training(args, train_dataset)
     else:
         train_dataset, eval_dataset, test_dataset = load_raw_dataset(args)
@@ -490,10 +625,10 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    # Main Config
-    parser.add_argument("--dataset", default="./data.tsv", type=str)
-    parser.add_argument("--tokenizer", default="cyberagent/open-calm-7b", type=str)
-    parser.add_argument("--model", default="cyberagent/open-calm-7b", type=str)
+    parser.add_argument("--dataset", default="./cookpad_data.tsv", type=str, choices=["./cookpad_data.tsv", "AWeirdDev/zh-tw-recipes-sm", "Erik/data_recipes_instructor", "mertbozkurt/llama2-TR-recipe", "SuryaKrishna02/aya-telugu-food-recipes"], help="Path to the dataset file.")
+    parser.add_argument("--tokenizer", default="ai-forever/mGPT", type=str, help="Tokenizer name or path.")
+    parser.add_argument("--model", default="ai-forever/mGPT", type=str, help="Model name or path.")
+    parser.add_argument("--data-collator", type=str, default="LanguageModeling", choices=["LanguageModeling", "CompletionOnlyLM"], help="Data collator type.")
     
     # Bits And Bytes Config
     parser.add_argument("--load-in-8bit", action="store_true")
@@ -501,7 +636,7 @@ if __name__ == "__main__":
     parser.add_argument("--llm-int8-threshold", default=6.0, type=float)
     parser.add_argument("--llm-int8-skip-modules", nargs="*", type=str)
     parser.add_argument("--llm-int8-has-fp16-weight", action="store_true")
-    parser.add_argument("--bnb-4bit-compute-dtype", default="float32", type=str, choices=["float32", "bfloat16"])
+    parser.add_argument("--bnb-4bit-compute-dtype", default="float32", type=str,choices=["float32", "bfloat16"])
     parser.add_argument("--bnb-4bit-quant-type", default="fp4", type=str, choices=["fp4", "nf4"])
     parser.add_argument("--bnb-4bit-use-double-quant", action="store_true")
     parser.add_argument("--bnb-4bit-quant-storage", default="uint8", type=str, choices=["uint8"])
@@ -510,19 +645,20 @@ if __name__ == "__main__":
     parser.add_argument("--torch-dtype", default="auto", type=str, choices=["auto", "float16", "bfloat16", "float32"])
     parser.add_argument("--attn-implementation", type=str, choices=["eager", "sdpa", "flash_attention_2"])
 
-    # Training Arguments
-    parser.add_argument("--output-dir", default="output_dir", type=str)
-    parser.add_argument("--evaluation-strategy", default="no", type=str, choices=["no", "steps", "epoch"])
+    # SFT Config
+    parser.add_argument("--output-dir", default="tmp_trainer", type=str)
+    parser.add_argument("--eval-strategy", default="no", type=str, choices=["no", "steps", "epoch"])
     parser.add_argument("--per-device-train-batch-size", default=8, type=int)
     parser.add_argument("--per-device-eval-batch-size", default=8, type=int)
     parser.add_argument("--gradient-accumulation-steps", default=1, type=int)
     parser.add_argument("--learning-rate", default=5e-5, type=float)
     parser.add_argument("--weight-decay", default=0, type=float)
     parser.add_argument("--adam-beta1", default=0.9, type=float)
-    parser.add_argument("--adam-beta2", default=0.999, type=float)
+    parser.add_argument("--adam-beta2", default=0.999,type=float)
     parser.add_argument("--adam-epsilon", default=1e-8, type=float)
     parser.add_argument("--max-grad-norm", default=1.0, type=float)
     parser.add_argument("--num-train-epochs", default=3.0, type=float)
+    parser.add_argument("--max-steps", default=-1, type=int)
     parser.add_argument("--lr-scheduler-type", default="linear", type=str, choices=["linear", "cosine", "constant"])
     parser.add_argument("--warmup-ratio", default=0.0, type=float)
     parser.add_argument("--logging-dir", type=str)
@@ -532,24 +668,38 @@ if __name__ == "__main__":
     parser.add_argument("--save-steps", default=500, type=int)
     parser.add_argument("--seed", default=42, type=int)
     parser.add_argument("--data-seed", type=int)
+    parser.add_argument("--fp16-opt-level", default="O1", type=str, choices=["O0", "O1", "O2", "O3"])
+    parser.add_argument("--half-precision-backend", default="auto", type=str, choices=["auto", "apex", "cpu_amp"])
     parser.add_argument("--dataloader-num-workers", default=0, type=int)
     parser.add_argument("--run-name", type=str)
     parser.add_argument("--load-best-model-at-end", action="store_true")
-    parser.add_argument("--optim", default="adamw_torch", type=str, choices=["adamw_torch", "adamw_hf", "adamw_torch", "adamw_torch_fused", "adamw_apex_fused", "adamw_anyprecision", "adafactor", "adamw_bnb_8bit", "galore_adamw", "galore_adamw_8bit", "galore_adafactor"])
+    parser.add_argument("--metric-for-best-model", type=str)
+    parser.add_argument("--optim", default="adamw_torch", type=str, choices=["adamw_torch", "adamw_hf", "adamw_torch", "adamw_torch_fused", "adamw_apex_fused", "adamw_anyprecision", "adafactor"])
     parser.add_argument("--group-by-length", action="store_true")
     parser.add_argument("--report-to", nargs="*", default="all", type=str, choices=["azure_ml", "clearml", "codecarbon", "comet_ml", "dagshub", "flyte", "mlflow", "neptune", "tensorboard", "wandb"])
+    parser.add_argument("--auto-find-batch-size", action="store_true")
+    parser.add_argument("--split-batches", action="store_true")
+    parser.add_argument("--include-tokens-per-second", action="store_true")
+    parser.add_argument("--include-num-input-tokens-seen", action="store_true")
     parser.add_argument("--neftune-noise-alpha", type=float)
     parser.add_argument("--optim-target-modules", nargs="*", type=str)
+    parser.add_argument("--packing", action="store_true")
+    parser.add_argument("--max-seq-length", default=1024, type=int)
+    parser.add_argument("--dataset-num-proc", type=int)
+    parser.add_argument("--dataset-batch-size", type=int)
+    parser.add_argument("--num-of-sequences", default=1024, type=int)
+    parser.add_argument("--chars-per-token", default=3.6, type=float)
 
     # Peft Config
-    parser.add_argument("--peft-type", type=str, choices=["PROMPT_TUNING", "P_TUNING", "PREFIX_TUNING", "LORA", "ADALORA", "BOFT", "IA3", "LOHA", "LOKR", "OFT", "LN_TUNING"])
-    ## Lora Config, Adalora Config, Boft Config, IA3 Config, Loha Config, Lokr Config, OFT Config and LN Tuning Config
+    parser.add_argument("--peft-type", type=str, choices=["PROMPT_TUNING", "P_TUNING", "PREFIX_TUNING", "LORA", "ADALORA", "BOFT", "ADAPTION_PROMPT", "IA3", "LOHA", "LOKR", "OFT", "POLY", "LN_TUNING"])
+    ## Lora Config, Adalora Config, Boft Config, Adaption Prompt Config, IA3 Config, Loha Config, Lokr Config, OFT Config, Poly Config and LN Tuning Config
     parser.add_argument("--target-modules", nargs="*", type=str)
-    ## Lora Config, Adalora Config, Loha Config, Lokr Config and OFT Config
+    ## Lora Config, Adalora Config, Loha Config, Lokr Config, OFT Config and Poly Config
     parser.add_argument("--r", default=8, type=int)
+    ## Loha Config, Lokr Config, OFT Config, Boft Config and Poly Config
+    parser.add_argument("--init-weights", action="store_false")
     ## Loha Config, Lokr Config, OFT Config and Boft Config
     parser.add_argument("--module-dropout", default=0.0, type=float)
-    parser.add_argument("--init-weights", action="store_false")
     ## Lora Config, Adalora Config, Boft Config and IA3 Config
     parser.add_argument("--fan-in-fan-out", action="store_true")
     ## Prompt Tuning Config, Prompt Encoder Config and Prefix Tuning Config
@@ -595,6 +745,9 @@ if __name__ == "__main__":
     parser.add_argument("--boft-block-num", default=0, type=int)
     parser.add_argument("--boft-n-butterfly-factor", default=1, type=int)
     parser.add_argument("--boft-dropout", default=0.0, type=float)
+    ## Adaption Prompt Config
+    parser.add_argument("--adapter-len", type=int)
+    parser.add_argument("--adapter-layers", type=int)
     ## IA3 Config
     parser.add_argument("--feedforward-modules", nargs="*", type=str)
     parser.add_argument("--init-ia3-weights", action="store_false")
@@ -605,10 +758,11 @@ if __name__ == "__main__":
     parser.add_argument("--coft", action="store_true")
     parser.add_argument("--eps", default=6e-05, type=float)
     parser.add_argument("--block-share", action="store_true")
-
-    # Sft Trainer
-    parser.add_argument("--max-seq-length", type=int)
-    parser.add_argument("--dataset-batch-size", type=int)
+    ## Poly Config
+    parser.add_argument("--poly-type", default="poly", type=str, choices=["poly"])
+    parser.add_argument("--n-tasks", default=1, type=int)
+    parser.add_argument("--n-skills", default=4, type=int)
+    parser.add_argument("--n-splits", default=1, type=int)
 
     # Generate
     parser.add_argument("--assistant-model", type=str)
