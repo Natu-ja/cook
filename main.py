@@ -1,28 +1,28 @@
 from typing import Tuple
 import argparse
 from argparse import Namespace
-from tqdm import tqdm
-import pandas as pd
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig, PreTrainedModel, PreTrainedTokenizerBase
-from datasets import Dataset, load_dataset
+from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedModel, PreTrainedTokenizerBase
+from datasets import Dataset
 from trl import SFTConfig, SFTTrainer
 
 def load_raw_dataset(args: Namespace) -> Tuple[Dataset, Dataset, Dataset]:
+
+    import pandas as pd
 
     dataset = pd.read_csv(args.dataset, sep="\t")
 
     dataset = dataset.dropna()
     dataset = dataset.drop_duplicates()
 
-    dataset = Dataset.from_pandas(dataset)
+    dataset = Dataset.from_pandas(df=dataset)
 
     dataset = dataset.train_test_split(test_size=0.25, shuffle=True, seed=args.seed)
     tv_dataset, test_dataset = dataset["train"], dataset["test"]
     tv_dataset = tv_dataset.train_test_split(test_size=0.25, shuffle=False, seed=args.seed)
     train_dataset, eval_dataset = tv_dataset["train"], tv_dataset["test"]
 
-    print(f"Train dataset : validation dataset : test dataset = {len(train_dataset)} : {len(eval_dataset)} : {len(test_dataset)}")
+    print(f"Train dataset : Validation dataset : Test dataset = {len(train_dataset)} : {len(eval_dataset)} : {len(test_dataset)}")
 
     return train_dataset, eval_dataset, test_dataset
 
@@ -215,8 +215,6 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
         )
     
     if args.peft_type is not None:
-
-        args.target_modules = "all-linear" if args.target_modules is None else args.target_modules
 
         if args.init_lora_weights is None or args.init_lora_weights=="true":
             args.init_lora_weights = True
@@ -419,7 +417,8 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 peft_config=peft_config,
-                formatting_func=formatting_func_zh_tw_recipes_sm
+                formatting_func=formatting_func_zh_tw_recipes_sm,
+                infinite=args.infinite
             )
         elif args.dataset=="Erik/data_recipes_instructor":
             trainer = SFTTrainer(
@@ -430,7 +429,8 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 peft_config=peft_config,
-                formatting_func=formatting_func_data_recipes_instructor
+                formatting_func=formatting_func_data_recipes_instructor,
+                infinite=args.infinite
             )
         elif args.dataset=="mertbozkurt/llama2-TR-recipe":
             sft_config.dataset_text_field="text"
@@ -441,7 +441,8 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 train_dataset=train_dataset,
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
-                peft_config=peft_config
+                peft_config=peft_config,
+                infinite=args.infinite
             )
         elif args.dataset=="SuryaKrishna02/aya-telugu-food-recipes":
             trainer = SFTTrainer(
@@ -452,7 +453,8 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 peft_config=peft_config,
-                formatting_func=formatting_func_aya_telugu_food_recipes
+                formatting_func=formatting_func_aya_telugu_food_recipes,
+                infinite=args.infinite
             )
         else:
             trainer = SFTTrainer(
@@ -463,7 +465,8 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 peft_config=peft_config,
-                formatting_func=formatting_func_cookpad
+                formatting_func=formatting_func_cookpad,
+                infinite=args.infinite
             )
 
         trainer.model.print_trainable_parameters()
@@ -477,7 +480,8 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 train_dataset=train_dataset,
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
-                formatting_func=formatting_func_zh_tw_recipes_sm
+                formatting_func=formatting_func_zh_tw_recipes_sm,
+                infinite=args.infinite
             )
         elif args.dataset=="Erik/data_recipes_instructor":
             trainer = SFTTrainer(
@@ -487,7 +491,8 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 train_dataset=train_dataset,
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
-                formatting_func=formatting_func_data_recipes_instructor
+                formatting_func=formatting_func_data_recipes_instructor,
+                infinite=args.infinite
             )
         elif args.dataset=="mertbozkurt/llama2-TR-recipe":
             sft_config.dataset_text_field="text"
@@ -498,6 +503,7 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 train_dataset=train_dataset,
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
+                infinite=args.infinite
             )
         elif args.dataset=="SuryaKrishna02/aya-telugu-food-recipes":
             trainer = SFTTrainer(
@@ -507,7 +513,8 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 train_dataset=train_dataset,
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
-                formatting_func=formatting_func_aya_telugu_food_recipes
+                formatting_func=formatting_func_aya_telugu_food_recipes,
+                infinite=args.infinite
             )
         else:
             trainer = SFTTrainer(
@@ -517,7 +524,8 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 train_dataset=train_dataset,
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
-                formatting_func=formatting_func_cookpad
+                formatting_func=formatting_func_cookpad,
+                infinite=args.infinite
             )
 
     trainer.train()
@@ -525,6 +533,10 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
     return tokenizer, model
 
 def generation(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTrainedModel, test_dataset: Dataset) -> None:
+
+    import pandas as pd
+    from tqdm import tqdm
+    from transformers import GenerationConfig
 
     if args.num_beams==1 and not args.do_sample:
         print("Text generation strategy is greedy decoding.")
@@ -569,7 +581,9 @@ def generation(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTr
         renormalize_logits=args.renormalize_logits,
         forced_bos_token_id= model.config.forced_bos_token_id,
         forced_eos_token_id=model.config.forced_eos_token_id,
+        remove_invalid_values=model.config.remove_invalid_values if args.remove_invalid_values else False,
         guidance_scale=args.guidance_scale,
+        low_memory=args.low_memory,
         num_return_sequences=args.num_return_sequences,
         output_attentions=args.output_attentions,
         pad_token_id=model.config.pad_token_id,
@@ -606,15 +620,19 @@ def generation(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTr
         
 def main(args: Namespace) -> None:
     if args.dataset=="AWeirdDev/zh-tw-recipes-sm":
+        from datasets import load_dataset
         train_dataset = load_dataset("AWeirdDev/zh-tw-recipes-sm", split="train")
         run_training(args, train_dataset)
     elif args.dataset=="Erik/data_recipes_instructor":
+        from datasets import load_dataset
         train_dataset = load_dataset("Erik/data_recipes_instructor", split="train")
         run_training(args, train_dataset)
     elif args.dataset=="mertbozkurt/llama2-TR-recipe":
+        from datasets import load_dataset
         train_dataset = load_dataset("mertbozkurt/llama2-TR-recipe", split="train")
         run_training(args, train_dataset)
     elif args.dataset=="SuryaKrishna02/aya-telugu-food-recipes":
+        from datasets import load_dataset
         train_dataset = load_dataset("SuryaKrishna02/aya-telugu-food-recipes", split="train")
         run_training(args, train_dataset)
     else:
@@ -689,6 +707,9 @@ if __name__ == "__main__":
     parser.add_argument("--dataset-batch-size", type=int)
     parser.add_argument("--num-of-sequences", default=1024, type=int)
     parser.add_argument("--chars-per-token", default=3.6, type=float)
+
+    # SFT Trainer
+    parser.add_argument("--infinite", action="store_true")
 
     # Peft Config
     parser.add_argument("--peft-type", type=str, choices=["PROMPT_TUNING", "P_TUNING", "PREFIX_TUNING", "LORA", "ADALORA", "BOFT", "ADAPTION_PROMPT", "IA3", "LOHA", "LOKR", "OFT", "POLY", "LN_TUNING"])
@@ -793,7 +814,9 @@ if __name__ == "__main__":
     parser.add_argument("--length-penalty", default=1.0, type=float)
     parser.add_argument("--no-repeat-ngram-size", default=0, type=int)
     parser.add_argument("--renormalize-logits", action="store_true")
+    parser.add_argument("--remove-invalid-values", action="store_true")
     parser.add_argument("--guidance-scale", type=float)
+    parser.add_argument("--low-memory", action="store_true")
     parser.add_argument("--num-return-sequences", default=1, type=int)
     parser.add_argument("--output-attentions", action="store_true")
     parser.add_argument("--num-assistant-tokens", default=5, type=int)

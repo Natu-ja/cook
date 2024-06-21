@@ -7,11 +7,16 @@
     </p>
 </h4>
 
-<img src='image.webp' style="display: block; margin: auto;">
+<img src='image.webp' style="display: block; margin: auto; width: 75%;">
 
 ## データ
+
 - [クックパッドデータセット（レシピデータ）](https://www.nii.ac.jp/dsc/idr/cookpad/)
+    - 言語
+        - 日本語
+
 ---
+
 - [AWeirdDev/zh-tw-recipes-sm](https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm)
     - データセットのサイズ
         - 訓練データ: $1,799$
@@ -34,6 +39,7 @@
         - テルグ語
 
 ## 実装済み
+
 - 量子化
 - Flash Attention
 - PEFT
@@ -63,9 +69,12 @@
 
 ```
 python main.py \
+    --tokenizer cyberagent/open-calm-7b \
+    --model cyberagent/open-calm-7b \
     --eval-strategy steps \
-    --load-best-model-at-end \
-    --group-by-length \
-    --auto-find-batch-size \
-    --max-new-tokens 512
+    --max-new-tokens 1024
+```
+
+```
+bash main.sh
 ```
