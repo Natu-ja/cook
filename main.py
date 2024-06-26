@@ -1,32 +1,37 @@
-from typing import Tuple
+import os
 import argparse
 from argparse import Namespace
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedModel, PreTrainedTokenizerBase
-from datasets import Dataset
+from datasets.arrow_dataset import Dataset
+from datasets.formatting.formatting import LazyBatch
 from trl import SFTConfig, SFTTrainer
 
-def load_raw_dataset(args: Namespace) -> Tuple[Dataset, Dataset, Dataset]:
+def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tuple[Dataset, None, None]:
 
-    import pandas as pd
+    if not os.path.exists(path=args.dataset):
 
-    dataset = pd.read_csv(args.dataset, sep="\t")
+        from datasets import load_dataset
 
-    dataset = dataset.dropna()
-    dataset = dataset.drop_duplicates()
+        train_dataset = load_dataset(path=args.dataset, split="train")
 
-    dataset = Dataset.from_pandas(df=dataset)
+        return train_dataset, None, None
+    
+    else:
 
-    dataset = dataset.train_test_split(test_size=0.25, shuffle=True, seed=args.seed)
-    tv_dataset, test_dataset = dataset["train"], dataset["test"]
-    tv_dataset = tv_dataset.train_test_split(test_size=0.25, shuffle=False, seed=args.seed)
-    train_dataset, eval_dataset = tv_dataset["train"], tv_dataset["test"]
+        import pandas as pd
 
-    print(f"Train dataset : Validation dataset : Test dataset = {len(train_dataset)} : {len(eval_dataset)} : {len(test_dataset)}")
+        dataset = pd.read_csv(filepath_or_buffer=args.dataset, sep="\t")
+        dataset = Dataset.from_pandas(df=dataset)
 
-    return train_dataset, eval_dataset, test_dataset
+        dataset = dataset.train_test_split(test_size=0.25, shuffle=True, seed=args.seed)
+        tv_dataset, test_dataset = dataset["train"], dataset["test"]
+        tv_dataset = tv_dataset.train_test_split(test_size=0.25, shuffle=False, seed=args.seed)
+        train_dataset, eval_dataset = tv_dataset["train"], tv_dataset["test"]
 
-def load_checkpoint(args: Namespace) -> Tuple[PreTrainedTokenizerBase, PreTrainedModel]:
+        return train_dataset, eval_dataset, test_dataset
+
+def load_checkpoint(args: Namespace) -> tuple[PreTrainedTokenizerBase, PreTrainedModel]:
 
     tokenizer = AutoTokenizer.from_pretrained(
         pretrained_model_name_or_path=args.tokenizer,
@@ -65,7 +70,7 @@ def load_checkpoint(args: Namespace) -> Tuple[PreTrainedTokenizerBase, PreTraine
                 pretrained_model_name_or_path=args.model,
                 attn_implementation=args.attn_implementation,
                 torch_dtype=args.torch_dtype,
-                device_map="auto",
+                device_map=args.device_map,
                 quantization_config=quantization_config
             )
 
@@ -73,7 +78,7 @@ def load_checkpoint(args: Namespace) -> Tuple[PreTrainedTokenizerBase, PreTraine
             model = AutoModelForCausalLM.from_pretrained(
                 pretrained_model_name_or_path=args.model,
                 torch_dtype=args.torch_dtype,
-                device_map="auto",
+                device_map=args.device_map,
                 quantization_config=quantization_config
             )
 
@@ -84,41 +89,43 @@ def load_checkpoint(args: Namespace) -> Tuple[PreTrainedTokenizerBase, PreTraine
                 pretrained_model_name_or_path=args.model,
                 attn_implementation=args.attn_implementation,
                 torch_dtype=args.torch_dtype,
-                device_map="auto"
+                device_map=args.device_map,
             )
 
         else:
             model = AutoModelForCausalLM.from_pretrained(
                 pretrained_model_name_or_path=args.model,
                 torch_dtype=args.torch_dtype,
-                device_map="auto"
+                device_map=args.device_map,
             )
 
     if tokenizer.pad_token_id is None and model.config.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
         model.config.pad_token_id = model.config.eos_token_id
-    
-    print(f"Tokenizer and model loaded from {args.tokenizer} and {args.model}.")
 
     return tokenizer, model
 
-def formatting_func_cookpad(example):
-    output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
-    return output_texts
-
-def formatting_func_zh_tw_recipes_sm(example):
+def formatting_func_zh_tw_recipes_sm(example: LazyBatch) -> list[str]:
     output_texts = [f"# 標題\n{example['title'][i]}\n\n# 腳步\n{example['steps'][i]}" for i in range(len(example))]
     return output_texts
 
-def formatting_func_data_recipes_instructor(example):
+def formatting_func_data_recipes_instructor(example: LazyBatch) -> list[str]:
     output_texts = [f"# Instruction\n{example['instruction'][i]}\n\n# Input\n{example['input'][i]}\n\n# Output\n{example['output'][i]}" for i in range(len(example))]
     return output_texts
 
-def formatting_func_aya_telugu_food_recipes(example):
+def formatting_func_thai_food(example: LazyBatch) -> list[str]:
+    output_texts = [f"# ชื่อ\n{example['name'][i]}\n\n# ข้อความ\n{example['text'][i]}" for i in range(len(example))]
+    return output_texts
+
+def formatting_func_aya_telugu_food_recipes(example: LazyBatch) -> list[str]:
     output_texts = [f"# ఇన్పుట్\n{example['inputs'][i]}\n\n# లక్ష్యం\n{example['target'][i]}" for i in range(len(example))]
     return output_texts
 
-def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | Dataset = None) -> Tuple[PreTrainedTokenizerBase, PreTrainedModel]:
+def formatting_func_cookpad(example: LazyBatch) -> list[str]:
+    output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
+    return output_texts
+
+def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: Dataset | None) -> tuple[PreTrainedTokenizerBase, PreTrainedModel]:
 
     tokenizer, model = load_checkpoint(args)
 
@@ -189,6 +196,13 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
             data_collator = DataCollatorForCompletionOnlyLM(
                 response_template=tokenizer.encode("[/INST] ", add_special_tokens=False),
                 instruction_template=tokenizer.encode("[INST] ", add_special_tokens=False),
+                mlm=False,
+                tokenizer=tokenizer
+            )
+        elif args.dataset=="pythainlp/thai_food_v1.0":
+            data_collator = DataCollatorForCompletionOnlyLM(
+                response_template=tokenizer.encode("# ข้อความ\n", add_special_tokens=False),
+                instruction_template=tokenizer.encode("# ชื่อ\n", add_special_tokens=False),
                 mlm=False,
                 tokenizer=tokenizer
             )
@@ -414,7 +428,6 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 args=sft_config,
                 data_collator=data_collator,
                 train_dataset=train_dataset,
-                eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 peft_config=peft_config,
                 formatting_func=formatting_func_zh_tw_recipes_sm,
@@ -426,7 +439,6 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 args=sft_config,
                 data_collator=data_collator,
                 train_dataset=train_dataset,
-                eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 peft_config=peft_config,
                 formatting_func=formatting_func_data_recipes_instructor,
@@ -439,9 +451,19 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 args=sft_config,
                 data_collator=data_collator,
                 train_dataset=train_dataset,
-                eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 peft_config=peft_config,
+                infinite=args.infinite
+            )
+        elif args.dataset=="pythainlp/thai_food_v1.0":
+            trainer = SFTTrainer(
+                model=model,
+                args=sft_config,
+                data_collator=data_collator,
+                train_dataset=train_dataset,
+                tokenizer=tokenizer,
+                peft_config=peft_config,
+                formatting_func=formatting_func_thai_food,
                 infinite=args.infinite
             )
         elif args.dataset=="SuryaKrishna02/aya-telugu-food-recipes":
@@ -450,7 +472,6 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 args=sft_config,
                 data_collator=data_collator,
                 train_dataset=train_dataset,
-                eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 peft_config=peft_config,
                 formatting_func=formatting_func_aya_telugu_food_recipes,
@@ -468,8 +489,6 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 formatting_func=formatting_func_cookpad,
                 infinite=args.infinite
             )
-
-        trainer.model.print_trainable_parameters()
     
     else:
         if args.dataset=="AWeirdDev/zh-tw-recipes-sm":
@@ -478,7 +497,6 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 args=sft_config,
                 data_collator=data_collator,
                 train_dataset=train_dataset,
-                eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 formatting_func=formatting_func_zh_tw_recipes_sm,
                 infinite=args.infinite
@@ -489,7 +507,6 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 args=sft_config,
                 data_collator=data_collator,
                 train_dataset=train_dataset,
-                eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 formatting_func=formatting_func_data_recipes_instructor,
                 infinite=args.infinite
@@ -501,8 +518,17 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 args=sft_config,
                 data_collator=data_collator,
                 train_dataset=train_dataset,
-                eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
+                infinite=args.infinite
+            )
+        elif args.dataset=="pythainlp/thai_food_v1.0":
+            trainer = SFTTrainer(
+                model=model,
+                args=sft_config,
+                data_collator=data_collator,
+                train_dataset=train_dataset,
+                tokenizer=tokenizer,
+                formatting_func=formatting_func_thai_food,
                 infinite=args.infinite
             )
         elif args.dataset=="SuryaKrishna02/aya-telugu-food-recipes":
@@ -511,7 +537,6 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: None | D
                 args=sft_config,
                 data_collator=data_collator,
                 train_dataset=train_dataset,
-                eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
                 formatting_func=formatting_func_aya_telugu_food_recipes,
                 infinite=args.infinite
@@ -537,21 +562,6 @@ def generation(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTr
     import pandas as pd
     from tqdm import tqdm
     from transformers import GenerationConfig
-
-    if args.num_beams==1 and not args.do_sample:
-        print("Text generation strategy is greedy decoding.")
-    if args.num_beams==1 and args.do_sample:
-        print("Text generation strategy is multinomial sampling.")
-    if args.num_beams>1 and not args.do_sample:
-        print("Text generation strategy is beam-search decoding.")
-    if args.num_beams>1 and args.do_sample:
-        print("Text generation strategy is beam-search multinomial sampling.")
-    if args.penalty_alpha>0 and args.top_k>1:
-        print("Text generation strategy is contrastive search.")
-    if args.num_beams>1 and args.num_beam_groups>1:
-        print("Text generation strategy is diverse beam-search decoding.")
-    if args.assistant_model is not None or args.prompt_lookup_num_tokens is not None:
-        print("Text generation strategy is assisted decoding.")
 
     generation_config = GenerationConfig(
         max_length=args.max_length,
@@ -605,6 +615,7 @@ def generation(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTr
                 output_text = model.generate(**input_text, generation_config=generation_config)
                 output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
                 output_lists.append(output_list)
+        
         else:
             assistant_model = load_checkpoint(args)[1]
 
@@ -616,34 +627,20 @@ def generation(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTr
                 output_lists.append(output_list)
 
     output_lists = pd.DataFrame(output_lists)
-    output_lists.to_csv(args.output_dir+"/outputs.csv", header=False, index=False)
-        
+    output_lists.to_csv(path_or_buf=args.output_dir+"/outputs.csv", header=False, index=False)
+
 def main(args: Namespace) -> None:
-    if args.dataset=="AWeirdDev/zh-tw-recipes-sm":
-        from datasets import load_dataset
-        train_dataset = load_dataset("AWeirdDev/zh-tw-recipes-sm", split="train")
-        run_training(args, train_dataset)
-    elif args.dataset=="Erik/data_recipes_instructor":
-        from datasets import load_dataset
-        train_dataset = load_dataset("Erik/data_recipes_instructor", split="train")
-        run_training(args, train_dataset)
-    elif args.dataset=="mertbozkurt/llama2-TR-recipe":
-        from datasets import load_dataset
-        train_dataset = load_dataset("mertbozkurt/llama2-TR-recipe", split="train")
-        run_training(args, train_dataset)
-    elif args.dataset=="SuryaKrishna02/aya-telugu-food-recipes":
-        from datasets import load_dataset
-        train_dataset = load_dataset("SuryaKrishna02/aya-telugu-food-recipes", split="train")
-        run_training(args, train_dataset)
-    else:
-        train_dataset, eval_dataset, test_dataset = load_raw_dataset(args)
-        tokenizer, model = run_training(args, train_dataset, eval_dataset)
+
+    train_dataset, eval_dataset, test_dataset = load_raw_dataset(args)
+    tokenizer, model = run_training(args, train_dataset, eval_dataset)
+    
+    if test_dataset is not None:
         generation(args, tokenizer, model, test_dataset)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Train a model on the Cookpad dataset and generate outputs.")
 
-    parser.add_argument("--dataset", default="./cookpad_data.tsv", type=str, choices=["./cookpad_data.tsv", "AWeirdDev/zh-tw-recipes-sm", "Erik/data_recipes_instructor", "mertbozkurt/llama2-TR-recipe", "SuryaKrishna02/aya-telugu-food-recipes"], help="Path to the dataset file.")
+    parser.add_argument("--dataset", default="./cookpad_data.tsv", type=str, help="Path to the dataset file.", choices=["./cookpad_data.tsv", "AWeirdDev/zh-tw-recipes-sm", "Erik/data_recipes_instructor", "mertbozkurt/llama2-TR-recipe", "pythainlp/thai_food_v1.0", "SuryaKrishna02/aya-telugu-food-recipes"])
     parser.add_argument("--tokenizer", default="ai-forever/mGPT", type=str, help="Tokenizer name or path.")
     parser.add_argument("--model", default="ai-forever/mGPT", type=str, help="Model name or path.")
     parser.add_argument("--data-collator", type=str, default="LanguageModeling", choices=["LanguageModeling", "CompletionOnlyLM"], help="Data collator type.")
@@ -662,6 +659,7 @@ if __name__ == "__main__":
     # From Pretrained
     parser.add_argument("--torch-dtype", default="auto", type=str, choices=["auto", "float16", "bfloat16", "float32"])
     parser.add_argument("--attn-implementation", type=str, choices=["eager", "sdpa", "flash_attention_2"])
+    parser.add_argument("--device-map", default="auto", type=str, choices=["auto", "cpu", "cuda"])
 
     # SFT Config
     parser.add_argument("--output-dir", default="tmp_trainer", type=str)

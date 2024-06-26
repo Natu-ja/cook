@@ -7,7 +7,7 @@
     </p>
 </h4>
 
-<img src='image.webp' style="display: block; margin: auto; width: 75%;">
+<img src='image.webp' style="display: block; margin: auto; width: 100%;">
 
 ## Data
 
@@ -22,16 +22,25 @@
         - train data: $1,799$
     - language
         - Chinese
+
 - [Erik/data_recipes_instructor](https://huggingface.co/datasets/Erik/data_recipes_instructor)
     - dataset size
         - train data: $20,000$
     - language
         - English
+
 - [mertbozkurt/llama2-TR-recipe](https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe)
     - dataset size
         - train data: $10,504$
     - language
         - Turkish
+
+- [pythainlp/thai_food_v1.0](https://huggingface.co/datasets/pythainlp/thai_food_v1.0)
+    - dataset size
+        - train data: $159$
+    - language
+        - Thai
+
 - [SuryaKrishna02/aya-telugu-food-recipes](https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes)
     - dataset size
         - train data: $441$
@@ -41,7 +50,9 @@
 ## Implemented
 
 - Quantization
+
 - Flash Attention
+
 - PEFT
     - Prompt Tuning
     - P-Tuning
@@ -56,6 +67,7 @@
     - OFT
     - Polytropon
     - Layernorm Tuning
+
 - Generation Strategy
     - Greedy Decoding
     - Multinomial Sampling
@@ -68,11 +80,7 @@
 ## Train
 
 ```
-python main.py \
-    --tokenizer cyberagent/open-calm-7b \
-    --model cyberagent/open-calm-7b \
-    --eval-strategy steps \
-    --max-new-tokens 1024
+python main.py --tokenizer cyberagent/open-calm-7b --model cyberagent/open-calm-7b --output-dir tmp_trainer/`date '+%Y_%m_%d_%H_%M_%S'` --eval-strategy epoch --logging-strategy epoch --save-strategy epoch --max-new-tokens 1024
 ```
 
 ```

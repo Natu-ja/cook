@@ -7,7 +7,7 @@
     </p>
 </h4>
 
-<img src='image.webp' style="display: block; margin: auto; width: 75%;">
+<img src='image.webp' style="display: block; margin: auto; width: 100%;">
 
 ## データ
 
@@ -22,16 +22,25 @@
         - 訓練データ: $1,799$
     - 言語
         - 中国語
+
 - [Erik/data_recipes_instructor](https://huggingface.co/datasets/Erik/data_recipes_instructor)
     - データセットのサイズ
         - 訓練データ: $20,000$
     - 言語
         - 英語
+
 - [mertbozkurt/llama2-TR-recipe](https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe)
     - データセットのサイズ
         - 訓練データ: $10,504$
     - 言語
         - トルコ語
+
+- [pythainlp/thai_food_v1.0](https://huggingface.co/datasets/pythainlp/thai_food_v1.0)
+    - データセットのサイズ
+        - 訓練データ: $159$
+    - 言語
+        - タイ語
+
 - [SuryaKrishna02/aya-telugu-food-recipes](https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes)
     - データセットのサイズ
         - 訓練データ: $441$
@@ -41,7 +50,9 @@
 ## 実装済み
 
 - 量子化
+
 - Flash Attention
+
 - PEFT
     - Prompt Tuning
     - P-Tuning
@@ -56,6 +67,7 @@
     - OFT
     - Polytropon
     - Layernorm Tuning
+
 - 生成戦略
     - 貪欲法
     - Multinomial Sampling
@@ -68,11 +80,7 @@
 ## 学習する
 
 ```
-python main.py \
-    --tokenizer cyberagent/open-calm-7b \
-    --model cyberagent/open-calm-7b \
-    --eval-strategy steps \
-    --max-new-tokens 1024
+python main.py --tokenizer cyberagent/open-calm-7b --model cyberagent/open-calm-7b --output-dir tmp_trainer/`date '+%Y_%m_%d_%H_%M_%S'` --eval-strategy epoch --logging-strategy epoch --save-strategy epoch --max-new-tokens 1024
 ```
 
 ```
