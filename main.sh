@@ -67,4 +67,18 @@ elif [ $dataset = "pythainlp/thai_food_v1.0" ]; then
         --save-strategy $save_strategy \
         --max-new-tokens $max_new_tokens
 
+elif [ $dataset = "SuryaKrishna02/aya-telugu-food-recipes" ]; then
+    python ./run/aya_telugu_food_recipes.py \
+        --dataset $dataset \
+        --tokenizer $tokenizer \
+        --model $model \
+        --output-dir $output_dir \
+        --eval-strategy $eval_strategy \
+        --logging-strategy $logging_strategy \
+        --save-strategy $save_strategy \
+        --max-new-tokens $max_new_tokens
+
+else
+    echo "Invalid dataset"
+
 fi
