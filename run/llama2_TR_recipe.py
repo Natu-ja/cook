@@ -132,7 +132,7 @@ if __name__ == "__main__":
     parser.add_argument("--device-map", default="auto", type=str, choices=["auto", "cpu", "cuda"])
 
     # SFT Config
-    parser.add_argument("--output-dir", default="tmp_trainer", type=str)
+    parser.add_argument("--output-dir", default="tmp_trainer/llama2_TR_recipe", type=str)
     parser.add_argument("--eval-strategy", default="no", type=str, choices=["no", "steps", "epoch"])
     parser.add_argument("--per-device-train-batch-size", default=8, type=int)
     parser.add_argument("--per-device-eval-batch-size", default=8, type=int)
