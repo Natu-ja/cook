@@ -1,14 +1,12 @@
 import argparse
 from argparse import Namespace
-from transformers import PreTrainedModel, PreTrainedTokenizerBase
 from datasets.arrow_dataset import Dataset
 from trl import SFTConfig, SFTTrainer
 
-from src.data_preprocessing import load_raw_dataset, formatting_func_cookpad
+from src.data_preprocessing import load_raw_dataset, formatting_func_aya_telugu_food_recipes
 from src.models import load_checkpoint
-from src.generation import generation
 
-def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: Dataset) -> tuple[PreTrainedTokenizerBase, PreTrainedModel]:
+def run_training(args: Namespace, train_dataset: Dataset) -> None:
 
     tokenizer, model = load_checkpoint(args)
 
@@ -69,8 +67,8 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: Dataset)
     else:
         from trl import DataCollatorForCompletionOnlyLM
         data_collator = DataCollatorForCompletionOnlyLM(
-            response_template=tokenizer.encode("# アシスタント\n", add_special_tokens=False),
-            instruction_template=tokenizer.encode("# ユーザ\n", add_special_tokens=False),
+            response_template=tokenizer.encode("# లక్ష్యం\n", add_special_tokens=False),
+            instruction_template=tokenizer.encode("# ఇన్పుట్\n", add_special_tokens=False),
             mlm=False,
             tokenizer=tokenizer
         )
@@ -79,16 +77,15 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: Dataset)
 
         from src.models import load_peft_config
         peft_config = load_peft_config(args)
-
+        
         trainer = SFTTrainer(
             model=model,
             args=sft_config,
             data_collator=data_collator,
             train_dataset=train_dataset,
-            eval_dataset=eval_dataset,
             tokenizer=tokenizer,
             peft_config=peft_config,
-            formatting_func=formatting_func_cookpad,
+            formatting_func=formatting_func_aya_telugu_food_recipes,
             infinite=args.infinite
         )
     
@@ -99,26 +96,22 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: Dataset)
             args=sft_config,
             data_collator=data_collator,
             train_dataset=train_dataset,
-            eval_dataset=eval_dataset,
             tokenizer=tokenizer,
-            formatting_func=formatting_func_cookpad,
+            formatting_func=formatting_func_aya_telugu_food_recipes,
             infinite=args.infinite
         )
 
     trainer.train()
 
-    return tokenizer, model
-
 def main(args: Namespace) -> None:
 
-    train_dataset, eval_dataset, test_dataset = load_raw_dataset(args)
-    tokenizer, model = run_training(args, train_dataset, eval_dataset)
-    generation(args, tokenizer, model, test_dataset)
+    train_dataset, _, _ = load_raw_dataset(args)
+    run_training(args, train_dataset)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model on the Cookpad dataset and generate outputs.")
 
-    parser.add_argument("--dataset", default="../raw_data/cookpad_data.tsv", type=str, help="https://www.nii.ac.jp/dsc/idr/cookpad/")
+    parser.add_argument("--dataset", default="SuryaKrishna02/aya-telugu-food-recipes", type=str, help="https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes")
     parser.add_argument("--tokenizer", default="ai-forever/mGPT", type=str, help="Tokenizer name or path.")
     parser.add_argument("--model", default="ai-forever/mGPT", type=str, help="Model name or path.")
     parser.add_argument("--data-collator", type=str, default="LanguageModeling", choices=["LanguageModeling", "CompletionOnlyLM"], help="Data collator type.")

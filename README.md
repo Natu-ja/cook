@@ -80,9 +80,5 @@
 ## Train
 
 ```
-python main.py --tokenizer cyberagent/open-calm-7b --model cyberagent/open-calm-7b --output-dir tmp_trainer/`date '+%Y_%m_%d_%H_%M_%S'` --eval-strategy epoch --logging-strategy epoch --save-strategy epoch --max-new-tokens 1024
-```
-
-```
 bash main.sh
 ```
