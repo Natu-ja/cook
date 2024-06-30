@@ -1,8 +1,6 @@
 #!/bin/bash
 
 dataset=../raw_data/cookpad_data.tsv
-tokenizer=cyberagent/open-calm-7b
-model=cyberagent/open-calm-7b
 
 # SFT Config
 eval_strategy=epoch
@@ -18,8 +16,6 @@ if [ $dataset = "../raw_data/cookpad_data.tsv" ]; then
 
     python ./run/cookpad.py \
         --dataset $dataset \
-        --tokenizer $tokenizer \
-        --model $model \
         --output-dir $output_dir \
         --eval-strategy $eval_strategy \
         --logging-strategy $logging_strategy \
@@ -32,8 +28,6 @@ elif [ $dataset = "AWeirdDev/zh-tw-recipes-sm" ]; then
 
     python ./run/zh_tw_recipes_sm.py \
         --dataset $dataset \
-        --tokenizer $tokenizer \
-        --model $model \
         --output-dir $output_dir \
         --eval-strategy $eval_strategy \
         --logging-strategy $logging_strategy \
@@ -46,8 +40,6 @@ elif [ $dataset = "Erik/data_recipes_instructor" ]; then
 
     python ./run/data_recipes_instructor.py \
         --dataset $dataset \
-        --tokenizer $tokenizer \
-        --model $model \
         --output-dir $output_dir \
         --eval-strategy $eval_strategy \
         --logging-strategy $logging_strategy \
@@ -60,8 +52,6 @@ elif [ $dataset = "mertbozkurt/llama2-TR-recipe" ]; then
 
     python ./run/llama2_TR_recipe.py \
         --dataset $dataset \
-        --tokenizer $tokenizer \
-        --model $model \
         --output-dir $output_dir \
         --eval-strategy $eval_strategy \
         --logging-strategy $logging_strategy \
@@ -74,8 +64,6 @@ elif [ $dataset = "pythainlp/thai_food_v1.0" ]; then
 
     python ./run/thai_food.py \
         --dataset $dataset \
-        --tokenizer $tokenizer \
-        --model $model \
         --output-dir $output_dir \
         --eval-strategy $eval_strategy \
         --logging-strategy $logging_strategy \
@@ -88,8 +76,6 @@ elif [ $dataset = "SuryaKrishna02/aya-telugu-food-recipes" ]; then
 
     python ./run/aya_telugu_food_recipes.py \
         --dataset $dataset \
-        --tokenizer $tokenizer \
-        --model $model \
         --output-dir $output_dir \
         --eval-strategy $eval_strategy \
         --logging-strategy $logging_strategy \
