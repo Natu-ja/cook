@@ -9,7 +9,9 @@
 
 <img src='image.webp' style="display: block; margin: auto; width: 100%;">
 
-## データ
+## 学習する
+
+### データ
 
 - [クックパッドデータセット（レシピデータ）](https://www.nii.ac.jp/dsc/idr/cookpad/)
     - 言語
@@ -47,7 +49,7 @@
     - 言語
         - テルグ語
 
-## 実装済み
+### 実装済み
 
 - 量子化
 
@@ -77,7 +79,7 @@
     - Diverse Beam-Search Decoding
     - Assisted Decoding
 
-## 学習する
+### 実行する
 
 ```
 bash main.sh

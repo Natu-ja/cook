@@ -112,8 +112,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model on the Cookpad dataset and generate outputs.")
 
     parser.add_argument("--dataset", default="AWeirdDev/zh-tw-recipes-sm", type=str, help="https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm")
-    parser.add_argument("--tokenizer", default="ai-forever/mGPT", type=str, help="Tokenizer name or path.")
-    parser.add_argument("--model", default="ai-forever/mGPT", type=str, help="Model name or path.")
+    parser.add_argument("--tokenizer", default="uer/gpt2-chinese-cluecorpussmall", type=str, help="Tokenizer name or path.")
+    parser.add_argument("--model", default="uer/gpt2-chinese-cluecorpussmall", type=str, help="Model name or path.")
     parser.add_argument("--data-collator", type=str, default="LanguageModeling", choices=["LanguageModeling", "CompletionOnlyLM"], help="Data collator type.")
     
     # Bits And Bytes Config

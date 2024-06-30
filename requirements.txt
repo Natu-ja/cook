@@ -2,7 +2,7 @@ accelerate
 datasets
 pandas
 peft
-torch
+torch >= 2.0.0
 tqdm
 transformers
 trl

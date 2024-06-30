@@ -9,7 +9,9 @@
 
 <img src='image.webp' style="display: block; margin: auto; width: 100%;">
 
-## Data
+## Train
+
+### Data
 
 - [Cookpad dataset (Recipe data)](https://www.nii.ac.jp/dsc/idr/cookpad/)
     - language
@@ -47,7 +49,7 @@
     - language
         - Telugu
 
-## Implemented
+### Implemented
 
 - Quantization
 
@@ -77,7 +79,7 @@
     - Diverse Beam-Search Decoding
     - Assisted Decoding
 
-## Train
+### run
 
 ```
 bash main.sh
