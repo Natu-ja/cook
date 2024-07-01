@@ -11,6 +11,12 @@
 
 ## 学習する
 
+### セットアップ
+
+```
+pip install -r requirements.txt
+```
+
 ### データ
 
 - [クックパッドデータセット（レシピデータ）](https://www.nii.ac.jp/dsc/idr/cookpad/)

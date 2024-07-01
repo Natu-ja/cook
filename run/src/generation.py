@@ -3,6 +3,7 @@ import pandas as pd
 from tqdm import tqdm
 import torch
 from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizerBase
+from datasets.arrow_dataset import Dataset
 
 from models import load_checkpoint
 

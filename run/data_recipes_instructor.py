@@ -66,17 +66,25 @@ def run_training(args: Namespace, train_dataset: Dataset) -> None:
         )
     else:
         from trl import DataCollatorForCompletionOnlyLM
-        data_collator = DataCollatorForCompletionOnlyLM(
-            response_template=tokenizer.encode("# Output\n", add_special_tokens=False),
-            instruction_template=tokenizer.encode("# Instruction\n", add_special_tokens=False),
-            mlm=False,
-            tokenizer=tokenizer
-        )
+        if args.tokenizer in ["meta-llama/Llama-2-7b-hf"]:
+            data_collator = DataCollatorForCompletionOnlyLM(
+                response_template=tokenizer.encode("\n# Output\n", add_special_tokens=False)[2:],
+                instruction_template=tokenizer.encode("# Instruction\n", add_special_tokens=False),
+                mlm=False,
+                tokenizer=tokenizer
+            )
+        else:
+            data_collator = DataCollatorForCompletionOnlyLM(
+                response_template=tokenizer.encode("# Output\n", add_special_tokens=False),
+                instruction_template=tokenizer.encode("# Instruction\n", add_special_tokens=False),
+                mlm=False,
+                tokenizer=tokenizer
+            )
     
     if args.peft_type is not None:
 
-        from src.models import load_peft_config
-        peft_config = load_peft_config(args)
+        from src.models import get_peft_config
+        peft_config = get_peft_config(args)
         
         trainer = SFTTrainer(
             model=model,

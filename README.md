@@ -11,6 +11,12 @@
 
 ## Train
 
+### Setup
+
+```
+pip install -r requirements.txt
+```
+
 ### Data
 
 - [Cookpad dataset (Recipe data)](https://www.nii.ac.jp/dsc/idr/cookpad/)
