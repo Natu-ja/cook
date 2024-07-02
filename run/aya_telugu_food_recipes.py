@@ -128,8 +128,8 @@ if __name__ == "__main__":
     parser.add_argument("--bnb-4bit-quant-storage", default="uint8", type=str, choices=["uint8"])
 
     # From Pretrained
-    parser.add_argument("--torch-dtype", default="auto", type=str, choices=["auto", "float16", "bfloat16", "float32"])
     parser.add_argument("--attn-implementation", type=str, choices=["eager", "sdpa", "flash_attention_2"])
+    parser.add_argument("--torch-dtype", default="auto", type=str, choices=["auto", "float16", "bfloat16", "float32"])
     parser.add_argument("--device-map", default="auto", type=str, choices=["auto", "cpu", "cuda"])
 
     # SFT Config
