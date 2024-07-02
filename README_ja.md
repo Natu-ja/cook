@@ -51,8 +51,8 @@ pip install -r requirements.txt
 | 生成戦略 || Multinomial Sampling ||
 | 生成戦略 || Beam-Search Decoding ||
 | 生成戦略 || Beam-Search Multinomial Sampling ||
-| 生成戦略 || Contrastive Search ||
-| 生成戦略 || Diverse Beam-Search Decoding ||
+| 生成戦略 || Contrastive Search | A Contrastive Framework for Neural Text Generation |
+| 生成戦略 || Diverse Beam-Search Decoding | Diverse Beam Search: Decoding Diverse Solutions from Neural Sequence Models |
 | 生成戦略 || Assisted Decoding ||
 
 ### 実行する

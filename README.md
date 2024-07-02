@@ -35,7 +35,7 @@ pip install -r requirements.txt
 | Quantization ||||
 | Flash Attention || Flash Attention 2 | FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning |
 | PEFT | Soft prompts | Prompt Tuning | The Power of Scale for Parameter-Efficient Prompt Tuning |
-| PEFT | Soft prompts | P-Tuning |　GPT Understands, Too　|
+| PEFT | Soft prompts | P-Tuning | GPT Understands, Too |
 | PEFT | Soft prompts | Prefix Tuning | Prefix-Tuning: Optimizing Continuous Prompts for Generation |
 | PEFT | Adapters | LoRA | LoRA: Low-Rank Adaptation of Large Language Models |
 | PEFT | Adapters | AdaLoRA | Adaptive Budget Allocation for Parameter-Efficient Fine-Tuning |
@@ -51,8 +51,8 @@ pip install -r requirements.txt
 | Generation Strategy || Multinomial Sampling ||
 | Generation Strategy || Beam-Search Decoding ||
 | Generation Strategy || Beam-Search Multinomial Sampling ||
-| Generation Strategy || Contrastive Search ||
-| Generation Strategy || Diverse Beam-Search Decoding ||
+| Generation Strategy || Contrastive Search | A Contrastive Framework for Neural Text Generation |
+| Generation Strategy || Diverse Beam-Search Decoding | Diverse Beam Search: Decoding Diverse Solutions from Neural Sequence Models |
 | Generation Strategy || Assisted Decoding ||
 
 ### Run
