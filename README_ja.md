@@ -47,7 +47,7 @@ pip install -r requirements.txt
 | PEFT | Adapters | OFT | Controlling Text-to-Image Diffusion by Orthogonal Finetuning | `python cookpad.py --peft-type OFT --r 8 --module-dropout 0.0 --target-modules all-linear` |
 | PEFT || Polytropon | Combining Modular Skills in Multitask Learning| `python cookpad.py --peft-type POLY --r 8 --target-modules all-linear --poly-type poly --n-tasks 1 --n-skills 4 --n-splits 1` |
 | PEFT || Layernorm Tuning | Tuning LayerNorm in Attention: Towards Efficient Multi-Modal LLM Finetuning | `python cookpad.py --peft-type LN_TUNING --target-modules all-linear` |
-| 生成戦略 || 貪欲法 | `python cookpad.py` |
+| 生成戦略 || 貪欲法 || `python cookpad.py` |
 | 生成戦略 || Multinomial Sampling || `python cookpad.py --do-sample` |
 | 生成戦略 || Beam-Search Decoding || `python cookpad.py --num-beams 2` |
 | 生成戦略 || Beam-Search Multinomial Sampling || `python cookpad.py --do-sample --num-beams 2` |
