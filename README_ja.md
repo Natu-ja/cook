@@ -33,7 +33,7 @@ pip install -r requirements.txt
 | 大分類 | 中分類 | 小分類 | 論文 | 使用法 |
 | :--: | :--: | :--: | :-- | :-- |
 | 量子化 |||| `python cookpad.py --load-in-8bit` |
-| Flash Attention || Flash Attention 2 | FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning | `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype float16` or `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype bfloat16` |
+| Flash Attention || Flash Attention 2 | FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning | `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype float16` または `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype bfloat16` |
 | PEFT | Soft prompts | Prompt Tuning | The Power of Scale for Parameter-Efficient Prompt Tuning | `python cookpad.py --peft-type PROMPT_TUNING --prompt-tuning-init TEXT --prompt-tuning-init-text 料理のタイトルから料理の材料と手順を予測する。` |
 | PEFT | Soft prompts | P-Tuning | GPT Understands, Too | `python cookpad.py --peft-type P_TUNING --encoder-reparameterization-type MLP --encoder-hidden-size 768 --encoder-num-layers 2 --encoder-dropout 0.0` |
 | PEFT | Soft prompts | Prefix Tuning | Prefix-Tuning: Optimizing Continuous Prompts for Generation | `python cookpad.py --peft-type PREFIX_TUNING --encoder-hidden-size 768` |
