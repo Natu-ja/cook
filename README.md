@@ -51,7 +51,7 @@ pip install -r requirements.txt
 | Generation Strategy || Multinomial Sampling || `python cookpad.py --do-sample` |
 | Generation Strategy || Beam-Search Decoding || `python cookpad.py --num-beams 2` |
 | Generation Strategy || Beam-Search Multinomial Sampling || `python cookpad.py --do-sample --num-beams 2` |
-| Generation Strategy || Contrastive Search | A Contrastive Framework for Neural Text Generation | `python cookpad.py --penalty-alpha 0.5 --top-k 50` |
+| Generation Strategy || Contrastive Search | A Contrastive Framework for Neural Text Generation | `python cookpad.py --penalty-alpha 0.5` |
 | Generation Strategy || Diverse Beam-Search Decoding | Diverse Beam Search: Decoding Diverse Solutions from Neural Sequence Models | `python cookpad.py --num-beams 2 --num-beam-groups 2` |
 | Generation Strategy || Assisted Decoding || `python cookpad.py --prompt-lookup-num-tokens 2` |
 
