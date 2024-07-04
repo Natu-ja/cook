@@ -198,7 +198,7 @@ if __name__ == "__main__":
     parser.add_argument("--num-attention-heads", type=int)
     parser.add_argument("--num-layers", type=int)
     ## Lora Config, Adalora Config and Boft Config
-    parser.add_argument("--bias", type=str, choices=["none", "all", "lora_only", "boft_only"])
+    parser.add_argument("--bias", default="none", type=str, choices=["none", "all", "lora_only", "boft_only"])
     ## Prompt Encoder Config and Prefix Tuning Config
     parser.add_argument("--encoder-hidden-size", type=int)
     ## Lora Config and Adalora Config
