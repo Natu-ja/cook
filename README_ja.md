@@ -7,7 +7,7 @@
     </p>
 </h4>
 
-<img src='image.webp' style="display: block; margin: auto; width: 100%;">
+![日本の料理を作る少女](image.webp)
 
 ## 概要
 Cookpadなどの料理データセットを用いて、料理のタイトルから材料や手順を生成するプログラムです。
@@ -16,7 +16,7 @@ Cookpadなどの料理データセットを用いて、料理のタイトルか�
 
 ### セットアップ
 
-```
+```bash
 pip install -r requirements.txt
 ```
 
@@ -31,11 +31,21 @@ pip install -r requirements.txt
 | thai_food_v1.0 | タイ語 | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 |
 | aya-telugu-food-recipes | テルグ語 | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes |
 
+### プロンプト
+学習時のプロンプトを変更したい場合は、[`run/src/data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py) 内の `formatting_func` 関数を変更してください。以下の関数は、Cookpad 用のサンプルです。
+
+```python
+def formatting_func_cookpad(example: LazyBatch) -> list[str]:
+    output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
+    return output_texts
+```
+
 ### 実装済み
 
 | 大分類 | 中分類 | 小分類 | 論文 | 使用法 |
 | :--: | :--: | :--: | :-- | :-- |
-| 量子化 |||| `python cookpad.py --load-in-8bit` |
+| 量子化 || 8 bit || `python cookpad.py --load-in-8bit` |
+| 量子化 || 4 bit || `python cookpad.py --load-in-4bit` |
 | Flash Attention || Flash Attention 2 | FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning | `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype float16` または `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype bfloat16` |
 | PEFT | Soft prompts | Prompt Tuning | The Power of Scale for Parameter-Efficient Prompt Tuning | `python cookpad.py --peft-type PROMPT_TUNING --prompt-tuning-init TEXT --prompt-tuning-init-text 料理のタイトルから料理の材料と手順を予測する。` |
 | PEFT | Soft prompts | P-Tuning | GPT Understands, Too | `python cookpad.py --peft-type P_TUNING --encoder-hidden-size 768` |

@@ -7,7 +7,7 @@
     </p>
 </h4>
 
-<img src='image.webp' style="display: block; margin: auto; width: 100%;">
+![a girl who cooks Japanese cuisine](image.webp)
 
 ## Overview
 
@@ -17,7 +17,7 @@ This program uses cooking datasets, such as those from Cookpad, to generate ingr
 
 ### Setup
 
-```
+```bash
 pip install -r requirements.txt
 ```
 
@@ -32,11 +32,22 @@ pip install -r requirements.txt
 | thai_food_v1.0 | Thai | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 |
 | aya-telugu-food-recipes | Telugu | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes |
 
+### Prompt
+
+If you want to change the prompts used during training, please modify the `formatting_func` function in [`run/src/data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py). The following function is a sample for Cookpad.
+
+```python
+def formatting_func_cookpad(example: LazyBatch) -> list[str]:
+    output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
+    return output_texts
+```
+
 ### Implemented
 
 | Major Category | Subcategory | Sub-subcategory | Paper | Usage |
 | :--: | :--: | :--: | :-- | :-- |
-| Quantization |||| `python cookpad.py --load-in-8bit` |
+| Quantization || 8 bit || `python cookpad.py --load-in-8bit` |
+| Quantization || 4 bit || `python cookpad.py --load-in-4bit` |
 | Flash Attention || Flash Attention 2 | FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning | `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype float16` or `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype bfloat16` |
 | PEFT | Soft prompts | Prompt Tuning | The Power of Scale for Parameter-Efficient Prompt Tuning | `python cookpad.py --peft-type PROMPT_TUNING --prompt-tuning-init TEXT --prompt-tuning-init-text 料理のタイトルから料理の材料と手順を予測する。` |
 | PEFT | Soft prompts | P-Tuning | GPT Understands, Too | `python cookpad.py --peft-type P_TUNING --encoder-hidden-size 768` |
