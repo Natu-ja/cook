@@ -10,6 +10,7 @@
 ![日本の料理を作る少女](image.webp)
 
 ## 概要
+
 Cookpadなどの料理データセットを用いて、料理のタイトルから材料や手順を生成するプログラムです。
 
 ## 学習する
@@ -32,10 +33,11 @@ pip install -r requirements.txt
 | aya-telugu-food-recipes | テルグ語 | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes |
 
 ### プロンプト
-学習時のプロンプトを変更したい場合は、[`run/src/data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py) 内の `formatting_func` 関数を変更してください。以下の関数は、Cookpad 用のサンプルです。
+
+学習時のプロンプトを変更したい場合は、[`run/src/data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py) 内の `formatting_func.+` 関数を変更してください。以下の関数は、Cookpad 用のサンプルです。
 
 ```python
-def formatting_func_cookpad(example: LazyBatch) -> list[str]:
+def formatting_func_cookpad(example):
     output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
     return output_texts
 ```

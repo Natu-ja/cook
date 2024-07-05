@@ -34,10 +34,10 @@ pip install -r requirements.txt
 
 ### Prompt
 
-If you want to change the prompts used during training, please modify the `formatting_func` function in [`run/src/data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py). The following function is a sample for Cookpad.
+If you want to change the prompts used during training, please modify the `formatting_func.+` function in [`run/src/data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py). The following function is a sample for Cookpad.
 
 ```python
-def formatting_func_cookpad(example: LazyBatch) -> list[str]:
+def formatting_func_cookpad(example):
     output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
     return output_texts
 ```
