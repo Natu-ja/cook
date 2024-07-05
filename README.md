@@ -21,6 +21,10 @@ This program uses cooking datasets, such as those from Cookpad, to generate ingr
 pip install -r requirements.txt
 ```
 
+### Quick Start
+
+For easy fine-tuning, you can use the Jupyter Notebook provided in the [`examples`](https://github.com/Natu-ja/cook/tree/main/examples) folder.
+
 ### Data
 
 | Dataset Name | Language | Train Dataset Size | Validation Dataset Size | Test Dataset Size | All Dataset Size | URL |

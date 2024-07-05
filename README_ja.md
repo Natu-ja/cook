@@ -21,6 +21,10 @@ Cookpadなどの料理データセットを用いて、料理のタイトルか�
 pip install -r requirements.txt
 ```
 
+### クイックスタート
+
+簡単にファインチューニングするには、[`examples`](https://github.com/Natu-ja/cook/tree/main/examples) にある Jupyter Notebook を使用することで行えます。
+
 ### データ
 
 | データセットの名前 | 言語 | 訓練データセットのサイズ | 検証データセットのサイズ | 評価データセットのサイズ | 全てのデータセットのサイズ | URL |
