@@ -34,12 +34,25 @@ pip install -r requirements.txt
 
 ### Prompt
 
-If you want to change the prompts used during training, please modify the `formatting_func.+` function in [`run/src/data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py). The following function is a sample for Cookpad.
+If you want to change the prompts used during training, please modify the `formatting_func_.+` function in [`data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py). The following function is a sample for Cookpad.
 
 ```python
 def formatting_func_cookpad(example):
     output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
     return output_texts
+```
+
+An example of a dataset with the [`formatting_func_cookpad`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py#L30C-L32C) function applied is shown below.
+
+```
+# ユーザ
+豚の角煮
+
+# アシスタント
+## 食材
+しょうが（お好みで）、ニンニク（お好みで）、ねぎ（１本）、豚肉（バラのブロック２パック）、砂糖（小さじ１から２くらい）、酒（たくさん（安い日本酒でいい））、醤油（適量（味見しながらね））、みりん（大さじ３くらい）
+## 作り方
+鍋に、水とたっぷりのお酒、ねぎの使わない葉の部分、しょうがの皮、にんにくを入れて、２，３時間煮込みます。その間、あくや浮いてきた脂を丁寧に取りましょう。煮込んだお肉を、いったん水で洗いましょう。落とし蓋をして１時間。食べるちょっと前にねぎを入れて、味がついたらたべましょう。写真のは、ちんげん菜を入れてみました。鍋に、豚肉をいれて、酒、砂糖、みりん、醤油、しょうが（薄切り）、にんにくで煮込みます。
 ```
 
 ### Implemented
