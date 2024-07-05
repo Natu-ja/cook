@@ -9,6 +9,10 @@
 
 <img src='image.webp' style="display: block; margin: auto; width: 100%;">
 
+## Overview
+
+This program uses cooking datasets, such as those from Cookpad, to generate ingredients and instructions from a recipe title.
+
 ## Train
 
 ### Setup
@@ -32,7 +36,7 @@ pip install -r requirements.txt
 
 | Major Category | Subcategory | Sub-subcategory | Paper | Usage |
 | :--: | :--: | :--: | :-- | :-- |
-| Quantization |||| `python cookpad.py --load-in-8bit` |
+| Quantization |||| ```python cookpad.py --load-in-8bit``` |
 | Flash Attention || Flash Attention 2 | FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning | `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype float16` or `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype bfloat16` |
 | PEFT | Soft prompts | Prompt Tuning | The Power of Scale for Parameter-Efficient Prompt Tuning | `python cookpad.py --peft-type PROMPT_TUNING --prompt-tuning-init TEXT --prompt-tuning-init-text 料理のタイトルから料理の材料と手順を予測する。` |
 | PEFT | Soft prompts | P-Tuning | GPT Understands, Too | `python cookpad.py --peft-type P_TUNING --encoder-hidden-size 768` |

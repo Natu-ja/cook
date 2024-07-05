@@ -9,6 +9,9 @@
 
 <img src='image.webp' style="display: block; margin: auto; width: 100%;">
 
+## 概要
+Cookpadなどの料理データセットを用いて、料理のタイトルから材料や手順を生成するプログラムです。
+
 ## 学習する
 
 ### セットアップ
