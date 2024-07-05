@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 ### Prompt
 
-If you want to change the prompts used during training, please modify the `formatting_func_.+` function in [`data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py). The following function is a sample for Cookpad.
+If you want to change the prompts used during training, please modify the [`formatting_func_.+`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py#L30-L48) function in [`data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py). The following function is a sample for Cookpad.
 
 ```python
 def formatting_func_cookpad(example):
@@ -54,6 +54,10 @@ An example of a dataset with the [`formatting_func_cookpad`](https://github.com/
 ## 作り方
 鍋に、水とたっぷりのお酒、ねぎの使わない葉の部分、しょうがの皮、にんにくを入れて、２，３時間煮込みます。その間、あくや浮いてきた脂を丁寧に取りましょう。煮込んだお肉を、いったん水で洗いましょう。落とし蓋をして１時間。食べるちょっと前にねぎを入れて、味がついたらたべましょう。写真のは、ちんげん菜を入れてみました。鍋に、豚肉をいれて、酒、砂糖、みりん、醤油、しょうが（薄切り）、にんにくで煮込みます。
 ```
+
+### Model
+
+This program operates using the Causal Language Model (CLM) available from [Hugging Face](https://huggingface.co/models). The CLM is widely used for text generation.
 
 ### Implemented
 

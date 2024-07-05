@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 ### プロンプト
 
-学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py) 内の `formatting_func_.+` 関数を変更してください。以下の関数は、Cookpad 用のサンプルです。
+学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py) 内の [`formatting_func_.+`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py#L30-L48) 関数を変更してください。以下の関数は、Cookpad 用のサンプルです。
 
 ```python
 def formatting_func_cookpad(example):
@@ -54,6 +54,10 @@ def formatting_func_cookpad(example):
 ## 作り方
 鍋に、水とたっぷりのお酒、ねぎの使わない葉の部分、しょうがの皮、にんにくを入れて、２，３時間煮込みます。その間、あくや浮いてきた脂を丁寧に取りましょう。煮込んだお肉を、いったん水で洗いましょう。落とし蓋をして１時間。食べるちょっと前にねぎを入れて、味がついたらたべましょう。写真のは、ちんげん菜を入れてみました。鍋に、豚肉をいれて、酒、砂糖、みりん、醤油、しょうが（薄切り）、にんにくで煮込みます。
 ```
+
+### モデル
+
+このプログラムは、[Huggingface](https://huggingface.co/models) で公開されている Causal Language Model (CLM) を使用して動作します。CLM は、テキスト生成に広く使用されているモデルです。
 
 ### 実装済み
 
