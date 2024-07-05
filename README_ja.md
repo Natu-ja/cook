@@ -60,6 +60,6 @@ pip install -r requirements.txt
 
 ### 実行する
 
-```
+```bash
 bash main.sh
 ```
