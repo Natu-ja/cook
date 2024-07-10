@@ -96,3 +96,26 @@ This program operates using the Causal Language Model (CLM) available from [Hugg
 ```bash
 bash main.sh
 ```
+
+## Infer
+
+To perform inference using the fine-tuned model, execute the following code. Replace `checkpoint` in the code with your path, and `title` with the title of the dish you want to generate.
+
+```python
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
+
+checkpoint = "YOUR_PATH/checkpoint-X"
+
+tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+model = AutoModelForCausalLM.from_pretrained(checkpoint, device_map="auto")
+
+generation_config = GenerationConfig()
+
+with torch.no_grad():
+    title = "料理のタイトル"
+    input_text = f"# ユーザ\n{title}\n\n# アシスタント\n"
+    input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
+    output_text = model.generate(**input_text, generation_config=generation_config)
+    output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
+```
