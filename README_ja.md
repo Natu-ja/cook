@@ -64,6 +64,8 @@ def formatting_func_cookpad(example):
 > [!WARNING]
 > いくつかのトークナイザ（例：LLaMA 2）では、シーケンスを通常とは異なる方法でトークン化します。そのため、提供したコードでは学習がうまく進まない場合があります。
 
+詳細は、[こちらのサイト](https://huggingface.co/docs/trl/sft_trainer#using-tokenids-directly-for-responsetemplate)をご参照ください。
+
 > [!TIP]
 > この問題を解決するには、次のようなコードを使用してください。
 

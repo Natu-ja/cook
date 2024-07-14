@@ -64,6 +64,8 @@ An example of a dataset with the [`formatting_func_cookpad`](./run/src/data_prep
 > [!WARNING]
 > Some tokenizers (e.g., LLaMA 2) tokenize sequences in ways that differ from the usual methods. As a result, the provided code may not work correctly for training.
 
+For more details, please refer to [this website](https://huggingface.co/docs/trl/sft_trainer#using-tokenids-directly-for-responsetemplate).
+
 > [!TIP]
 > To resolve this issue, please use the following code.
 
