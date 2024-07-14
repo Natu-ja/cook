@@ -3,11 +3,11 @@
 <h4 align="center">
     <p>
         <b>English</b> | 
-        <a href='README_ja.md'>日本語</a>
+        <a href='./README_ja.md'>日本語</a>
     </p>
 </h4>
 
-![a girl who cooks Japanese cuisine](image.webp)
+![a girl who cooks Japanese cuisine](./image.webp)
 
 ## Overview
 
@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 ### Quick Start
 
-For easy fine-tuning, you can use the Jupyter Notebook provided in the [`examples`](https://github.com/Natu-ja/cook/tree/main/examples) folder.
+For easy fine-tuning, you can use the Jupyter Notebook provided in the [`examples`](./examples/) folder.
 
 ### Data
 
@@ -38,7 +38,7 @@ For easy fine-tuning, you can use the Jupyter Notebook provided in the [`example
 
 ### Prompt
 
-If you want to change the prompts used during training, please modify the [`formatting_func_.+`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py#L30-L48) function in [`data_preprocessing.py`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py). The following function is a sample for Cookpad.
+If you want to change the prompts used during training, please modify the [`formatting_func_.+`](./run/src/data_preprocessing.py#L30-L48) function in [`data_preprocessing.py`](./run/src/data_preprocessing.py). The following function is a sample for Cookpad.
 
 ```python
 def formatting_func_cookpad(example):
@@ -46,7 +46,7 @@ def formatting_func_cookpad(example):
     return output_texts
 ```
 
-An example of a dataset with the [`formatting_func_cookpad`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py#L30C-L32C) function applied is shown below.
+An example of a dataset with the [`formatting_func_cookpad`](./run/src/data_preprocessing.py#L30C-L32C) function applied is shown below.
 
 ```text
 # ユーザ

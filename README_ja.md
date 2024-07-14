@@ -2,12 +2,12 @@
 
 <h4 align="center">
     <p>
-        <a href='README.md'>English</a> | 
+        <a href='./README.md'>English</a> | 
         <b>日本語</b>
     </p>
 </h4>
 
-![日本の料理を作る少女](image.webp)
+![日本の料理を作る少女](./image.webp)
 
 ## 概要
 
@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 ### クイックスタート
 
-簡単にファインチューニングするには、[`examples`](https://github.com/Natu-ja/cook/tree/main/examples) にある Jupyter Notebook を使用することで行えます。
+簡単にファインチューニングするには、[`examples`](./examples/) にある Jupyter Notebook を使用することで行えます。
 
 ### データ
 
@@ -46,7 +46,7 @@ def formatting_func_cookpad(example):
     return output_texts
 ```
 
-関数 [`formatting_func_cookpad`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py#L30C-L32C) を適用したデータセットの例を示します．
+関数 [`formatting_func_cookpad`](./run/src/data_preprocessing.py#L30C-L32C) を適用したデータセットの例を示します．
 
 ```text
 # ユーザ
