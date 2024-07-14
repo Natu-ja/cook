@@ -27,14 +27,14 @@ pip install -r requirements.txt
 
 ### データ
 
-| データセットの名前 | 言語 | 訓練データセットのサイズ | 検証データセットのサイズ | 評価データセットのサイズ | 全てのデータセットのサイズ | URL |
-| :--: | :--: | :--: | :--: | :--: | :--: | :-- |
-| クックパッドデータセット（レシピデータ） | 日本語 ||||| https://www.nii.ac.jp/dsc/idr/cookpad/ |
-| zh-tw-recipes-sm | 中国語 | $1,799$ ||| $1,799$ | https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm |
-| data_recipes_instructor | 英語 | $20,000$ ||| $20,000$ | https://huggingface.co/datasets/Erik/data_recipes_instructor |
-| llama2-TR-recipe | トルコ語 | $10,504$ ||| $10,504$ | https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe |
-| thai_food_v1.0 | タイ語 | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 |
-| aya-telugu-food-recipes | テルグ語 | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes |
+| データセットの名前 | 言語 | 訓練データセットのサイズ | 検証データセットのサイズ | 評価データセットのサイズ | 全てのデータセットのサイズ | URL | シード |
+| :--: | :--: | :--: | :--: | :--: | :--: | :-- | :--: |
+| クックパッドデータセット（レシピデータ） | 日本語 ||||| https://www.nii.ac.jp/dsc/idr/cookpad/ | $42$ |
+| zh-tw-recipes-sm | 中国語 | $1,799$ ||| $1,799$ | https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm ||
+| data_recipes_instructor | 英語 | $20,000$ ||| $20,000$ | https://huggingface.co/datasets/Erik/data_recipes_instructor ||
+| llama2-TR-recipe | トルコ語 | $10,504$ ||| $10,504$ | https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe ||
+| thai_food_v1.0 | タイ語 | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 ||
+| aya-telugu-food-recipes | テルグ語 | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes ||
 
 ### プロンプト
 
@@ -48,7 +48,7 @@ def formatting_func_cookpad(example):
 
 関数 [`formatting_func_cookpad`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py#L30C-L32C) を適用したデータセットの例を示します．
 
-```
+```text
 # ユーザ
 豚の角煮
 
@@ -57,6 +57,25 @@ def formatting_func_cookpad(example):
 しょうが（お好みで）、ニンニク（お好みで）、ねぎ（１本）、豚肉（バラのブロック２パック）、砂糖（小さじ１から２くらい）、酒（たくさん（安い日本酒でいい））、醤油（適量（味見しながらね））、みりん（大さじ３くらい）
 ## 作り方
 鍋に、水とたっぷりのお酒、ねぎの使わない葉の部分、しょうがの皮、にんにくを入れて、２，３時間煮込みます。その間、あくや浮いてきた脂を丁寧に取りましょう。煮込んだお肉を、いったん水で洗いましょう。落とし蓋をして１時間。食べるちょっと前にねぎを入れて、味がついたらたべましょう。写真のは、ちんげん菜を入れてみました。鍋に、豚肉をいれて、酒、砂糖、みりん、醤油、しょうが（薄切り）、にんにくで煮込みます。
+```
+
+### データコレーター
+
+> [!WARNING]
+> いくつかのトークナイザ（例：LLaMA 2）では、シーケンスを通常とは異なる方法でトークン化します。そのため、提供したコードでは学習がうまく進まない場合があります。
+
+> [!TIP]
+> この問題を解決するには、次のようなコードを使用してください。
+
+```python
+from trl import DataCollatorForCompletionOnlyLM
+
+data_collator = DataCollatorForCompletionOnlyLM(
+    response_template=tokenizer.encode("\n# アシスタント\n", add_special_tokens=False)[2:],
+    instruction_template=tokenizer.encode("# ユーザ\n", add_special_tokens=False),
+    mlm=False,
+    tokenizer=tokenizer
+)
 ```
 
 ### モデル

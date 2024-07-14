@@ -1,9 +1,16 @@
 # Cooking
 
-<h4 align="center">
+<!-- <h4 align="center">
     <p>
         <b>English</b> | 
         <a href='https://github.com/Natu-ja/cook/blob/main/README_ja.md'>日本語</a>
+    </p>
+</h4> -->
+
+<h4 align="center">
+    <p>
+        <b>English</b> | 
+        <a href='README_ja.md'>日本語</a>
     </p>
 </h4>
 
@@ -27,14 +34,14 @@ For easy fine-tuning, you can use the Jupyter Notebook provided in the [`example
 
 ### Data
 
-| Dataset Name | Language | Train Dataset Size | Validation Dataset Size | Test Dataset Size | All Dataset Size | URL |
-| :--: | :--: | :--: | :--: | :--: | :--: | :-- |
-| Cookpad dataset (Recipe data) | Japanese ||||| https://www.nii.ac.jp/dsc/idr/cookpad/ |
-| zh-tw-recipes-sm | Chinese | $1,799$ ||| $1,799$ | https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm |
-| data_recipes_instructor | English | $20,000$ ||| $20,000$ | https://huggingface.co/datasets/Erik/data_recipes_instructor |
-| llama2-TR-recipe | Turkish | $10,504$ ||| $10,504$ | https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe |
-| thai_food_v1.0 | Thai | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 |
-| aya-telugu-food-recipes | Telugu | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes |
+| Dataset Name | Language | Train Dataset Size | Validation Dataset Size | Test Dataset Size | All Dataset Size | URL | Seed |
+| :--: | :--: | :--: | :--: | :--: | :--: | :-- | :--: |
+| Cookpad dataset (Recipe data) | Japanese ||||| https://www.nii.ac.jp/dsc/idr/cookpad/ | $42$ |
+| zh-tw-recipes-sm | Chinese | $1,799$ ||| $1,799$ | https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm ||
+| data_recipes_instructor | English | $20,000$ ||| $20,000$ | https://huggingface.co/datasets/Erik/data_recipes_instructor ||
+| llama2-TR-recipe | Turkish | $10,504$ ||| $10,504$ | https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe ||
+| thai_food_v1.0 | Thai | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 ||
+| aya-telugu-food-recipes | Telugu | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes ||
 
 ### Prompt
 
@@ -48,7 +55,7 @@ def formatting_func_cookpad(example):
 
 An example of a dataset with the [`formatting_func_cookpad`](https://github.com/Natu-ja/cook/blob/main/run/src/data_preprocessing.py#L30C-L32C) function applied is shown below.
 
-```
+```text
 # ユーザ
 豚の角煮
 
@@ -57,6 +64,25 @@ An example of a dataset with the [`formatting_func_cookpad`](https://github.com/
 しょうが（お好みで）、ニンニク（お好みで）、ねぎ（１本）、豚肉（バラのブロック２パック）、砂糖（小さじ１から２くらい）、酒（たくさん（安い日本酒でいい））、醤油（適量（味見しながらね））、みりん（大さじ３くらい）
 ## 作り方
 鍋に、水とたっぷりのお酒、ねぎの使わない葉の部分、しょうがの皮、にんにくを入れて、２，３時間煮込みます。その間、あくや浮いてきた脂を丁寧に取りましょう。煮込んだお肉を、いったん水で洗いましょう。落とし蓋をして１時間。食べるちょっと前にねぎを入れて、味がついたらたべましょう。写真のは、ちんげん菜を入れてみました。鍋に、豚肉をいれて、酒、砂糖、みりん、醤油、しょうが（薄切り）、にんにくで煮込みます。
+```
+
+### Data Collator
+
+> [!WARNING]
+> Some tokenizers (e.g., LLaMA 2) tokenize sequences in ways that differ from the usual methods. As a result, the provided code may not work correctly for training.
+
+> [!TIP]
+> To resolve this issue, please use the following code.
+
+```python
+from trl import DataCollatorForCompletionOnlyLM
+
+data_collator = DataCollatorForCompletionOnlyLM(
+    response_template=tokenizer.encode("\n# アシスタント\n", add_special_tokens=False)[2:],
+    instruction_template=tokenizer.encode("# ユーザ\n", add_special_tokens=False),
+    mlm=False,
+    tokenizer=tokenizer
+)
 ```
 
 ### Model
