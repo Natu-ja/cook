@@ -38,7 +38,7 @@ pip install -r requirements.txt
 
 ### プロンプト
 
-学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](src/data_preprocessing.py) 内の [`formatting_func_.+`](src/data_preprocessing.py#L30-L48) 関数を変更してください。以下の関数は、Cookpad 用のサンプルです。
+学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](./run/src/data_preprocessing.py) 内の [`formatting_func_.+`](./run/src/data_preprocessing.py#L30-L48) 関数を変更してください。以下の関数は、Cookpad 用のサンプルです。
 
 ```python
 def formatting_func_cookpad(example):
