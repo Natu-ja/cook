@@ -61,6 +61,8 @@ An example of a dataset with the [`formatting_func_cookpad`](./run/src/data_prep
 
 ### Data Collator
 
+#### Completion Only LM
+
 > [!WARNING]
 > Some tokenizers (e.g., LLaMA 2) tokenize sequences in ways that differ from the usual methods. As a result, the provided code may not work correctly for training.
 

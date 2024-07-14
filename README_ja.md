@@ -61,6 +61,8 @@ def formatting_func_cookpad(example):
 
 ### データコレーター
 
+#### Completion Only LM
+
 > [!WARNING]
 > いくつかのトークナイザ（例：LLaMA 2）では、シーケンスを通常とは異なる方法でトークン化します。そのため、提供したコードでは学習がうまく進まない場合があります。
 
