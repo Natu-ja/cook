@@ -3,7 +3,7 @@ bitsandbytes
 datasets
 pandas
 peft
-torch >= 2.0.0
+torch>=2.0.0
 tqdm
 transformers
 trl

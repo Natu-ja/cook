@@ -7,7 +7,7 @@
     </p>
 </h4>
 
-![a girl who cooks Japanese cuisine](./image.webp)
+![a girl who cooks Japanese cuisine](./fig/image.webp)
 
 ## Overview
 
