@@ -117,7 +117,7 @@ def main(args: Namespace):
     run_training(args, train_dataset)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train a model on the Cookpad dataset and generate outputs.")
+    parser = argparse.ArgumentParser(description="Train a model on the 'thai_food_v1.0' dataset.")
 
     parser.add_argument("--dataset", default="pythainlp/thai_food_v1.0", type=str, help="https://huggingface.co/datasets/pythainlp/thai_food_v1.0")
     parser.add_argument("--tokenizer", default="scb10x/typhoon-7b", type=str, help="Tokenizer name or path.")

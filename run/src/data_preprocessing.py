@@ -20,9 +20,9 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
         dataset = pd.read_csv(filepath_or_buffer=args.dataset, sep="\t")
         dataset = Dataset.from_pandas(df=dataset)
 
-        dataset = dataset.train_test_split(test_size=0.25, shuffle=True, seed=args.seed)
+        dataset = dataset.train_test_split(test_size=0.2, shuffle=True, seed=args.seed)
         tv_dataset, test_dataset = dataset["train"], dataset["test"]
-        tv_dataset = tv_dataset.train_test_split(test_size=0.25, shuffle=False, seed=args.seed)
+        tv_dataset = tv_dataset.train_test_split(test_size=0.2, shuffle=True, seed=args.seed)
         train_dataset, eval_dataset = tv_dataset["train"], tv_dataset["test"]
 
         return train_dataset, eval_dataset, test_dataset

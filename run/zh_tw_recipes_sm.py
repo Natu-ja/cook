@@ -109,7 +109,7 @@ def main(args: Namespace):
     run_training(args, train_dataset)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train a model on the Cookpad dataset and generate outputs.")
+    parser = argparse.ArgumentParser(description="Train a model on the 'zh-tw-recipes-sm' dataset.")
 
     parser.add_argument("--dataset", default="AWeirdDev/zh-tw-recipes-sm", type=str, help="https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm")
     parser.add_argument("--tokenizer", default="uer/gpt2-chinese-cluecorpussmall", type=str, help="Tokenizer name or path.")

@@ -109,7 +109,7 @@ def main(args: Namespace):
     run_training(args, train_dataset)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train a model on the Cookpad dataset and generate outputs.")
+    parser = argparse.ArgumentParser(description="Train a model on the 'aya-telugu-food-recipes' dataset.")
 
     parser.add_argument("--dataset", default="SuryaKrishna02/aya-telugu-food-recipes", type=str, help="https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes")
     parser.add_argument("--tokenizer", default="jayasuryajsk/Llama-3-8b-Telugu-Romanized", type=str, help="Tokenizer name or path.")

@@ -117,7 +117,7 @@ def main(args: Namespace):
     run_training(args, train_dataset)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train a model on the Cookpad dataset and generate outputs.")
+    parser = argparse.ArgumentParser(description="Train a model on the 'data_recipes_instructor' dataset.")
 
     parser.add_argument("--dataset", default="Erik/data_recipes_instructor", type=str, help="https://huggingface.co/datasets/Erik/data_recipes_instructor")
     parser.add_argument("--tokenizer", default="meta-llama/Meta-Llama-3-8B", type=str, help="Tokenizer name or path.")

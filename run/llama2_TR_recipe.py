@@ -6,7 +6,7 @@ from trl import SFTConfig, SFTTrainer
 from src.data_preprocessing import load_raw_dataset
 from src.models import load_checkpoint
 
-def run_training(args: Namespace, train_dataset: Dataset) -> None:
+def run_training(args: Namespace, train_dataset: Dataset):
 
     tokenizer, model = load_checkpoint(args)
 
@@ -102,13 +102,13 @@ def run_training(args: Namespace, train_dataset: Dataset) -> None:
         
     trainer.train()
 
-def main(args: Namespace) -> None:
+def main(args: Namespace):
 
     train_dataset, _, _ = load_raw_dataset(args)
     run_training(args, train_dataset)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train a model on the Cookpad dataset and generate outputs.")
+    parser = argparse.ArgumentParser(description="Train a model on the 'llama2-TR-recipe' dataset.")
 
     parser.add_argument("--dataset", default="mertbozkurt/llama2-TR-recipe", type=str, help="https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe")
     parser.add_argument("--tokenizer", default="TURKCELL/Turkcell-LLM-7b-v1", type=str, help="Tokenizer name or path.")

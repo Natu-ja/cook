@@ -116,7 +116,7 @@ def main(args: Namespace):
     generation(args, tokenizer, model, test_dataset)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train a model on the Cookpad dataset and generate outputs.")
+    parser = argparse.ArgumentParser(description="Train a model on the 'Cookpad dataset' and generate outputs.")
 
     parser.add_argument("--dataset", default="../data/cookpad_data.csv", type=str, help="https://www.nii.ac.jp/dsc/idr/cookpad/")
     parser.add_argument("--tokenizer", default="cyberagent/open-calm-7b", type=str, help="Tokenizer name or path.")

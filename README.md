@@ -23,24 +23,24 @@ pip install -r requirements.txt
 
 ### Quick Start
 
-For easy fine-tuning, you can use the Jupyter Notebook provided in the [`examples`](./examples/) folder.
+For easy fine-tuning, you can use the Jupyter Notebook provided in the [`examples` folder](./examples/).
 
 ### Data
 
 | Dataset Name | Language | Train Dataset Size | Validation Dataset Size | Test Dataset Size | All Dataset Size | URL | Seed |
 | :--: | :--: | :--: | :--: | :--: | :--: | :-- | :--: |
-| Cookpad dataset (Recipe data) | Japanese ||||| https://www.nii.ac.jp/dsc/idr/cookpad/ | $42$ |
+| Cookpad dataset (Recipe data) | Japanese | $1,071,753$ | $267,939$ | $334,923$ | $1,674,615$ | https://www.nii.ac.jp/dsc/idr/cookpad/ | $42$ |
 | zh-tw-recipes-sm | Chinese | $1,799$ ||| $1,799$ | https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm ||
 | data_recipes_instructor | English | $20,000$ ||| $20,000$ | https://huggingface.co/datasets/Erik/data_recipes_instructor ||
 | llama2-TR-recipe | Turkish | $10,504$ ||| $10,504$ | https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe ||
 | thai_food_v1.0 | Thai | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 ||
 | aya-telugu-food-recipes | Telugu | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes ||
 
-Please save the obtained dataset in the [`data` folder](./data/).
+Please save the obtained Cookpad dataset in the [`data` folder](./data/).
 
 ### Prompt
 
-If you want to change the prompts used during training, please modify the [`formatting_func_.+`](./run/src/data_preprocessing.py#L30-L48) function in [`data_preprocessing.py`](./run/src/data_preprocessing.py). The following function is a sample for Cookpad.
+If you want to change the prompts used during training, please modify the [`formatting_func_.+` function](./run/src/data_preprocessing.py#L30-L48) in [`data_preprocessing.py`](./run/src/data_preprocessing.py). The following function is a sample for Cookpad.
 
 ```python
 def formatting_func_cookpad(example):
@@ -48,7 +48,7 @@ def formatting_func_cookpad(example):
     return output_texts
 ```
 
-An example of a dataset with the [`formatting_func_cookpad`](./run/src/data_preprocessing.py#L30C-L32C) function applied is shown below.
+An example of a dataset with the [`formatting_func_cookpad` function](./run/src/data_preprocessing.py#L30C-L32C) applied is shown below.
 
 ```text
 # ユーザ
@@ -92,29 +92,29 @@ This program operates using the Causal Language Model (CLM) available from [Hugg
 
 | Major Category | Subcategory | Sub-subcategory | Paper | Usage |
 | :--: | :--: | :--: | :-- | :-- |
-| Quantization || 8 bit || `python cookpad.py --load-in-8bit` |
-| Quantization || 4 bit || `python cookpad.py --load-in-4bit` |
-| Flash Attention || Flash Attention 2 | FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning | `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype float16` or `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype bfloat16` |
-| PEFT | Soft prompts | Prompt Tuning | The Power of Scale for Parameter-Efficient Prompt Tuning | `python cookpad.py --peft-type PROMPT_TUNING --prompt-tuning-init TEXT --prompt-tuning-init-text 料理のタイトルから料理の材料と手順を予測する。` |
-| PEFT | Soft prompts | P-Tuning | GPT Understands, Too | `python cookpad.py --peft-type P_TUNING --encoder-hidden-size 768` |
-| PEFT | Soft prompts | Prefix Tuning | Prefix-Tuning: Optimizing Continuous Prompts for Generation | `python cookpad.py --peft-type PREFIX_TUNING --encoder-hidden-size 768` |
-| PEFT | Adapters | LoRA | LoRA: Low-Rank Adaptation of Large Language Models | `python cookpad.py --peft-type LORA --target-modules all-linear` |
-| PEFT | Adapters | AdaLoRA | Adaptive Budget Allocation for Parameter-Efficient Fine-Tuning | `python cookpad.py --peft-type ADALORA` |
-| PEFT | Adapters | BOFT | Parameter-Efficient Orthogonal Finetuning via Butterfly Factorization | `python cookpad.py --peft-type BOFT --target-modules all-linear` |
-| PEFT | Adapters | Llama-Adapter | LLaMA-Adapter: Efficient Fine-tuning of Language Models with Zero-init Attention | `python cookpad.py --peft-type ADAPTION_PROMPT` |
-| PEFT || IA3 | Few-Shot Parameter-Efficient Fine-Tuning is Better and Cheaper than In-Context Learning | `python cookpad.py --peft-type IA3 --target-modules all-linear --feedforward-modules all-linear` |
-| PEFT | Adapters | LoHa | FedPara: Low-Rank Hadamard Product for Communication-Efficient Federated Learning | `python cookpad.py --peft-type LOHA --target-modules all-linear` |
-| PEFT | Adapters | LoKr | Navigating Text-To-Image Customization:From LyCORIS Fine-Tuning to Model Evaluation | `python cookpad.py --target-modules all-linear` |
-| PEFT | Adapters | OFT | Controlling Text-to-Image Diffusion by Orthogonal Finetuning | `python cookpad.py --peft-type OFT --target-modules all-linear` |
-| PEFT || Polytropon | Combining Modular Skills in Multitask Learning | `python cookpad.py --peft-type POLY --target-modules all-linear` |
-| PEFT || Layernorm Tuning | Tuning LayerNorm in Attention: Towards Efficient Multi-Modal LLM Finetuning | `python cookpad.py --peft-type LN_TUNING --target-modules all-linear` |
-| Generation Strategy || Greedy Decoding || `python cookpad.py` |
-| Generation Strategy || Multinomial Sampling || `python cookpad.py --do-sample` |
-| Generation Strategy || Beam-Search Decoding || `python cookpad.py --num-beams 2` |
-| Generation Strategy || Beam-Search Multinomial Sampling || `python cookpad.py --do-sample --num-beams 2` |
-| Generation Strategy || Contrastive Search | A Contrastive Framework for Neural Text Generation | `python cookpad.py --penalty-alpha 0.5` |
-| Generation Strategy || Diverse Beam-Search Decoding | Diverse Beam Search: Decoding Diverse Solutions from Neural Sequence Models | `python cookpad.py --num-beams 2 --num-beam-groups 2` |
-| Generation Strategy || Assisted Decoding || `python cookpad.py --prompt-lookup-num-tokens 2` |
+| Quantization || 8 bit || `python run/cookpad.py --load-in-8bit` |
+| Quantization || 4 bit || `python run/cookpad.py --load-in-4bit` |
+| Flash Attention || Flash Attention 2 | FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning | `python run/cookpad.py --attn-implementation flash_attention_2 --torch-dtype float16` or `python run/cookpad.py --attn-implementation flash_attention_2 --torch-dtype bfloat16` |
+| PEFT | Soft prompts | Prompt Tuning | The Power of Scale for Parameter-Efficient Prompt Tuning | `python run/cookpad.py --peft-type PROMPT_TUNING --prompt-tuning-init TEXT --prompt-tuning-init-text 料理のタイトルから料理の材料と手順を予測する。` |
+| PEFT | Soft prompts | P-Tuning | GPT Understands, Too | `python run/cookpad.py --peft-type P_TUNING --encoder-hidden-size 768` |
+| PEFT | Soft prompts | Prefix Tuning | Prefix-Tuning: Optimizing Continuous Prompts for Generation | `python run/cookpad.py --peft-type PREFIX_TUNING --encoder-hidden-size 768` |
+| PEFT | Adapters | LoRA | LoRA: Low-Rank Adaptation of Large Language Models | `python run/cookpad.py --peft-type LORA --target-modules all-linear` |
+| PEFT | Adapters | AdaLoRA | Adaptive Budget Allocation for Parameter-Efficient Fine-Tuning | `python run/cookpad.py --peft-type ADALORA` |
+| PEFT | Adapters | BOFT | Parameter-Efficient Orthogonal Finetuning via Butterfly Factorization | `python run/cookpad.py --peft-type BOFT --target-modules all-linear` |
+| PEFT | Adapters | Llama-Adapter | LLaMA-Adapter: Efficient Fine-tuning of Language Models with Zero-init Attention | `python run/cookpad.py --peft-type ADAPTION_PROMPT` |
+| PEFT || IA3 | Few-Shot Parameter-Efficient Fine-Tuning is Better and Cheaper than In-Context Learning | `python run/cookpad.py --peft-type IA3 --target-modules all-linear --feedforward-modules all-linear` |
+| PEFT | Adapters | LoHa | FedPara: Low-Rank Hadamard Product for Communication-Efficient Federated Learning | `python run/cookpad.py --peft-type LOHA --target-modules all-linear` |
+| PEFT | Adapters | LoKr | Navigating Text-To-Image Customization:From LyCORIS Fine-Tuning to Model Evaluation | `python run/cookpad.py --target-modules all-linear` |
+| PEFT | Adapters | OFT | Controlling Text-to-Image Diffusion by Orthogonal Finetuning | `python run/cookpad.py --peft-type OFT --target-modules all-linear` |
+| PEFT || Polytropon | Combining Modular Skills in Multitask Learning | `python run/cookpad.py --peft-type POLY --target-modules all-linear` |
+| PEFT || Layernorm Tuning | Tuning LayerNorm in Attention: Towards Efficient Multi-Modal LLM Finetuning | `python run/cookpad.py --peft-type LN_TUNING --target-modules all-linear` |
+| Generation Strategy || Greedy Decoding || `python run/cookpad.py` |
+| Generation Strategy || Multinomial Sampling || `python run/cookpad.py --do-sample` |
+| Generation Strategy || Beam-Search Decoding || `python run/cookpad.py --num-beams 2` |
+| Generation Strategy || Beam-Search Multinomial Sampling || `python run/cookpad.py --do-sample --num-beams 2` |
+| Generation Strategy || Contrastive Search | A Contrastive Framework for Neural Text Generation | `python run/cookpad.py --penalty-alpha 0.5` |
+| Generation Strategy || Diverse Beam-Search Decoding | Diverse Beam Search: Decoding Diverse Solutions from Neural Sequence Models | `python run/cookpad.py --num-beams 2 --num-beam-groups 2` |
+| Generation Strategy || Assisted Decoding || `python run/cookpad.py --prompt-lookup-num-tokens 2` |
 
 ### Run
 

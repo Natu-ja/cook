@@ -29,18 +29,18 @@ pip install -r requirements.txt
 
 | データセットの名前 | 言語 | 訓練データセットのサイズ | 検証データセットのサイズ | 評価データセットのサイズ | 全てのデータセットのサイズ | URL | シード |
 | :--: | :--: | :--: | :--: | :--: | :--: | :-- | :--: |
-| クックパッドデータセット（レシピデータ） | 日本語 ||||| https://www.nii.ac.jp/dsc/idr/cookpad/ | $42$ |
+| クックパッドデータセット（レシピデータ） | 日本語 | $1,071,753$ | $267,939$ | $334,923$ | $1,674,615$ | https://www.nii.ac.jp/dsc/idr/cookpad/ | $42$ |
 | zh-tw-recipes-sm | 中国語 | $1,799$ ||| $1,799$ | https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm ||
 | data_recipes_instructor | 英語 | $20,000$ ||| $20,000$ | https://huggingface.co/datasets/Erik/data_recipes_instructor ||
 | llama2-TR-recipe | トルコ語 | $10,504$ ||| $10,504$ | https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe ||
 | thai_food_v1.0 | タイ語 | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 ||
 | aya-telugu-food-recipes | テルグ語 | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes ||
 
-取得したデータセットは、[`data` フォルダ](./data/)に保存してください。
+取得したクックパッドデータセットは、[`data` フォルダ](./data/)に保存してください。
 
 ### プロンプト
 
-学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](./run/src/data_preprocessing.py) 内の [`formatting_func_.+`](./run/src/data_preprocessing.py#L30-L48) 関数を変更してください。以下の関数は、Cookpad 用のサンプルです。
+学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](./run/src/data_preprocessing.py) 内の [`formatting_func_.+` 関数](./run/src/data_preprocessing.py#L30-L48)を変更してください。以下の関数は、Cookpad 用のサンプルです。
 
 ```python
 def formatting_func_cookpad(example):
@@ -48,7 +48,7 @@ def formatting_func_cookpad(example):
     return output_texts
 ```
 
-関数 [`formatting_func_cookpad`](./run/src/data_preprocessing.py#L30C-L32C) を適用したデータセットの例を示します．
+[`formatting_func_cookpad` 関数](./run/src/data_preprocessing.py#L30C-L32C) を適用したデータセットの例を示します．
 
 ```text
 # ユーザ
@@ -92,29 +92,29 @@ data_collator = DataCollatorForCompletionOnlyLM(
 
 | 大分類 | 中分類 | 小分類 | 論文 | 使用法 |
 | :--: | :--: | :--: | :-- | :-- |
-| 量子化 || 8 bit || `python cookpad.py --load-in-8bit` |
-| 量子化 || 4 bit || `python cookpad.py --load-in-4bit` |
-| Flash Attention || Flash Attention 2 | FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning | `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype float16` または `python cookpad.py --attn-implementation flash_attention_2 --torch-dtype bfloat16` |
-| PEFT | Soft prompts | Prompt Tuning | The Power of Scale for Parameter-Efficient Prompt Tuning | `python cookpad.py --peft-type PROMPT_TUNING --prompt-tuning-init TEXT --prompt-tuning-init-text 料理のタイトルから料理の材料と手順を予測する。` |
-| PEFT | Soft prompts | P-Tuning | GPT Understands, Too | `python cookpad.py --peft-type P_TUNING --encoder-hidden-size 768` |
-| PEFT | Soft prompts | Prefix Tuning | Prefix-Tuning: Optimizing Continuous Prompts for Generation | `python cookpad.py --peft-type PREFIX_TUNING --encoder-hidden-size 768` |
-| PEFT | Adapters | LoRA | LoRA: Low-Rank Adaptation of Large Language Models | `python cookpad.py --peft-type LORA --target-modules all-linear` |
-| PEFT | Adapters | AdaLoRA | Adaptive Budget Allocation for Parameter-Efficient Fine-Tuning | `python cookpad.py --peft-type ADALORA` |
-| PEFT | Adapters | BOFT | Parameter-Efficient Orthogonal Finetuning via Butterfly Factorization | `python cookpad.py --peft-type BOFT --target-modules all-linear` |
-| PEFT | Adapters | Llama-Adapter | LLaMA-Adapter: Efficient Fine-tuning of Language Models with Zero-init Attention | `python cookpad.py --peft-type ADAPTION_PROMPT` |
-| PEFT || IA3 | Few-Shot Parameter-Efficient Fine-Tuning is Better and Cheaper than In-Context Learning | `python cookpad.py --peft-type IA3 --target-modules all-linear --feedforward-modules all-linear` |
-| PEFT | Adapters | LoHa | FedPara: Low-Rank Hadamard Product for Communication-Efficient Federated Learning | `python cookpad.py --peft-type LOHA --target-modules all-linear` |
-| PEFT | Adapters | LoKr | Navigating Text-To-Image Customization:From LyCORIS Fine-Tuning to Model Evaluation | `python cookpad.py --peft-type LOKR --target-modules all-linear` |
-| PEFT | Adapters | OFT | Controlling Text-to-Image Diffusion by Orthogonal Finetuning | `python cookpad.py --peft-type OFT --target-modules all-linear` |
-| PEFT || Polytropon | Combining Modular Skills in Multitask Learning| `python cookpad.py --peft-type POLY --target-modules all-linear` |
-| PEFT || Layernorm Tuning | Tuning LayerNorm in Attention: Towards Efficient Multi-Modal LLM Finetuning | `python cookpad.py --peft-type LN_TUNING --target-modules all-linear` |
-| 生成戦略 || 貪欲法 || `python cookpad.py` |
-| 生成戦略 || Multinomial Sampling || `python cookpad.py --do-sample` |
-| 生成戦略 || Beam-Search Decoding || `python cookpad.py --num-beams 2` |
-| 生成戦略 || Beam-Search Multinomial Sampling || `python cookpad.py --do-sample --num-beams 2` |
-| 生成戦略 || Contrastive Search | A Contrastive Framework for Neural Text Generation | `python cookpad.py --penalty-alpha 0.5` |
-| 生成戦略 || Diverse Beam-Search Decoding | Diverse Beam Search: Decoding Diverse Solutions from Neural Sequence Models | `python cookpad.py --num-beams 2 --num-beam-groups 2` |
-| 生成戦略 || Assisted Decoding || `python cookpad.py --prompt-lookup-num-tokens 2` |
+| 量子化 || 8 bit || `python run/cookpad.py --load-in-8bit` |
+| 量子化 || 4 bit || `python run/cookpad.py --load-in-4bit` |
+| Flash Attention || Flash Attention 2 | FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning | `python run/cookpad.py --attn-implementation flash_attention_2 --torch-dtype float16` または `python run/cookpad.py --attn-implementation flash_attention_2 --torch-dtype bfloat16` |
+| PEFT | Soft prompts | Prompt Tuning | The Power of Scale for Parameter-Efficient Prompt Tuning | `python run/cookpad.py --peft-type PROMPT_TUNING --prompt-tuning-init TEXT --prompt-tuning-init-text 料理のタイトルから料理の材料と手順を予測する。` |
+| PEFT | Soft prompts | P-Tuning | GPT Understands, Too | `python run/cookpad.py --peft-type P_TUNING --encoder-hidden-size 768` |
+| PEFT | Soft prompts | Prefix Tuning | Prefix-Tuning: Optimizing Continuous Prompts for Generation | `python run/cookpad.py --peft-type PREFIX_TUNING --encoder-hidden-size 768` |
+| PEFT | Adapters | LoRA | LoRA: Low-Rank Adaptation of Large Language Models | `python run/cookpad.py --peft-type LORA --target-modules all-linear` |
+| PEFT | Adapters | AdaLoRA | Adaptive Budget Allocation for Parameter-Efficient Fine-Tuning | `python run/cookpad.py --peft-type ADALORA` |
+| PEFT | Adapters | BOFT | Parameter-Efficient Orthogonal Finetuning via Butterfly Factorization | `python run/cookpad.py --peft-type BOFT --target-modules all-linear` |
+| PEFT | Adapters | Llama-Adapter | LLaMA-Adapter: Efficient Fine-tuning of Language Models with Zero-init Attention | `python run/cookpad.py --peft-type ADAPTION_PROMPT` |
+| PEFT || IA3 | Few-Shot Parameter-Efficient Fine-Tuning is Better and Cheaper than In-Context Learning | `python run/cookpad.py --peft-type IA3 --target-modules all-linear --feedforward-modules all-linear` |
+| PEFT | Adapters | LoHa | FedPara: Low-Rank Hadamard Product for Communication-Efficient Federated Learning | `python run/cookpad.py --peft-type LOHA --target-modules all-linear` |
+| PEFT | Adapters | LoKr | Navigating Text-To-Image Customization:From LyCORIS Fine-Tuning to Model Evaluation | `python run/cookpad.py --peft-type LOKR --target-modules all-linear` |
+| PEFT | Adapters | OFT | Controlling Text-to-Image Diffusion by Orthogonal Finetuning | `python run/cookpad.py --peft-type OFT --target-modules all-linear` |
+| PEFT || Polytropon | Combining Modular Skills in Multitask Learning| `python run/cookpad.py --peft-type POLY --target-modules all-linear` |
+| PEFT || Layernorm Tuning | Tuning LayerNorm in Attention: Towards Efficient Multi-Modal LLM Finetuning | `python run/cookpad.py --peft-type LN_TUNING --target-modules all-linear` |
+| 生成戦略 || 貪欲法 || `python run/cookpad.py` |
+| 生成戦略 || Multinomial Sampling || `python run/cookpad.py --do-sample` |
+| 生成戦略 || Beam-Search Decoding || `python run/cookpad.py --num-beams 2` |
+| 生成戦略 || Beam-Search Multinomial Sampling || `python run/cookpad.py --do-sample --num-beams 2` |
+| 生成戦略 || Contrastive Search | A Contrastive Framework for Neural Text Generation | `python run/cookpad.py --penalty-alpha 0.5` |
+| 生成戦略 || Diverse Beam-Search Decoding | Diverse Beam Search: Decoding Diverse Solutions from Neural Sequence Models | `python run/cookpad.py --num-beams 2 --num-beam-groups 2` |
+| 生成戦略 || Assisted Decoding || `python run/cookpad.py --prompt-lookup-num-tokens 2` |
 
 ### 実行する
 
