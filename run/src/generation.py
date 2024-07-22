@@ -7,7 +7,7 @@ from datasets.arrow_dataset import Dataset
 
 from models import load_checkpoint
 
-def generation(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTrainedModel, test_dataset: Dataset) -> None:
+def generation(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTrainedModel, test_dataset: Dataset):
 
     generation_config = GenerationConfig(
         max_length=args.max_length,

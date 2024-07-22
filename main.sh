@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dataset=../raw_data/cookpad_data.tsv
+dataset=../data/cookpad_data.csv
 
 # SFT Config
 eval_strategy=epoch
@@ -10,7 +10,7 @@ save_strategy=epoch
 # Generation Config
 max_new_tokens=1024
 
-if [ $dataset = "../raw_data/cookpad_data.tsv" ]; then
+if [ $dataset = "../data/cookpad_data.csv" ]; then
 
     output_dir=tmp_trainer/cookpad/`date '+%Y_%m_%d_%H_%M_%S'`
 
@@ -29,10 +29,8 @@ elif [ $dataset = "AWeirdDev/zh-tw-recipes-sm" ]; then
     python ./run/zh_tw_recipes_sm.py \
         --dataset $dataset \
         --output-dir $output_dir \
-        --eval-strategy $eval_strategy \
         --logging-strategy $logging_strategy \
         --save-strategy $save_strategy \
-        --max-new-tokens $max_new_tokens
 
 elif [ $dataset = "Erik/data_recipes_instructor" ]; then
 
@@ -41,10 +39,8 @@ elif [ $dataset = "Erik/data_recipes_instructor" ]; then
     python ./run/data_recipes_instructor.py \
         --dataset $dataset \
         --output-dir $output_dir \
-        --eval-strategy $eval_strategy \
         --logging-strategy $logging_strategy \
         --save-strategy $save_strategy \
-        --max-new-tokens $max_new_tokens
 
 elif [ $dataset = "mertbozkurt/llama2-TR-recipe" ]; then
 
@@ -53,10 +49,8 @@ elif [ $dataset = "mertbozkurt/llama2-TR-recipe" ]; then
     python ./run/llama2_TR_recipe.py \
         --dataset $dataset \
         --output-dir $output_dir \
-        --eval-strategy $eval_strategy \
         --logging-strategy $logging_strategy \
         --save-strategy $save_strategy \
-        --max-new-tokens $max_new_tokens
 
 elif [ $dataset = "pythainlp/thai_food_v1.0" ]; then
 
@@ -65,10 +59,8 @@ elif [ $dataset = "pythainlp/thai_food_v1.0" ]; then
     python ./run/thai_food.py \
         --dataset $dataset \
         --output-dir $output_dir \
-        --eval-strategy $eval_strategy \
         --logging-strategy $logging_strategy \
         --save-strategy $save_strategy \
-        --max-new-tokens $max_new_tokens
 
 elif [ $dataset = "SuryaKrishna02/aya-telugu-food-recipes" ]; then
 
@@ -77,10 +69,8 @@ elif [ $dataset = "SuryaKrishna02/aya-telugu-food-recipes" ]; then
     python ./run/aya_telugu_food_recipes.py \
         --dataset $dataset \
         --output-dir $output_dir \
-        --eval-strategy $eval_strategy \
         --logging-strategy $logging_strategy \
         --save-strategy $save_strategy \
-        --max-new-tokens $max_new_tokens
 
 else
     echo "Invalid dataset"

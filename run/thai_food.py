@@ -6,7 +6,7 @@ from trl import SFTConfig, SFTTrainer
 from src.data_preprocessing import load_raw_dataset, formatting_func_thai_food
 from src.models import load_checkpoint
 
-def run_training(args: Namespace, train_dataset: Dataset) -> None:
+def run_training(args: Namespace, train_dataset: Dataset):
 
     tokenizer, model = load_checkpoint(args)
 
@@ -111,7 +111,7 @@ def run_training(args: Namespace, train_dataset: Dataset) -> None:
 
     trainer.train()
 
-def main(args: Namespace) -> None:
+def main(args: Namespace):
 
     train_dataset, _, _ = load_raw_dataset(args)
     run_training(args, train_dataset)
@@ -261,45 +261,6 @@ if __name__ == "__main__":
     parser.add_argument("--n-tasks", default=1, type=int)
     parser.add_argument("--n-skills", default=4, type=int)
     parser.add_argument("--n-splits", default=1, type=int)
-
-    # Generate
-    parser.add_argument("--assistant-model", type=str)
-
-    # Generation Config
-    parser.add_argument("--max-length", default=20, type=int)
-    parser.add_argument("--max-new-tokens", type=int)
-    parser.add_argument("--min-length", default=0, type=int)
-    parser.add_argument("--min-new-tokens", type=int)
-    parser.add_argument("--early-stopping", action="store_true")
-    parser.add_argument("--max-time", type=float)
-    parser.add_argument("--stop-strings", nargs="*", type=str)
-    parser.add_argument("--do-sample", action="store_true")
-    parser.add_argument("--num-beams", default=1, type=int)
-    parser.add_argument("--num-beam-groups", default=1, type=int)
-    parser.add_argument("--penalty-alpha", type=float)
-    parser.add_argument("--use-cache", action="store_false")
-    parser.add_argument("--temperature", default=1.0, type=float)
-    parser.add_argument("--top-k", default=50, type=int)
-    parser.add_argument("--top-p", default=1.0, type=float)
-    parser.add_argument("--min-p", type=float)
-    parser.add_argument("--typical-p", default=1.0, type=float)
-    parser.add_argument("--epsilon-cutoff", default=0.0, type=float)
-    parser.add_argument("--eta-cutoff", default=0.0, type=float)
-    parser.add_argument("--diversity-penalty", default=0.0, type=float)
-    parser.add_argument("--repetition-penalty", default=1.0, type=float)
-    parser.add_argument("--encoder-repetition-penalty", default=1.0, type=float)
-    parser.add_argument("--length-penalty", default=1.0, type=float)
-    parser.add_argument("--no-repeat-ngram-size", default=0, type=int)
-    parser.add_argument("--renormalize-logits", action="store_true")
-    parser.add_argument("--remove-invalid-values", action="store_true")
-    parser.add_argument("--guidance-scale", type=float)
-    parser.add_argument("--low-memory", action="store_true")
-    parser.add_argument("--num-return-sequences", default=1, type=int)
-    parser.add_argument("--output-attentions", action="store_true")
-    parser.add_argument("--num-assistant-tokens", default=5, type=int)
-    parser.add_argument("--num-assistant-tokens-schedule", default="heuristic", type=str, choices=["heuristic", "heuristic_transient", "constant"])
-    parser.add_argument("--prompt-lookup-num-tokens", type=int)
-    parser.add_argument("--max-matching-ngram-size", type=int)
 
     args = parser.parse_args()
 

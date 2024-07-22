@@ -36,6 +36,8 @@ For easy fine-tuning, you can use the Jupyter Notebook provided in the [`example
 | thai_food_v1.0 | Thai | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 ||
 | aya-telugu-food-recipes | Telugu | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes ||
 
+Please save the obtained dataset in the [`data` folder](./data/).
+
 ### Prompt
 
 If you want to change the prompts used during training, please modify the [`formatting_func_.+`](./run/src/data_preprocessing.py#L30-L48) function in [`data_preprocessing.py`](./run/src/data_preprocessing.py). The following function is a sample for Cookpad.

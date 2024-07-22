@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 ### クイックスタート
 
-簡単にファインチューニングするには、[`examples`](./examples/) にある Jupyter Notebook を使用することで行えます。
+簡単にファインチューニングするには、[`examples` フォルダ](./examples/) にある Jupyter Notebook を使用することで行えます。
 
 ### データ
 
@@ -35,6 +35,8 @@ pip install -r requirements.txt
 | llama2-TR-recipe | トルコ語 | $10,504$ ||| $10,504$ | https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe ||
 | thai_food_v1.0 | タイ語 | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 ||
 | aya-telugu-food-recipes | テルグ語 | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes ||
+
+取得したデータセットは、[`data` フォルダ](./data/)に保存してください。
 
 ### プロンプト
 

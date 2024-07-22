@@ -109,7 +109,7 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: Dataset)
 
     return tokenizer, model
 
-def main(args: Namespace) -> None:
+def main(args: Namespace):
 
     train_dataset, eval_dataset, test_dataset = load_raw_dataset(args)
     tokenizer, model = run_training(args, train_dataset, eval_dataset)
@@ -118,7 +118,7 @@ def main(args: Namespace) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model on the Cookpad dataset and generate outputs.")
 
-    parser.add_argument("--dataset", default="../raw_data/cookpad_data.tsv", type=str, help="https://www.nii.ac.jp/dsc/idr/cookpad/")
+    parser.add_argument("--dataset", default="../data/cookpad_data.csv", type=str, help="https://www.nii.ac.jp/dsc/idr/cookpad/")
     parser.add_argument("--tokenizer", default="cyberagent/open-calm-7b", type=str, help="Tokenizer name or path.")
     parser.add_argument("--model", default="cyberagent/open-calm-7b", type=str, help="Model name or path.")
     parser.add_argument("--data-collator", type=str, default="LanguageModeling", choices=["LanguageModeling", "CompletionOnlyLM"], help="Data collator type.")
