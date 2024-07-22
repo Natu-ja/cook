@@ -42,7 +42,7 @@ Please save the obtained Cookpad dataset in the [`data` folder](./data/).
 
 If you want to change the prompts used during training, please modify the [`formatting_func_.+` function](./run/src/data_preprocessing.py#L30-L48) in [`data_preprocessing.py`](./run/src/data_preprocessing.py). The following function is a sample for Cookpad.
 
-```python
+```python:./run/src/data_preprocessing.py
 def formatting_func_cookpad(example):
     output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
     return output_texts
@@ -73,7 +73,7 @@ For more details, please refer to [this website](https://huggingface.co/docs/trl
 > [!TIP]
 > To resolve this issue, please use the following code.
 
-```python
+```python:./run/cookpad.py
 from trl import DataCollatorForCompletionOnlyLM
 
 data_collator = DataCollatorForCompletionOnlyLM(

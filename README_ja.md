@@ -42,7 +42,7 @@ pip install -r requirements.txt
 
 学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](./run/src/data_preprocessing.py) 内の [`formatting_func_.+` 関数](./run/src/data_preprocessing.py#L30-L48)を変更してください。以下の関数は、Cookpad 用のサンプルです。
 
-```python
+```python:./run/src/data_preprocessing.py
 def formatting_func_cookpad(example):
     output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
     return output_texts
@@ -73,7 +73,7 @@ def formatting_func_cookpad(example):
 > [!TIP]
 > この問題を解決するには、次のようなコードを使用してください。
 
-```python
+```python:./run/cookpad.py
 from trl import DataCollatorForCompletionOnlyLM
 
 data_collator = DataCollatorForCompletionOnlyLM(
