@@ -7,6 +7,7 @@ from datasets.arrow_dataset import Dataset
 
 from models import load_checkpoint
 
+@torch.no_grad()
 def generation(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTrainedModel, test_dataset: Dataset):
 
     generation_config = GenerationConfig(
@@ -52,25 +53,24 @@ def generation(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTr
     )
 
     output_lists = []
-    with torch.no_grad():
 
-        if args.assistant_model is None:  
-            for title in tqdm(test_dataset["title"]):
-                input_text = f"# ユーザ\n{title}\n\n# アシスタント\n"
-                input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
-                output_text = model.generate(**input_text, generation_config=generation_config)
-                output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
-                output_lists.append(output_list)
-        
-        else:
-            assistant_model = load_checkpoint(args)[1]
+    if args.assistant_model is None:  
+        for title in tqdm(test_dataset["title"]):
+            input_text = f"# ユーザ\n{title}\n\n# アシスタント\n"
+            input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
+            output_text = model.generate(**input_text, generation_config=generation_config)
+            output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
+            output_lists.append(output_list)
+    
+    else:
+        assistant_model = load_checkpoint(args)[1]
 
-            for title in tqdm(test_dataset["title"]):
-                input_text = f"# ユーザ\n{title}\n\n# アシスタント\n"
-                input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
-                output_text = model.generate(**input_text, generation_config=generation_config, assistant_model=assistant_model)
-                output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
-                output_lists.append(output_list)
+        for title in tqdm(test_dataset["title"]):
+            input_text = f"# ユーザ\n{title}\n\n# アシスタント\n"
+            input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
+            output_text = model.generate(**input_text, generation_config=generation_config, assistant_model=assistant_model)
+            output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
+            output_lists.append(output_list)
 
     output_lists = pd.DataFrame(output_lists)
     output_lists.to_csv(path_or_buf=args.output_dir+"/outputs.csv", header=False, index=False)

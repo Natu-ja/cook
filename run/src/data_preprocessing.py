@@ -5,15 +5,7 @@ from datasets.formatting.formatting import LazyBatch
 
 def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tuple[Dataset, None, None]:
 
-    if not os.path.exists(path=args.dataset):
-
-        from datasets import load_dataset
-
-        train_dataset = load_dataset(path=args.dataset, split="train")
-
-        return train_dataset, None, None
-    
-    else:
+    if os.path.exists(path=args.dataset):
 
         import pandas as pd
 
@@ -26,6 +18,15 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
         train_dataset, eval_dataset = tv_dataset["train"], tv_dataset["test"]
 
         return train_dataset, eval_dataset, test_dataset
+
+    else:
+
+        from datasets import load_dataset
+
+        train_dataset = load_dataset(path=args.dataset, split="train")
+
+        return train_dataset, None, None
+    
 
 def formatting_func_cookpad(example: LazyBatch) -> list[str]:
     output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
