@@ -3,10 +3,22 @@ from argparse import Namespace
 from datasets.arrow_dataset import Dataset
 from trl import SFTConfig, SFTTrainer
 
-from src.data_preprocessing import load_raw_dataset, formatting_func_aya_telugu_food_recipes
+from src.data_preprocessing import load_raw_dataset, formatting_func_aya_telugu_food_recipes as formatting_func
 from src.models import load_checkpoint
 
 def run_training(args: Namespace, train_dataset: Dataset):
+
+    """
+    This function handles the training process by loading the model and tokenizer from a checkpoint, configuring the training settings, and initializing the trainer. Depending on the type of data collator and whether PEFT (Parameter-Efficient Fine-Tuning) is used, it sets up the appropriate components before running the training.
+
+    Args:
+        args (`argparse.Namespace`):
+            Arguments. This includes hyperparameters and model settings.
+        train_dataset (`datasets.arrow_dataset.Dataset`):
+            Training dataset.
+        eval_dataset (`datasets.arrow_dataset.Dataset`):
+            Evaluation dataset.
+    """
 
     tokenizer, model = load_checkpoint(args)
 
@@ -85,7 +97,7 @@ def run_training(args: Namespace, train_dataset: Dataset):
             train_dataset=train_dataset,
             tokenizer=tokenizer,
             peft_config=peft_config,
-            formatting_func=formatting_func_aya_telugu_food_recipes,
+            formatting_func=formatting_func,
             infinite=args.infinite
         )
     
@@ -97,13 +109,21 @@ def run_training(args: Namespace, train_dataset: Dataset):
             data_collator=data_collator,
             train_dataset=train_dataset,
             tokenizer=tokenizer,
-            formatting_func=formatting_func_aya_telugu_food_recipes,
+            formatting_func=formatting_func,
             infinite=args.infinite
         )
 
     trainer.train()
 
 def main(args: Namespace):
+
+    """
+    The main function that performs the training of the model.
+
+    Args:
+        args (`argparse.Namespace`):
+            Arguments including training settings, dataset paths, model settings, etc.
+    """
 
     train_dataset, _, _ = load_raw_dataset(args)
     run_training(args, train_dataset)

@@ -8,6 +8,18 @@ from src.models import load_checkpoint
 
 def run_training(args: Namespace, train_dataset: Dataset):
 
+    """
+    This function handles the training process by loading the model and tokenizer from a checkpoint, configuring the training settings, and initializing the trainer. Depending on the type of data collator and whether PEFT (Parameter-Efficient Fine-Tuning) is used, it sets up the appropriate components before running the training.
+
+    Args:
+        args (`argparse.Namespace`):
+            Arguments. This includes hyperparameters and model settings.
+        train_dataset (`datasets.arrow_dataset.Dataset`):
+            Training dataset.
+        eval_dataset (`datasets.arrow_dataset.Dataset`):
+            Evaluation dataset.
+    """
+
     tokenizer, model = load_checkpoint(args)
 
     sft_config = SFTConfig(
@@ -103,6 +115,14 @@ def run_training(args: Namespace, train_dataset: Dataset):
     trainer.train()
 
 def main(args: Namespace):
+
+    """
+    The main function that performs the training of the model.
+
+    Args:
+        args (`argparse.Namespace`):
+            Arguments including training settings, dataset paths, model settings, etc.
+    """
 
     train_dataset, _, _ = load_raw_dataset(args)
     run_training(args, train_dataset)

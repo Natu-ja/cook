@@ -4,11 +4,27 @@ from transformers import PreTrainedModel, PreTrainedTokenizerBase
 from datasets.arrow_dataset import Dataset
 from trl import SFTConfig, SFTTrainer
 
-from src.data_preprocessing import load_raw_dataset, formatting_func_cookpad
+from src.data_preprocessing import load_raw_dataset, formatting_func_cookpad as formatting_func
 from src.models import load_checkpoint
-from src.generation import generation
+from src.generation import generation_cookpad as generation
 
 def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: Dataset) -> tuple[PreTrainedTokenizerBase, PreTrainedModel]:
+
+    """
+    This function handles the training process by loading the model and tokenizer from a checkpoint, configuring the training settings, and initializing the trainer. Depending on the type of data collator and whether PEFT (Parameter-Efficient Fine-Tuning) is used, it sets up the appropriate components before running the training.
+
+    Args:
+        args (`argparse.Namespace`):
+            Arguments. This includes hyperparameters and model settings.
+        train_dataset (`datasets.arrow_dataset.Dataset`):
+            Training dataset.
+        eval_dataset (`datasets.arrow_dataset.Dataset`):
+            Evaluation dataset.
+    
+    Returns:
+        `tuple[transformers.PreTrainedTokenizerBase, transformers.PreTrainedModel]`:
+            Tokenizer and model
+    """
 
     tokenizer, model = load_checkpoint(args)
 
@@ -88,7 +104,7 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: Dataset)
             eval_dataset=eval_dataset,
             tokenizer=tokenizer,
             peft_config=peft_config,
-            formatting_func=formatting_func_cookpad,
+            formatting_func=formatting_func,
             infinite=args.infinite
         )
     
@@ -101,7 +117,7 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: Dataset)
             train_dataset=train_dataset,
             eval_dataset=eval_dataset,
             tokenizer=tokenizer,
-            formatting_func=formatting_func_cookpad,
+            formatting_func=formatting_func,
             infinite=args.infinite
         )
 
@@ -110,6 +126,14 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: Dataset)
     return tokenizer, model
 
 def main(args: Namespace):
+
+    """
+    Main function that performs a series of model training, evaluation, and text generation processes.
+
+    Args:
+        args (`argparse.Namespace`):
+            Arguments including training settings, dataset paths, model settings, generation parameters, etc.
+    """
 
     train_dataset, eval_dataset, test_dataset = load_raw_dataset(args)
     tokenizer, model = run_training(args, train_dataset, eval_dataset)

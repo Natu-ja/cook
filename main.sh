@@ -73,6 +73,7 @@ elif [ $dataset = "SuryaKrishna02/aya-telugu-food-recipes" ]; then
         --save-strategy $save_strategy \
 
 else
+
     echo "Invalid dataset"
 
 fi

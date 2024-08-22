@@ -5,6 +5,20 @@ from datasets.formatting.formatting import LazyBatch
 
 def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tuple[Dataset, None, None]:
 
+    """
+    Reads the specified data set and splits it into train, validation, and test dataset.
+
+    Args:
+        args (`Namespace`):
+            Arguments containing settings such as the path and seed value of the dataset.
+
+    Returns:
+        `tuple[datasets.arrow_dataset.Dataset, datasets.arrow_dataset.Dataset, datasets.arrow_dataset.Dataset]`:
+            Returns dataset for train, validation, and test.
+        `tuple[datasets.arrow_dataset.Dataset, None, None]`:
+            Returns dataset for train only.
+    """
+    
     if os.path.exists(path=args.dataset):
 
         import pandas as pd
@@ -29,21 +43,66 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
     
 
 def formatting_func_cookpad(example: LazyBatch) -> list[str]:
+
+    """
+    Formats a batch of recipe examples into a specific text format.
+
+    Args:
+        example (`datasets.formatting.formatting.LazyBatch`):
+            A batch of recipe examples containing 'title' and 'name' fields.
+    """
+
     output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
     return output_texts
 
 def formatting_func_zh_tw_recipes_sm(example: LazyBatch) -> list[str]:
+
+    """
+    Formats a batch of recipe examples into a specific text format.
+
+    Args:
+        example (`datasets.formatting.formatting.LazyBatch`):
+            A batch of recipe examples containing 'title' and 'steps' fields.
+    """
+
     output_texts = [f"# 標題\n{example['title'][i]}\n\n# 腳步\n{example['steps'][i]}" for i in range(len(example))]
     return output_texts
 
 def formatting_func_data_recipes_instructor(example: LazyBatch) -> list[str]:
+
+    """
+    Formats a batch of recipe examples into a specific text format.
+
+    Args:
+        example (`datasets.formatting.formatting.LazyBatch`):
+            A batch of recipe examples containing 'instruction' and 'input' fields.
+    """
+
     output_texts = [f"# Instruction\n{example['instruction'][i]}\n\n# Input\n{example['input'][i]}\n\n# Output\n{example['output'][i]}" for i in range(len(example))]
     return output_texts
 
 def formatting_func_thai_food(example: LazyBatch) -> list[str]:
+
+    """
+    Formats a batch of recipe examples into a specific text format.
+
+    Args:
+        example (`datasets.formatting.formatting.LazyBatch`):
+            A batch of recipe examples containing 'name' and 'text' fields.
+    """
+
     output_texts = [f"# ชื่อ\n{example['name'][i]}\n\n# ข้อความ\n{example['text'][i]}" for i in range(len(example))]
     return output_texts
 
 def formatting_func_aya_telugu_food_recipes(example: LazyBatch) -> list[str]:
+
+    """
+    Formats a batch of recipe examples into a specific text format.
+
+    Args:
+        example (`datasets.formatting.formatting.LazyBatch`):
+            A batch of recipe examples containing 'inputs' and 'target' fields.
+    """
+
     output_texts = [f"# ఇన్పుట్\n{example['inputs'][i]}\n\n# లక్ష్యం\n{example['target'][i]}" for i in range(len(example))]
     return output_texts

@@ -5,6 +5,18 @@ from peft import PeftConfig
 
 def load_checkpoint(args: Namespace) -> tuple[PreTrainedTokenizerBase, PreTrainedModel]:
 
+    """
+    Load the tokenizer and model from the specified checkpoints, quantize and configure as needed.
+
+    Args:
+        args (`argparse.Namespace`):
+            Arguments including model and tokenizer paths, quantization settings, device map, dtype settings, etc.
+    
+    Returns:
+        `tuple[transformers.PreTrainedTokenizerBase, transformers.PreTrainedModel]`:
+        Tokenizer and model
+    """
+
     tokenizer = AutoTokenizer.from_pretrained(
         pretrained_model_name_or_path=args.tokenizer,
     )
@@ -79,6 +91,17 @@ def load_checkpoint(args: Namespace) -> tuple[PreTrainedTokenizerBase, PreTraine
 
 def get_peft_config(args: Namespace) -> PeftConfig:
     
+    """
+    Generate appropriate PEFT config based on the specified PEFT type.
+
+    Args:
+        args (`argparse.Namespace`):
+            Generate appropriate PEFT config based on the specified PEFT type.
+
+    Returns:
+        `peft.PeftConfig`:
+            PeftConfig object containing settings according to the specified PEFT type.
+    """
     if args.init_lora_weights is None or args.init_lora_weights=="true":
             args.init_lora_weights = True
     elif args.init_lora_weights=="false":

@@ -8,7 +8,21 @@ from datasets.arrow_dataset import Dataset
 from models import load_checkpoint
 
 @torch.no_grad()
-def generation(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTrainedModel, test_dataset: Dataset):
+def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTrainedModel, test_dataset: Dataset):
+
+    """
+    Using the test dataset, text generation is performed based on the specified model and tokenizer.
+
+    Args:
+        args (`argparse.Namespace`):
+            Arguments for generation settings, model paths, output destinations, etc.
+        tokenizer (`transformers.PreTrainedTokenizerBase`):
+            Tokenizer.
+        model (`transformers.PreTrainedModel`):
+            Model.
+        test_dataset (`datasets.arrow_dataset.Dataset`):
+            Test dataset to use for text generation.
+    """
 
     generation_config = GenerationConfig(
         max_length=args.max_length,
