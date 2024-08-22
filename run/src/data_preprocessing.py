@@ -40,7 +40,6 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
         train_dataset = load_dataset(path=args.dataset, split="train")
 
         return train_dataset, None, None
-    
 
 def formatting_func_cookpad(example: LazyBatch) -> list[str]:
 
