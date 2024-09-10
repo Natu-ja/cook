@@ -1,6 +1,7 @@
 accelerate
 bitsandbytes
 datasets
+neologdn
 pandas
 peft
 torch>=2.0.0

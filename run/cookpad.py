@@ -143,6 +143,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model on the 'Cookpad dataset' and generate outputs.")
 
     parser.add_argument("--dataset", default="../data/cookpad_data.csv", type=str, help="https://www.nii.ac.jp/dsc/idr/cookpad/")
+    parser.add_argument("--text-normalizer", action="store_true", help="Normalize text.")
     parser.add_argument("--tokenizer", default="cyberagent/open-calm-7b", type=str, help="Tokenizer name or path.")
     parser.add_argument("--model", default="cyberagent/open-calm-7b", type=str, help="Model name or path.")
     parser.add_argument("--data-collator", type=str, default="LanguageModeling", choices=["LanguageModeling", "CompletionOnlyLM"], help="Data collator type.")

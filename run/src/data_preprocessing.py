@@ -23,7 +23,32 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
 
         import pandas as pd
 
+        def text_normalization(df: pd.DataFrame) -> pd.DataFrame:
+
+            """
+            String normalization processing.
+
+            Args:
+                df (`pandas.core.frame.DataFrame`):
+                    DataFrame containing text data.
+                
+            Returns:
+                `pandas.core.frame.DataFrame`:
+                    Returns a DataFrame with normalized text data.
+            """
+
+            import neologdn
+
+            for i in df.columns:
+                df[i] = df[i].apply(lambda x: neologdn.normalize(x))
+            
+            return df
+
         dataset = pd.read_csv(filepath_or_buffer=args.dataset, sep="\t")
+
+        if args.text_normalizer:
+            dataset = text_normalization(df=dataset)
+
         dataset = Dataset.from_pandas(df=dataset)
 
         dataset = dataset.train_test_split(test_size=0.2, shuffle=True, seed=args.seed)
