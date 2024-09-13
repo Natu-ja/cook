@@ -5,8 +5,6 @@ import torch
 from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizerBase
 from datasets.arrow_dataset import Dataset
 
-from models import load_checkpoint
-
 @torch.no_grad()
 def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTrainedModel, test_dataset: Dataset):
 
@@ -63,7 +61,8 @@ def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, mode
         num_assistant_tokens=args.num_assistant_tokens,
         num_assistant_tokens_schedule=args.num_assistant_tokens_schedule,
         prompt_lookup_num_tokens=args.prompt_lookup_num_tokens,
-        max_matching_ngram_size=args.max_matching_ngram_size
+        max_matching_ngram_size=args.max_matching_ngram_size,
+        dola_layers=args.dola_layers
     )
 
     output_lists = []
@@ -77,6 +76,8 @@ def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, mode
             output_lists.append(output_list)
     
     else:
+
+        from .models import load_checkpoint
         assistant_model = load_checkpoint(args)[1]
 
         for title in tqdm(test_dataset["title"]):

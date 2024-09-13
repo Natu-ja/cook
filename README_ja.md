@@ -118,6 +118,7 @@ data_collator = DataCollatorForCompletionOnlyLM(
 | 生成戦略 || Contrastive Search | A Contrastive Framework for Neural Text Generation | `python run/cookpad.py --penalty-alpha 0.5` |
 | 生成戦略 || Diverse Beam-Search Decoding | Diverse Beam Search: Decoding Diverse Solutions from Neural Sequence Models | `python run/cookpad.py --num-beams 2 --num-beam-groups 2` |
 | 生成戦略 || Assisted Decoding || `python run/cookpad.py --prompt-lookup-num-tokens 2` |
+| 生成戦略 || DoLa Decoding | DoLa: Decoding by Contrasting Layers Improves Factuality in Large Language Models | `python run/cookpad.py --dola-layers low` |
 
 ### 実行する
 

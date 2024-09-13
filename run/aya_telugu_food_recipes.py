@@ -3,8 +3,8 @@ from argparse import Namespace
 from datasets.arrow_dataset import Dataset
 from trl import SFTConfig, SFTTrainer
 
-from src.data_preprocessing import load_raw_dataset, formatting_func_aya_telugu_food_recipes as formatting_func
-from src.models import load_checkpoint
+from .src.data_preprocessing import load_raw_dataset, formatting_func_aya_telugu_food_recipes as formatting_func
+from .src.models import load_checkpoint
 
 def run_training(args: Namespace, train_dataset: Dataset):
 

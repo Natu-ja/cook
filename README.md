@@ -118,6 +118,7 @@ This program operates using the Causal Language Model (CLM) available from [Hugg
 | Generation Strategy || Contrastive Search | A Contrastive Framework for Neural Text Generation | `python run/cookpad.py --penalty-alpha 0.5` |
 | Generation Strategy || Diverse Beam-Search Decoding | Diverse Beam Search: Decoding Diverse Solutions from Neural Sequence Models | `python run/cookpad.py --num-beams 2 --num-beam-groups 2` |
 | Generation Strategy || Assisted Decoding || `python run/cookpad.py --prompt-lookup-num-tokens 2` |
+| Generation Strategy || DoLa Decoding | DoLa: Decoding by Contrasting Layers Improves Factuality in Large Language Models | `python run/cookpad.py --dola-layers low` |
 
 ### Run
 
