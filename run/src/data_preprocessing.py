@@ -142,5 +142,5 @@ def formatting_func_thai_food(example: LazyBatch) -> list[str]:
             A batch of recipe examples containing 'name' and 'text' fields.
     """
 
-    output_texts = [f"# ผู้ใช้\n## ชื่อ\n{example['name'][i]}\n\n# ผู้ช่วย\n# ข้อความ\n{example['text'][i]}" for i in range(len(example))]
+    output_texts = [f"# ผู้ใช้\n## ชื่อ\n{example['name'][i]}\n\n# ผู้ช่วย\n## ข้อความ\n{example['text'][i]}" for i in range(len(example))]
     return output_texts

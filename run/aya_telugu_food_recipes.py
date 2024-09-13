@@ -131,7 +131,7 @@ def main(args: Namespace):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model on the 'aya-telugu-food-recipes' dataset.")
 
-    parser.add_argument("--dataset", default="SuryaKrishna02/aya-telugu-food-recipes", type=str, help="https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes")
+    parser.add_argument("--dataset", default="SuryaKrishna02/aya-telugu-food-recipes", type=str, choices=["SuryaKrishna02/aya-telugu-food-recipes"], help="https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes")
     parser.add_argument("--tokenizer", default="jayasuryajsk/Llama-3-8b-Telugu-Romanized", type=str, help="Tokenizer name or path.")
     parser.add_argument("--model", default="jayasuryajsk/Llama-3-8b-Telugu-Romanized", type=str, help="Model name or path.")
     parser.add_argument("--data-collator", type=str, default="LanguageModeling", choices=["LanguageModeling", "CompletionOnlyLM"], help="Data collator type.")

@@ -130,7 +130,7 @@ def main(args: Namespace):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model on the 'llama2-TR-recipe' dataset.")
 
-    parser.add_argument("--dataset", default="mertbozkurt/llama2-TR-recipe", type=str, help="https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe")
+    parser.add_argument("--dataset", default="mertbozkurt/llama2-TR-recipe", type=str, choices=["mertbozkurt/llama2-TR-recipe"], help="https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe")
     parser.add_argument("--tokenizer", default="TURKCELL/Turkcell-LLM-7b-v1", type=str, help="Tokenizer name or path.")
     parser.add_argument("--model", default="TURKCELL/Turkcell-LLM-7b-v1", type=str, help="Model name or path.")
     parser.add_argument("--data-collator", type=str, default="LanguageModeling", choices=["LanguageModeling", "CompletionOnlyLM"], help="Data collator type.")

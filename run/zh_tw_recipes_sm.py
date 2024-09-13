@@ -131,7 +131,7 @@ def main(args: Namespace):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model on the 'zh-tw-recipes-sm' dataset.")
 
-    parser.add_argument("--dataset", default="AWeirdDev/zh-tw-recipes-sm", type=str, help="https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm")
+    parser.add_argument("--dataset", default="AWeirdDev/zh-tw-recipes-sm", type=str, choices=["AWeirdDev/zh-tw-recipes-sm"], help="https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm")
     parser.add_argument("--tokenizer", default="uer/gpt2-chinese-cluecorpussmall", type=str, help="Tokenizer name or path.")
     parser.add_argument("--model", default="uer/gpt2-chinese-cluecorpussmall", type=str, help="Model name or path.")
     parser.add_argument("--data-collator", type=str, default="LanguageModeling", choices=["LanguageModeling", "CompletionOnlyLM"], help="Data collator type.")

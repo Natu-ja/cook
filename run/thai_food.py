@@ -139,7 +139,7 @@ def main(args: Namespace):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model on the 'thai_food_v1.0' dataset.")
 
-    parser.add_argument("--dataset", default="pythainlp/thai_food_v1.0", type=str, help="https://huggingface.co/datasets/pythainlp/thai_food_v1.0")
+    parser.add_argument("--dataset", default="pythainlp/thai_food_v1.0", type=str, choices=["pythainlp/thai_food_v1.0"], help="https://huggingface.co/datasets/pythainlp/thai_food_v1.0")
     parser.add_argument("--tokenizer", default="scb10x/typhoon-7b", type=str, help="Tokenizer name or path.")
     parser.add_argument("--model", default="scb10x/typhoon-7b", type=str, help="Model name or path.")
     parser.add_argument("--data-collator", type=str, default="LanguageModeling", choices=["LanguageModeling", "CompletionOnlyLM"], help="Data collator type.")
