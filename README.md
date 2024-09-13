@@ -21,6 +21,8 @@ This program uses cooking datasets, such as those from Cookpad, to generate ingr
 pip install -r requirements.txt
 ```
 
+If you would like to use Flash Attention, please refer to [this link](https://github.com/Dao-AILab/flash-attention?tab=readme-ov-file#installation-and-features) and follow the instructions for installation.
+
 ### Quick Start
 
 For easy fine-tuning, you can use the Jupyter Notebook provided in the [`examples` folder](./examples/).
@@ -40,7 +42,7 @@ Please save the obtained Cookpad dataset in the [`data` folder](./data/).
 
 ### Prompt
 
-If you want to change the prompts used during training, please modify the [`formatting_func_.+` function](./run/src/data_preprocessing.py#L69-L132) in [`data_preprocessing.py`](./run/src/data_preprocessing.py). The following function is a sample for Cookpad.
+If you want to change the prompts used during training, please modify the [`formatting_func_.+` function](./run/src/data_preprocessing.py#L70-L133) in [`data_preprocessing.py`](./run/src/data_preprocessing.py). The following function is a sample for Cookpad.
 
 ```python:./run/src/data_preprocessing.py
 def formatting_func_cookpad(example):
@@ -48,7 +50,7 @@ def formatting_func_cookpad(example):
     return output_texts
 ```
 
-An example of a dataset with the [`formatting_func_cookpad` function](./run/src/data_preprocessing.py#L69-L80) applied is shown below.
+An example of a dataset with the [`formatting_func_cookpad` function](./run/src/data_preprocessing.py#L70-L81) applied is shown below.
 
 ```text
 # ユーザ

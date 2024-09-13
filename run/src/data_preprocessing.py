@@ -22,8 +22,9 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
     if os.path.exists(path=args.dataset):
 
         import pandas as pd
+        from pandas.core.frame import DataFrame
 
-        def text_normalization(df: pd.DataFrame) -> pd.DataFrame:
+        def text_normalization(df: DataFrame) -> DataFrame:
 
             """
             String normalization processing.
@@ -44,7 +45,7 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
             
             return df
 
-        dataset = pd.read_csv(filepath_or_buffer=args.dataset, sep="\t")
+        dataset = pd.read_csv(filepath_or_buffer=args.dataset)
 
         if args.text_normalizer:
             dataset = text_normalization(df=dataset)
