@@ -38,10 +38,18 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
                     Returns a DataFrame with normalized text data.
             """
 
+            import re
+            from tqdm import tqdm
             import neologdn
+            import demoji
 
-            for i in df.columns:
+            for i in tqdm(df.columns):
+                df[i] = df[i].apply(lambda x: x.replace("\n", "").replace("\r", ""))
+                df[i] = df[i].apply(lambda x: re.sub(r"http?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", x))
+                df[i] = df[i].apply(lambda x: re.sub(r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", x))
+                df[i] = df[i].apply(lambda x: demoji.replace(string=x, repl=""))
                 df[i] = df[i].apply(lambda x: neologdn.normalize(x))
+                df[i] = df[i].apply(lambda x: x.lower())
             
             return df
 

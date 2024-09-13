@@ -87,7 +87,7 @@ def run_training(args: Namespace, train_dataset: Dataset):
     
     if args.peft_type is not None:
 
-        from src.models import get_peft_config
+        from .src.models import get_peft_config
         peft_config = get_peft_config(args)
 
         trainer = SFTTrainer(

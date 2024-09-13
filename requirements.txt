@@ -1,6 +1,7 @@
 accelerate
 bitsandbytes
 datasets
+demoji
 neologdn
 pandas
 peft
