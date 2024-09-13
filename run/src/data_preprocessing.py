@@ -93,19 +93,6 @@ def formatting_func_data_recipes_instructor(example: LazyBatch) -> list[str]:
     output_texts = [f"# User\n## Instruction\n{example['instruction'][i]}\n\n## Input\n{example['input'][i]}\n\n#Assistant\n## Output\n{example['output'][i]}" for i in range(len(example))]
     return output_texts
 
-def formatting_func_zh_tw_recipes_sm(example: LazyBatch) -> list[str]:
-
-    """
-    Formats a batch of recipe examples into a specific text format.
-
-    Args:
-        example (`datasets.formatting.formatting.LazyBatch`):
-            A batch of recipe examples containing 'title' and 'steps' fields.
-    """
-
-    output_texts = [f"# 用户\n## 標題\n{example['title'][i]}\n\n# 助手\n## 腳步\n{example['steps'][i]}" for i in range(len(example))]
-    return output_texts
-
 def formatting_func_all_recipes(example: LazyBatch) -> list[str]:
 
     """
@@ -117,6 +104,19 @@ def formatting_func_all_recipes(example: LazyBatch) -> list[str]:
     """
 
     output_texts = [f"# User\n## Name\n{example['name'][i]}\n\n#Assistant\n## Ingredients\n{example['ingredients'][i]}\n## Steps\n{example['steps'][i]}" for i in range(len(example))]
+    return output_texts
+
+def formatting_func_zh_tw_recipes_sm(example: LazyBatch) -> list[str]:
+
+    """
+    Formats a batch of recipe examples into a specific text format.
+
+    Args:
+        example (`datasets.formatting.formatting.LazyBatch`):
+            A batch of recipe examples containing 'title' and 'steps' fields.
+    """
+
+    output_texts = [f"# 用户\n## 標題\n{example['title'][i]}\n\n# 助手\n## 腳步\n{example['steps'][i]}" for i in range(len(example))]
     return output_texts
 
 def formatting_func_aya_telugu_food_recipes(example: LazyBatch) -> list[str]:
