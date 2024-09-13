@@ -34,6 +34,7 @@ Flash Attention を使用したい場合は、[こちらのリンク](https://gi
 | クックパッドデータセット（レシピデータ） | 日本語 | $1,071,753$ | $267,939$ | $334,923$ | $1,674,615$ | https://www.nii.ac.jp/dsc/idr/cookpad/ | $42$ |
 | data_recipes_instructor | 英語 | $20,000$ ||| $20,000$ | https://huggingface.co/datasets/Erik/data_recipes_instructor ||
 | llama2-TR-recipe | トルコ語 | $10,504$ ||| $10,504$ | https://huggingface.co/datasets/mertbozkurt/llama2-TR-recipe ||
+| Recipes_Greek | ギリシャ語 | $5,434$ ||| $5,434$ | https://huggingface.co/datasets/Depie/Recipes_Greek ||
 | all-recipes-sm | 英語 | $2,000$ ||| $2,000$ | https://huggingface.co/datasets/AWeirdDev/all-recipes-sm ||
 | zh-tw-recipes-sm | 中国語 | $1,799$ ||| $1,799$ | https://huggingface.co/datasets/AWeirdDev/zh-tw-recipes-sm ||
 | all-recipes-xs | 英語 | $500$ ||| $500$ | https://huggingface.co/datasets/AWeirdDev/all-recipes-xs ||
@@ -44,7 +45,7 @@ Flash Attention を使用したい場合は、[こちらのリンク](https://gi
 
 ### プロンプト
 
-学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](./run/src/data_preprocessing.py) 内の [`formatting_func_.+` 関数](./run/src/data_preprocessing.py#L70-L133)を変更してください。以下の関数は、Cookpad 用のサンプルです。
+学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](./run/src/data_preprocessing.py) 内の [`formatting_func_.+` 関数](./run/src/data_preprocessing.py#L70-L159)を変更してください。以下の関数は、Cookpad 用のサンプルです。
 
 ```python:./run/src/data_preprocessing.py
 def formatting_func_cookpad(example):

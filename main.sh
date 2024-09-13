@@ -40,6 +40,16 @@ elif [ $dataset = "mertbozkurt/llama2-TR-recipe" ]; then
         --logging-strategy $strategy \
         --save-strategy $strategy \
 
+elif [ $dataset = "Depie/Recipes_Greek" ]; then
+
+    output_dir=tmp_trainer/Recipes_Greek/`date '+%Y_%m_%d_%H_%M_%S'`
+
+    python ./run/Recipes_Greek.py \
+        --dataset $dataset \
+        --output-dir $output_dir \
+        --logging-strategy $strategy \
+        --save-strategy $strategy \
+
 elif [ $dataset = "AWeirdDev/all-recipes-sm" ]; then
 
     output_dir=tmp_trainer/all_recipes_sm/`date '+%Y_%m_%d_%H_%M_%S'`

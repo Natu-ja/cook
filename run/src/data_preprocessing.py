@@ -93,6 +93,19 @@ def formatting_func_data_recipes_instructor(example: LazyBatch) -> list[str]:
     output_texts = [f"# User\n## Instruction\n{example['instruction'][i]}\n\n## Input\n{example['input'][i]}\n\n#Assistant\n## Output\n{example['output'][i]}" for i in range(len(example))]
     return output_texts
 
+def formatting_func_Recipes_Greek(example: LazyBatch) -> list[str]:
+
+    """
+    Formats a batch of recipe examples into a specific text format.
+
+    Args:
+        example (`datasets.formatting.formatting.LazyBatch`):
+            A batch of recipe examples containing 'name' 'Ingredients', and 'Instructions' fields.
+    """
+
+    output_texts = [f"# Μεταχειριζόμενος\n## όνομα\n{example['name'][i]}\n\n# Βοηθός\n## Συστατικά\n{example['Ingredients'][i]}\n## Οδηγίες\n{example['Instructions'][i]}" for i in range(len(example))]
+    return output_texts
+
 def formatting_func_all_recipes(example: LazyBatch) -> list[str]:
 
     """
