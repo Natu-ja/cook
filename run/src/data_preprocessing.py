@@ -24,7 +24,7 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
         import pandas as pd
         from pandas.core.frame import DataFrame
 
-        def text_normalization(df: DataFrame) -> DataFrame:
+        def text_preprocessing(df: DataFrame) -> DataFrame:
 
             """
             String normalization processing.
@@ -43,20 +43,24 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
             import neologdn
             import demoji
 
-            for i in tqdm(df.columns):
-                df[i] = df[i].apply(lambda x: x.replace("\n", "").replace("\r", ""))
-                df[i] = df[i].apply(lambda x: re.sub(r"http?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", x))
-                df[i] = df[i].apply(lambda x: re.sub(r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", x))
-                df[i] = df[i].apply(lambda x: demoji.replace(string=x, repl=""))
-                df[i] = df[i].apply(lambda x: neologdn.normalize(x))
-                df[i] = df[i].apply(lambda x: x.lower())
+            for col in tqdm(df.columns):
+
+                df[col] = df[col].apply(lambda x: x.replace("\n", "").replace("\r", ""))
+                df[col] = df[col].apply(lambda x: re.sub(r"http?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", x))
+                df[col] = df[col].apply(lambda x: re.sub(r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", x))
+                df[col] = df[col].apply(lambda x: demoji.replace(string=x, repl=""))
+                df[col] = df[col].apply(lambda x: re.sub(r'[!"#$%&\'\\()*+,-./:;<=>?@[\\]^_`{|}~「」〔〕“”〈〉『』【】＆＊・（）＄＃＠。、？！｀＋￥％]', "", x))
+                df[col] = df[col].apply(lambda x: re.sub("[\uFF01-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65\u3000-\u303F]", "", x))
+                
+                df[col] = df[col].apply(lambda x: neologdn.normalize(x))
+                df[col] = df[col].apply(lambda x: x.lower())
             
             return df
 
         dataset = pd.read_csv(filepath_or_buffer=args.dataset)
 
         if args.text_normalizer:
-            dataset = text_normalization(df=dataset)
+            dataset = text_preprocessing(df=dataset)
 
         dataset = Dataset.from_pandas(df=dataset)
 

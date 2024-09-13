@@ -45,7 +45,7 @@ Please save the obtained Cookpad dataset in the [`data` folder](./data/).
 
 ### Prompt
 
-If you want to change the prompts used during training, please modify the [`formatting_func_.+` function](./run/src/data_preprocessing.py#L70-L159) in [`data_preprocessing.py`](./run/src/data_preprocessing.py). The following function is a sample for Cookpad.
+If you want to change the prompts used during training, please modify the [`formatting_func_.+` function](./run/src/data_preprocessing.py#L82-L171) in [`data_preprocessing.py`](./run/src/data_preprocessing.py). The following function is a sample for Cookpad.
 
 ```python:./run/src/data_preprocessing.py
 def formatting_func_cookpad(example):
@@ -53,7 +53,7 @@ def formatting_func_cookpad(example):
     return output_texts
 ```
 
-An example of a dataset with the [`formatting_func_cookpad` function](./run/src/data_preprocessing.py#L70-L81) applied is shown below.
+An example of a dataset with the [`formatting_func_cookpad` function](./run/src/data_preprocessing.py#L82-L93) applied is shown below.
 
 ```text
 # ユーザ

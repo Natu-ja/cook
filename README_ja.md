@@ -45,7 +45,7 @@ Flash Attention を使用したい場合は、[こちらのリンク](https://gi
 
 ### プロンプト
 
-学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](./run/src/data_preprocessing.py) 内の [`formatting_func_.+` 関数](./run/src/data_preprocessing.py#L70-L159)を変更してください。以下の関数は、Cookpad 用のサンプルです。
+学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](./run/src/data_preprocessing.py) 内の [`formatting_func_.+` 関数](./run/src/data_preprocessing.py#L82-L171)を変更してください。以下の関数は、Cookpad 用のサンプルです。
 
 ```python:./run/src/data_preprocessing.py
 def formatting_func_cookpad(example):
@@ -53,7 +53,7 @@ def formatting_func_cookpad(example):
     return output_texts
 ```
 
-[`formatting_func_cookpad` 関数](./run/src/data_preprocessing.py#L70-L81) を適用したデータセットの例を示します．
+[`formatting_func_cookpad` 関数](./run/src/data_preprocessing.py#L82-L93) を適用したデータセットの例を示します．
 
 ```text
 # ユーザ

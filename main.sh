@@ -28,7 +28,7 @@ elif [ $dataset = "Erik/data_recipes_instructor" ]; then
         --dataset $dataset \
         --output-dir $output_dir \
         --logging-strategy $strategy \
-        --save-strategy $strategy \
+        --save-strategy $strategy
 
 elif [ $dataset = "mertbozkurt/llama2-TR-recipe" ]; then
 
@@ -38,7 +38,7 @@ elif [ $dataset = "mertbozkurt/llama2-TR-recipe" ]; then
         --dataset $dataset \
         --output-dir $output_dir \
         --logging-strategy $strategy \
-        --save-strategy $strategy \
+        --save-strategy $strategy
 
 elif [ $dataset = "Depie/Recipes_Greek" ]; then
 
@@ -48,7 +48,7 @@ elif [ $dataset = "Depie/Recipes_Greek" ]; then
         --dataset $dataset \
         --output-dir $output_dir \
         --logging-strategy $strategy \
-        --save-strategy $strategy \
+        --save-strategy $strategy
 
 elif [ $dataset = "AWeirdDev/all-recipes-sm" ]; then
 
@@ -58,7 +58,7 @@ elif [ $dataset = "AWeirdDev/all-recipes-sm" ]; then
         --dataset $dataset \
         --output-dir $output_dir \
         --logging-strategy $strategy \
-        --save-strategy $strategy \
+        --save-strategy $strategy
 
 elif [ $dataset = "AWeirdDev/zh-tw-recipes-sm" ]; then
 
@@ -68,7 +68,7 @@ elif [ $dataset = "AWeirdDev/zh-tw-recipes-sm" ]; then
         --dataset $dataset \
         --output-dir $output_dir \
         --logging-strategy $strategy \
-        --save-strategy $strategy \
+        --save-strategy $strategy
 
 elif [ $dataset = "AWeirdDev/all-recipes-xs" ]; then
 
@@ -78,7 +78,7 @@ elif [ $dataset = "AWeirdDev/all-recipes-xs" ]; then
         --dataset $dataset \
         --output-dir $output_dir \
         --logging-strategy $strategy \
-        --save-strategy $strategy \
+        --save-strategy $strategy
 
 elif [ $dataset = "SuryaKrishna02/aya-telugu-food-recipes" ]; then
 
@@ -88,7 +88,7 @@ elif [ $dataset = "SuryaKrishna02/aya-telugu-food-recipes" ]; then
         --dataset $dataset \
         --output-dir $output_dir \
         --logging-strategy $strategy \
-        --save-strategy $strategy \
+        --save-strategy $strategy
 
 elif [ $dataset = "pythainlp/thai_food_v1.0" ]; then
 
@@ -98,7 +98,7 @@ elif [ $dataset = "pythainlp/thai_food_v1.0" ]; then
         --dataset $dataset \
         --output-dir $output_dir \
         --logging-strategy $strategy \
-        --save-strategy $strategy \
+        --save-strategy $strategy
 
 else
 
