@@ -201,25 +201,25 @@ if __name__ == "__main__":
     parser.add_argument("--infinite", action="store_true")
 
     # Peft Config
-    parser.add_argument("--peft-type", type=str, choices=["PROMPT_TUNING", "P_TUNING", "PREFIX_TUNING", "LORA", "ADALORA", "BOFT", "ADAPTION_PROMPT", "IA3", "LOHA", "LOKR", "OFT", "POLY", "LN_TUNING"])
-    ## Lora Config, Adalora Config, Boft Config, Adaption Prompt Config, IA3 Config, Loha Config, Lokr Config, OFT Config, Poly Config and LN Tuning Config
+    parser.add_argument("--peft-type", type=str, choices=["PROMPT_TUNING", "P_TUNING", "PREFIX_TUNING", "LORA", "ADALORA", "BOFT", "ADAPTION_PROMPT", "IA3", "LOHA", "LOKR", "OFT", "POLY", "LN_TUNING", "FOURIERFT"])
+    ## Lora Config, Adalora Config, Boft Config, Adaption Prompt Config, IA3 Config, Loha Config, Lokr Config, OFT Config, Poly Config, LN Tuning Config and Fourier FT Config
     parser.add_argument("--target-modules", nargs="*", type=str)
     ## Lora Config, Adalora Config, Loha Config, Lokr Config, OFT Config and Poly Config
     parser.add_argument("--r", default=8, type=int)
-    ## Loha Config, Lokr Config, OFT Config, Boft Config and Poly Config
+    ## Loha Config, Lokr Config, OFT Config, Boft Config, Poly Config and Fourier FT Config
     parser.add_argument("--init-weights", action="store_false")
+    ## Lora Config, Adalora Config, Boft Config, IA3 Config and Fourier FT Config
+    parser.add_argument("--fan-in-fan-out", action="store_true")
     ## Loha Config, Lokr Config, OFT Config and Boft Config
     parser.add_argument("--module-dropout", default=0.0, type=float)
-    ## Lora Config, Adalora Config, Boft Config and IA3 Config
-    parser.add_argument("--fan-in-fan-out", action="store_true")
     ## Prompt Tuning Config, Prompt Encoder Config and Prefix Tuning Config
     parser.add_argument("--num-virtual-tokens", type=int)
     parser.add_argument("--token-dim", type=int)
     parser.add_argument("--num-transformer-submodules", type=int)
     parser.add_argument("--num-attention-heads", type=int)
     parser.add_argument("--num-layers", type=int)
-    ## Lora Config, Adalora Config and Boft Config
-    parser.add_argument("--bias", default="none", type=str, choices=["none", "all", "lora_only", "boft_only"])
+    ## Lora Config, Adalora Config, Boft Config and Fourier FT Config
+    parser.add_argument("--bias", default="none", type=str, choices=["none", "all", "lora_only", "boft_only", "fourier_only"])
     ## Prompt Encoder Config and Prefix Tuning Config
     parser.add_argument("--encoder-hidden-size", type=int)
     ## Lora Config and Adalora Config
@@ -234,7 +234,7 @@ if __name__ == "__main__":
     parser.add_argument("--use-effective-conv2d", action="store_true")
     ## Prompt Tuning Config
     parser.add_argument("--prompt-tuning-init", default="RANDOM", type=str, choices=["RANDOM", "TEXT"])
-    parser.add_argument("--prompt-tuning-init-text", type=str)
+    parser.add_argument("--prompt-tuning-init-text", nargs="*", type=str)
     ## Prompt Encoder Config
     parser.add_argument("--encoder-reparameterization-type", default="MLP", type=str, choices=["MLP", "LSTM"])
     parser.add_argument("--encoder-num-layers", default=2, type=int)
@@ -273,6 +273,10 @@ if __name__ == "__main__":
     parser.add_argument("--n-tasks", default=1, type=int)
     parser.add_argument("--n-skills", default=4, type=int)
     parser.add_argument("--n-splits", default=1, type=int)
+    ## Fourier FT Config
+    parser.add_argument("--n-frequency", default=1000, type=int)
+    parser.add_argument("--scaling", default=150.0, type=float)
+    parser.add_argument("--random-loc-seed", default=777, type=int)
 
     args = parser.parse_args()
 

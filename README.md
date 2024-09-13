@@ -110,6 +110,7 @@ This program operates using the Causal Language Model (CLM) available from [Hugg
 | PEFT | Adapters | OFT | Controlling Text-to-Image Diffusion by Orthogonal Finetuning | `python run/cookpad.py --peft-type OFT --target-modules all-linear` |
 | PEFT || Polytropon | Combining Modular Skills in Multitask Learning | `python run/cookpad.py --peft-type POLY --target-modules all-linear` |
 | PEFT || Layernorm Tuning | Tuning LayerNorm in Attention: Towards Efficient Multi-Modal LLM Finetuning | `python run/cookpad.py --peft-type LN_TUNING --target-modules all-linear` |
+| PEFT|| FourierFT | Parameter-Efficient Fine-Tuning with Discrete Fourier Transform | `python run/cookpad.py --peft-type FOURIERFT --target-modules all-linear` |
 | Generation Strategy || Greedy Decoding || `python run/cookpad.py` |
 | Generation Strategy || Multinomial Sampling || `python run/cookpad.py --do-sample` |
 | Generation Strategy || Beam-Search Decoding || `python run/cookpad.py --num-beams 2` |

@@ -110,6 +110,7 @@ data_collator = DataCollatorForCompletionOnlyLM(
 | PEFT | Adapters | OFT | Controlling Text-to-Image Diffusion by Orthogonal Finetuning | `python run/cookpad.py --peft-type OFT --target-modules all-linear` |
 | PEFT || Polytropon | Combining Modular Skills in Multitask Learning| `python run/cookpad.py --peft-type POLY --target-modules all-linear` |
 | PEFT || Layernorm Tuning | Tuning LayerNorm in Attention: Towards Efficient Multi-Modal LLM Finetuning | `python run/cookpad.py --peft-type LN_TUNING --target-modules all-linear` |
+| PEFT|| FourierFT | Parameter-Efficient Fine-Tuning with Discrete Fourier Transform | `python run/cookpad.py --peft-type FOURIERFT --target-modules all-linear` |
 | 生成戦略 || 貪欲法 || `python run/cookpad.py` |
 | 生成戦略 || Multinomial Sampling || `python run/cookpad.py --do-sample` |
 | 生成戦略 || Beam-Search Decoding || `python run/cookpad.py --num-beams 2` |

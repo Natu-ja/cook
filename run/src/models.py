@@ -109,6 +109,9 @@ def get_peft_config(args: Namespace) -> PeftConfig:
 
     if args.peft_type=="PROMPT_TUNING":
         from peft import PromptTuningConfig
+
+        args.prompt_tuning_init_text = ' '.join(args.prompt_tuning_init_text) + "\n"
+
         peft_config = PromptTuningConfig(
             peft_type=args.peft_type,
             task_type="CAUSAL_LM",
@@ -292,6 +295,20 @@ def get_peft_config(args: Namespace) -> PeftConfig:
             task_type="CAUSAL_LM",
             inference_mode=False,
             target_modules=args.target_modules
+        )
+    elif args.peft_type=="FOURIERFT":
+        from peft import FourierFTConfig
+        peft_config = FourierFTConfig(
+            peft_type=args.peft_type,
+            task_type="CAUSAL_LM",
+            inference_mode=False,
+            n_frequency=args.n_frequency,
+            scaling=args.scaling,
+            random_loc_seed=args.random_loc_seed,
+            target_modules=args.target_modules,
+            fan_in_fan_out=args.fan_in_fan_out,
+            bias=args.bias,
+            init_weights=args.init_weights
         )
     
     return peft_config
