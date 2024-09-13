@@ -78,7 +78,7 @@ def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, mode
     
     else:
 
-        from .models import load_checkpoint
+        from models import load_checkpoint
         assistant_model = load_checkpoint(args)[1]
 
         for title in tqdm(test_dataset["title"]):

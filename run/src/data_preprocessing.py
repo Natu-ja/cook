@@ -45,15 +45,15 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
 
             for col in tqdm(df.columns):
 
-                df[col] = df[col].apply(lambda x: x.replace("\n", "").replace("\r", ""))
-                df[col] = df[col].apply(lambda x: re.sub(r"http?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", x))
-                df[col] = df[col].apply(lambda x: re.sub(r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", x))
-                df[col] = df[col].apply(lambda x: demoji.replace(string=x, repl=""))
-                df[col] = df[col].apply(lambda x: re.sub(r'[!"#$%&\'\\()*+,-./:;<=>?@[\\]^_`{|}~「」〔〕“”〈〉『』【】＆＊・（）＄＃＠。、？！｀＋￥％]', "", x))
-                df[col] = df[col].apply(lambda x: re.sub("[\uFF01-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65\u3000-\u303F]", "", x))
+                df[col] = df[col].apply(lambda text: text.replace("\n", "").replace("\r", ""))
+                df[col] = df[col].apply(lambda text: re.sub(r"http?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", text))
+                df[col] = df[col].apply(lambda text: re.sub(r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", text))
+                df[col] = df[col].apply(lambda text: demoji.replace(string=text, repl=""))
+                df[col] = df[col].apply(lambda text: re.sub(r'[!"#$%&\'\\()*+,-./:;<=>?@[\\]^_`{|}~「」〔〕“”〈〉『』【】＆＊・（）＄＃＠。、？！｀＋￥％]', "", text))
+                df[col] = df[col].apply(lambda text: re.sub("[\uFF01-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65\u3000-\u303F]", "", text))
                 
-                df[col] = df[col].apply(lambda x: neologdn.normalize(x))
-                df[col] = df[col].apply(lambda x: x.lower())
+                df[col] = df[col].apply(lambda text: neologdn.normalize(text))
+                df[col] = df[col].apply(lambda text: text.lower())
             
             return df
 

@@ -3,8 +3,8 @@ from argparse import Namespace
 from datasets.arrow_dataset import Dataset
 from trl import SFTConfig, SFTTrainer
 
-from .src.data_preprocessing import load_raw_dataset, formatting_func_all_recipes as formatting_func
-from .src.models import load_checkpoint
+from src.data_preprocessing import load_raw_dataset, formatting_func_all_recipes as formatting_func
+from src.models import load_checkpoint
 
 def run_training(args: Namespace, train_dataset: Dataset):
 
@@ -95,7 +95,7 @@ def run_training(args: Namespace, train_dataset: Dataset):
     
     if args.peft_type is not None:
 
-        from .src.models import get_peft_config
+        from src.models import get_peft_config
         peft_config = get_peft_config(args)
         
         trainer = SFTTrainer(
