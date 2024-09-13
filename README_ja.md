@@ -49,7 +49,7 @@ Flash Attention を使用したい場合は、[こちらのリンク](https://gi
 
 ```python:./run/src/data_preprocessing.py
 def formatting_func_cookpad(example):
-    output_texts = [f"# ユーザ\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
+    output_texts = [f"# ユーザ\n## タイトル\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['ingredients'][i]}\n## 作り方\n{example['steps'][i]}" for i in range(len(example))]
     return output_texts
 ```
 

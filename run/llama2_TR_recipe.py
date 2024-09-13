@@ -97,8 +97,7 @@ def run_training(args: Namespace, train_dataset: Dataset):
             data_collator=data_collator,
             train_dataset=train_dataset,
             tokenizer=tokenizer,
-            peft_config=peft_config,
-            infinite=args.infinite
+            peft_config=peft_config
         )
         
     else:
@@ -108,8 +107,7 @@ def run_training(args: Namespace, train_dataset: Dataset):
             args=sft_config,
             data_collator=data_collator,
             train_dataset=train_dataset,
-            tokenizer=tokenizer,
-            infinite=args.infinite
+            tokenizer=tokenizer
         )
         
     trainer.train()
@@ -195,9 +193,6 @@ if __name__ == "__main__":
     parser.add_argument("--dataset-batch-size", type=int)
     parser.add_argument("--num-of-sequences", default=1024, type=int)
     parser.add_argument("--chars-per-token", default=3.6, type=float)
-
-    # SFT Trainer
-    parser.add_argument("--infinite", action="store_true")
 
     # Peft Config
     parser.add_argument("--peft-type", type=str, choices=["PROMPT_TUNING", "P_TUNING", "PREFIX_TUNING", "LORA", "ADALORA", "BOFT", "ADAPTION_PROMPT", "IA3", "LOHA", "LOKR", "OFT", "POLY", "LN_TUNING", "FOURIERFT"])

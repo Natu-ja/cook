@@ -104,8 +104,7 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: Dataset)
             eval_dataset=eval_dataset,
             tokenizer=tokenizer,
             peft_config=peft_config,
-            formatting_func=formatting_func,
-            infinite=args.infinite
+            formatting_func=formatting_func
         )
     
     else:
@@ -117,8 +116,7 @@ def run_training(args: Namespace, train_dataset: Dataset, eval_dataset: Dataset)
             train_dataset=train_dataset,
             eval_dataset=eval_dataset,
             tokenizer=tokenizer,
-            formatting_func=formatting_func,
-            infinite=args.infinite
+            formatting_func=formatting_func
         )
 
     trainer.train()
@@ -142,7 +140,7 @@ def main(args: Namespace):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model on the 'Cookpad dataset' and generate outputs.")
 
-    parser.add_argument("--dataset", default="../data/cookpad_data.csv", type=str, help="https://www.nii.ac.jp/dsc/idr/cookpad/")
+    parser.add_argument("--dataset", default="./data/cookpad_data.csv", type=str, help="https://www.nii.ac.jp/dsc/idr/cookpad/")
     parser.add_argument("--text-normalizer", action="store_true", help="Normalize text.")
     parser.add_argument("--tokenizer", default="cyberagent/open-calm-7b", type=str, help="Tokenizer name or path.")
     parser.add_argument("--model", default="cyberagent/open-calm-7b", type=str, help="Model name or path.")
@@ -208,9 +206,6 @@ if __name__ == "__main__":
     parser.add_argument("--dataset-batch-size", type=int)
     parser.add_argument("--num-of-sequences", default=1024, type=int)
     parser.add_argument("--chars-per-token", default=3.6, type=float)
-
-    # SFT Trainer
-    parser.add_argument("--infinite", action="store_true")
 
     # Peft Config
     parser.add_argument("--peft-type", type=str, choices=["PROMPT_TUNING", "P_TUNING", "PREFIX_TUNING", "LORA", "ADALORA", "BOFT", "ADAPTION_PROMPT", "IA3", "LOHA", "LOKR", "OFT", "POLY", "LN_TUNING", "FOURIERFT"])

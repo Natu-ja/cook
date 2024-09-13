@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dataset=../data/cookpad_data.csv
+dataset=./run/data/cookpad_data.csv
 
 # SFT Config
 strategy=epoch
@@ -8,7 +8,7 @@ strategy=epoch
 # Generation Config
 max_new_tokens=1024
 
-if [ $dataset = "../data/cookpad_data.csv" ]; then
+if [ $dataset = "./run/data/cookpad_data.csv" ]; then
 
     output_dir=tmp_trainer/cookpad/`date '+%Y_%m_%d_%H_%M_%S'`
 

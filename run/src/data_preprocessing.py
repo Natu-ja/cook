@@ -18,7 +18,7 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
         `tuple[datasets.arrow_dataset.Dataset, None, None]`:
             Returns dataset for train only.
     """
-    
+
     if os.path.exists(path=args.dataset):
 
         import pandas as pd
@@ -56,7 +56,7 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
                 df[col] = df[col].apply(lambda text: text.lower())
             
             return df
-
+        
         dataset = pd.read_csv(filepath_or_buffer=args.dataset)
 
         if args.text_normalizer:
@@ -89,7 +89,7 @@ def formatting_func_cookpad(example: LazyBatch) -> list[str]:
             A batch of recipe examples containing 'title' and 'name' fields.
     """
 
-    output_texts = [f"# ユーザ\n## タイトル\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['name'][i]}\n## 作り方\n{example['position'][i]}" for i in range(len(example))]
+    output_texts = [f"# ユーザ\n## タイトル\n{example['title'][i]}\n\n# アシスタント\n## 食材\n{example['ingredients'][i]}\n## 作り方\n{example['steps'][i]}" for i in range(len(example))]
     return output_texts
 
 def formatting_func_data_recipes_instructor(example: LazyBatch) -> list[str]:
