@@ -79,8 +79,8 @@ def run_training(args: Namespace, train_dataset: Dataset):
     else:
         from trl import DataCollatorForCompletionOnlyLM
         data_collator = DataCollatorForCompletionOnlyLM(
-            response_template=tokenizer.encode("# లక్ష్యం\n", add_special_tokens=False),
-            instruction_template=tokenizer.encode("# ఇన్పుట్\n", add_special_tokens=False),
+            response_template=tokenizer.encode("# సహాయకుడు\n", add_special_tokens=False),
+            instruction_template=tokenizer.encode("# వినియోగదారు\n", add_special_tokens=False),
             mlm=False,
             tokenizer=tokenizer
         )

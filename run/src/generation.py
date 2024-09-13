@@ -51,6 +51,7 @@ def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, mode
         forced_bos_token_id= model.config.forced_bos_token_id,
         forced_eos_token_id=model.config.forced_eos_token_id,
         remove_invalid_values=model.config.remove_invalid_values if args.remove_invalid_values else False,
+        exponential_decay_length_penalty=(args.exponential_decay_length_penalty_start_index, args.exponential_decay_length_penalty_decay_factor),
         guidance_scale=args.guidance_scale,
         low_memory=args.low_memory,
         num_return_sequences=args.num_return_sequences,

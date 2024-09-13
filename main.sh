@@ -3,9 +3,7 @@
 dataset=../data/cookpad_data.csv
 
 # SFT Config
-eval_strategy=epoch
-logging_strategy=epoch
-save_strategy=epoch
+strategy=epoch
 
 # Generation Config
 max_new_tokens=1024
@@ -17,20 +15,10 @@ if [ $dataset = "../data/cookpad_data.csv" ]; then
     python ./run/cookpad.py \
         --dataset $dataset \
         --output-dir $output_dir \
-        --eval-strategy $eval_strategy \
-        --logging-strategy $logging_strategy \
-        --save-strategy $save_strategy \
+        --eval-strategy $strategy \
+        --logging-strategy $strategy \
+        --save-strategy $strategy \
         --max-new-tokens $max_new_tokens
-
-elif [ $dataset = "AWeirdDev/zh-tw-recipes-sm" ]; then
-
-    output_dir=tmp_trainer/zh_tw_recipes_sm/`date '+%Y_%m_%d_%H_%M_%S'`
-
-    python ./run/zh_tw_recipes_sm.py \
-        --dataset $dataset \
-        --output-dir $output_dir \
-        --logging-strategy $logging_strategy \
-        --save-strategy $save_strategy \
 
 elif [ $dataset = "Erik/data_recipes_instructor" ]; then
 
@@ -39,8 +27,8 @@ elif [ $dataset = "Erik/data_recipes_instructor" ]; then
     python ./run/data_recipes_instructor.py \
         --dataset $dataset \
         --output-dir $output_dir \
-        --logging-strategy $logging_strategy \
-        --save-strategy $save_strategy \
+        --logging-strategy $strategy \
+        --save-strategy $strategy \
 
 elif [ $dataset = "mertbozkurt/llama2-TR-recipe" ]; then
 
@@ -49,18 +37,28 @@ elif [ $dataset = "mertbozkurt/llama2-TR-recipe" ]; then
     python ./run/llama2_TR_recipe.py \
         --dataset $dataset \
         --output-dir $output_dir \
-        --logging-strategy $logging_strategy \
-        --save-strategy $save_strategy \
+        --logging-strategy $strategy \
+        --save-strategy $strategy \
 
-elif [ $dataset = "pythainlp/thai_food_v1.0" ]; then
+elif [ $dataset = "AWeirdDev/zh-tw-recipes-sm" ]; then
 
-    output_dir=tmp_trainer/thai_food/`date '+%Y_%m_%d_%H_%M_%S'`
+    output_dir=tmp_trainer/zh_tw_recipes_sm/`date '+%Y_%m_%d_%H_%M_%S'`
 
-    python ./run/thai_food.py \
+    python ./run/zh_tw_recipes_sm.py \
         --dataset $dataset \
         --output-dir $output_dir \
-        --logging-strategy $logging_strategy \
-        --save-strategy $save_strategy \
+        --logging-strategy $strategy \
+        --save-strategy $strategy \
+
+elif [ $dataset = "AWeirdDev/all-recipes-xs" ]; then
+
+    output_dir=tmp_trainer/all_recipes_xs/`date '+%Y_%m_%d_%H_%M_%S'`
+
+    python ./run/all_recipes.py \
+        --dataset $dataset \
+        --output-dir $output_dir \
+        --logging-strategy $strategy \
+        --save-strategy $strategy \
 
 elif [ $dataset = "SuryaKrishna02/aya-telugu-food-recipes" ]; then
 
@@ -69,8 +67,18 @@ elif [ $dataset = "SuryaKrishna02/aya-telugu-food-recipes" ]; then
     python ./run/aya_telugu_food_recipes.py \
         --dataset $dataset \
         --output-dir $output_dir \
-        --logging-strategy $logging_strategy \
-        --save-strategy $save_strategy \
+        --logging-strategy $strategy \
+        --save-strategy $strategy \
+
+elif [ $dataset = "pythainlp/thai_food_v1.0" ]; then
+
+    output_dir=tmp_trainer/thai_food/`date '+%Y_%m_%d_%H_%M_%S'`
+
+    python ./run/thai_food.py \
+        --dataset $dataset \
+        --output-dir $output_dir \
+        --logging-strategy $strategy \
+        --save-strategy $strategy \
 
 else
 

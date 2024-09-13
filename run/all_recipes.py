@@ -3,7 +3,7 @@ from argparse import Namespace
 from datasets.arrow_dataset import Dataset
 from trl import SFTConfig, SFTTrainer
 
-from .src.data_preprocessing import load_raw_dataset, formatting_func_thai_food as formatting_func
+from .src.data_preprocessing import load_raw_dataset, formatting_func_all_recipes as formatting_func
 from .src.models import load_checkpoint
 
 def run_training(args: Namespace, train_dataset: Dataset):
@@ -78,17 +78,17 @@ def run_training(args: Namespace, train_dataset: Dataset):
         )
     else:
         from trl import DataCollatorForCompletionOnlyLM
-        if args.tokenizer in ["scb10x/typhoon-7b"]:
+        if args.tokenizer in ["meta-llama/Llama-2-7b-hf"]:
             data_collator = DataCollatorForCompletionOnlyLM(
-                response_template=tokenizer.encode("\n# ผู้ช่วย\n", add_special_tokens=False)[2:],
-                instruction_template=tokenizer.encode("# ผู้ใช้\n", add_special_tokens=False),
+                response_template=tokenizer.encode("\n#Assistant\n", add_special_tokens=False)[2:],
+                instruction_template=tokenizer.encode("# User\n", add_special_tokens=False),
                 mlm=False,
                 tokenizer=tokenizer
             )
         else:
             data_collator = DataCollatorForCompletionOnlyLM(
-                response_template=tokenizer.encode("# ผู้ช่วย\n", add_special_tokens=False),
-                instruction_template=tokenizer.encode("# ผู้ใช้\n", add_special_tokens=False),
+                response_template=tokenizer.encode("#Assistant\n", add_special_tokens=False),
+                instruction_template=tokenizer.encode("# User\n", add_special_tokens=False),
                 mlm=False,
                 tokenizer=tokenizer
             )
@@ -97,7 +97,7 @@ def run_training(args: Namespace, train_dataset: Dataset):
 
         from src.models import get_peft_config
         peft_config = get_peft_config(args)
-
+        
         trainer = SFTTrainer(
             model=model,
             args=sft_config,
@@ -137,11 +137,11 @@ def main(args: Namespace):
     run_training(args, train_dataset)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train a model on the 'thai_food_v1.0' dataset.")
+    parser = argparse.ArgumentParser(description="Train a model on the 'aya-telugu-food-recipes' dataset.")
 
-    parser.add_argument("--dataset", default="pythainlp/thai_food_v1.0", type=str, help="https://huggingface.co/datasets/pythainlp/thai_food_v1.0")
-    parser.add_argument("--tokenizer", default="scb10x/typhoon-7b", type=str, help="Tokenizer name or path.")
-    parser.add_argument("--model", default="scb10x/typhoon-7b", type=str, help="Model name or path.")
+    parser.add_argument("--dataset", default="SuryaKrishna02/aya-telugu-food-recipes", type=str, help="https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes")
+    parser.add_argument("--tokenizer", default="jayasuryajsk/Llama-3-8b-Telugu-Romanized", type=str, help="Tokenizer name or path.")
+    parser.add_argument("--model", default="jayasuryajsk/Llama-3-8b-Telugu-Romanized", type=str, help="Model name or path.")
     parser.add_argument("--data-collator", type=str, default="LanguageModeling", choices=["LanguageModeling", "CompletionOnlyLM"], help="Data collator type.")
     
     # Bits And Bytes Config
@@ -161,7 +161,7 @@ if __name__ == "__main__":
     parser.add_argument("--device-map", default="auto", type=str, choices=["auto", "cpu", "cuda"])
 
     # SFT Config
-    parser.add_argument("--output-dir", default="tmp_trainer/thai_food", type=str)
+    parser.add_argument("--output-dir", default="tmp_trainer/aya_telugu_food_recipes", type=str)
     parser.add_argument("--eval-strategy", default="no", type=str, choices=["no", "steps", "epoch"])
     parser.add_argument("--per-device-train-batch-size", default=8, type=int)
     parser.add_argument("--per-device-eval-batch-size", default=8, type=int)
