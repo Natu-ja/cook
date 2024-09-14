@@ -21,6 +21,8 @@ This program uses cooking datasets, such as those from Cookpad, to generate ingr
 pip install -r requirements.txt
 ```
 
+Please modify the installation of PyTorch according to your OS and computing environment. For more details, please refer to [this site](https://pytorch.org/get-started/locally/).
+
 If you would like to use Flash Attention, please refer to [this link](https://github.com/Dao-AILab/flash-attention?tab=readme-ov-file#installation-and-features) and follow the instructions for installation.
 
 ### Quick Start
@@ -42,6 +44,13 @@ For easy fine-tuning, you can use the Jupyter Notebook provided in the [`example
 | thai_food_v1.0 | Thai | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 ||
 
 Please save the obtained Cookpad dataset in the [`data` folder](./data/).
+The CSV file of the Cookpad dataset contains the following information.
+
+```text
+id,title,steps,ingredients
+ad7d585b06850f8437ff5fb97d3c7a823ff21bb1,豚の角煮,鍋に、水とたっぷりのお酒、ねぎの使わない葉の部分、しょうがの皮、にんにくを入れて、２，３時間煮込みます。その間、あくや浮いてきた脂を丁寧に取りましょう。煮込んだお肉を、いったん水で洗いましょう。鍋に、豚肉をいれて、酒、砂糖、みりん、醤油、しょうが（薄切り）、にんにくで煮込みます。落とし蓋をして１時間。食べるちょっと前にねぎを入れて、味がついたらたべましょう。写真のは、ちんげん菜を入れてみました。,"しょうが(お好みで),ニンニク(お好みで),ねぎ(１本),豚肉(バラのブロック２パック),砂糖(小さじ１から２くらい),酒(たくさん（安い日本酒でいい）),醤油(適量（味見しながらね）),みりん(大さじ３くらい)"
+4afce5687dc173ad4fef943b686582a1cd06e264,スペシャルピーマンの肉詰め,にんじんとれんこんをおろし金でおろします。挽肉と玉ねぎのみじん切りを加えよく塩コショウを加え、ピーマンに詰め、あとは焼くだけ。少し蒸らして火を通しできあがり。たれはおろしだれが一番！,"にんじん(2本),ピーマン(4つ),れんこん(小1),豚肉(挽肉 250g),おろしだれ(),コショウ(少々),塩(少々),たまねぎ(１つ)"
+```
 
 ### Prompt
 
