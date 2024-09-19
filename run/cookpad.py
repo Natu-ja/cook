@@ -1,3 +1,4 @@
+import os
 import argparse
 from argparse import Namespace
 from transformers import PreTrainedModel, PreTrainedTokenizerBase
@@ -133,9 +134,9 @@ def main(args: Namespace):
             Arguments including training settings, dataset paths, model settings, generation parameters, etc.
     """
 
-    train_dataset, eval_dataset, test_dataset = load_raw_dataset(args)
+    train_dataset, eval_dataset = load_raw_dataset(args)
     tokenizer, model = run_training(args, train_dataset, eval_dataset)
-    generation(args, tokenizer, model, test_dataset)
+    generation(args, tokenizer, model)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model on the 'Cookpad dataset' and generate outputs.")
@@ -328,5 +329,7 @@ if __name__ == "__main__":
     parser.add_argument("--dola-layers", type=str, choices=["low", "high"])
 
     args = parser.parse_args()
+
+    os.mkdir(args.output_dir)
 
     main(args)

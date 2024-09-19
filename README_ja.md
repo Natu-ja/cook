@@ -54,7 +54,7 @@ ad7d585b06850f8437ff5fb97d3c7a823ff21bb1,豚の角煮,鍋に、水とたっぷ�
 
 ### プロンプト
 
-学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](./run/src/data_preprocessing.py) 内の [`formatting_func_.+` 関数](./run/src/data_preprocessing.py#L82-L171)を変更してください。以下の関数は、Cookpad 用のサンプルです。
+学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](./run/src/data_preprocessing.py) 内の [`formatting_func_.+` 関数](./run/src/data_preprocessing.py#L86-L175)を変更してください。以下の関数は、Cookpad 用のサンプルです。
 
 ```python:./run/src/data_preprocessing.py
 def formatting_func_cookpad(example):
@@ -62,7 +62,7 @@ def formatting_func_cookpad(example):
     return output_texts
 ```
 
-[`formatting_func_cookpad` 関数](./run/src/data_preprocessing.py#L82-L93) を適用したデータセットの例を示します．
+[`formatting_func_cookpad` 関数](./run/src/data_preprocessing.py#L86-L97) を適用したデータセットの例を示します．
 
 ```text
 # ユーザ
@@ -73,6 +73,7 @@ def formatting_func_cookpad(example):
 しょうが（お好みで）、ニンニク（お好みで）、ねぎ（１本）、豚肉（バラのブロック２パック）、砂糖（小さじ１から２くらい）、酒（たくさん（安い日本酒でいい））、醤油（適量（味見しながらね））、みりん（大さじ３くらい）
 ## 作り方
 鍋に、水とたっぷりのお酒、ねぎの使わない葉の部分、しょうがの皮、にんにくを入れて、２，３時間煮込みます。その間、あくや浮いてきた脂を丁寧に取りましょう。煮込んだお肉を、いったん水で洗いましょう。落とし蓋をして１時間。食べるちょっと前にねぎを入れて、味がついたらたべましょう。写真のは、ちんげん菜を入れてみました。鍋に、豚肉をいれて、酒、砂糖、みりん、醤油、しょうが（薄切り）、にんにくで煮込みます。
+030833ed4e8dab3aa1e9d75edc1681efb368434f,簡単チーズリゾット,米は研がずにそのまま使っちゃえ。水も適当に。普通炊くよりも多めです。火加減は、はじめ強め、沸騰してきたらブイヨンをお米のかたさを見ながら…、水分が足りなくてリゾットができたら、取り皿にとろけるスライス,"スライスチーズ(4枚（スイスのグリュイエルチーズがおすすめ）),チキンブイヨン(1片),白米(1.5カップくらい？)"
 ```
 
 ### データコレーター

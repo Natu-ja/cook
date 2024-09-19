@@ -20,6 +20,8 @@ if [ $dataset = "./run/data/cookpad_data.csv" ]; then
         --save-strategy $strategy \
         --max-new-tokens $max_new_tokens
 
+    rm $output_dir/test_dataset.pkl    
+
 elif [ $dataset = "Erik/data_recipes_instructor" ]; then
 
     output_dir=tmp_trainer/data_recipes_instructor/`date '+%Y_%m_%d_%H_%M_%S'`

@@ -1,12 +1,12 @@
 from argparse import Namespace
+import pickle
 import pandas as pd
 from tqdm import tqdm
 import torch
 from transformers import GenerationConfig, PreTrainedModel, PreTrainedTokenizerBase
-from datasets.arrow_dataset import Dataset
 
 @torch.no_grad()
-def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTrainedModel, test_dataset: Dataset):
+def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, model: PreTrainedModel):
 
     """
     Using the test dataset, text generation is performed based on the specified model and tokenizer.
@@ -18,9 +18,9 @@ def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, mode
             Tokenizer.
         model (`transformers.PreTrainedModel`):
             Model.
-        test_dataset (`datasets.arrow_dataset.Dataset`):
-            Test dataset to use for text generation.
     """
+
+    test_dataset = pickle.load(open(file=args.output_dir + "/test_dataset.pkl", mode="rb"))
 
     generation_config = GenerationConfig(
         max_length=args.max_length,

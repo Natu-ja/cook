@@ -3,24 +3,25 @@ from argparse import Namespace
 from datasets.arrow_dataset import Dataset
 from datasets.formatting.formatting import LazyBatch
 
-def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tuple[Dataset, None, None]:
+def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset] | tuple[Dataset, None]:
 
     """
-    Reads the specified data set and splits it into train, validation, and test dataset.
+    Reads the specified data set and splits it into train and validation dataset.
 
     Args:
         args (`Namespace`):
             Arguments containing settings such as the path and seed value of the dataset.
 
     Returns:
-        `tuple[datasets.arrow_dataset.Dataset, datasets.arrow_dataset.Dataset, datasets.arrow_dataset.Dataset]`:
-            Returns dataset for train, validation, and test.
-        `tuple[datasets.arrow_dataset.Dataset, None, None]`:
+        `tuple[datasets.arrow_dataset.Dataset, datasets.arrow_dataset.Dataset]`:
+            Returns dataset for train and validation.
+        `tuple[datasets.arrow_dataset.Dataset, None]`:
             Returns dataset for train only.
     """
 
     if os.path.exists(path=args.dataset):
 
+        import pickle
         import pandas as pd
         from pandas.core.frame import DataFrame
 
@@ -69,7 +70,10 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
         tv_dataset = tv_dataset.train_test_split(test_size=0.2, shuffle=True, seed=args.seed)
         train_dataset, eval_dataset = tv_dataset["train"], tv_dataset["test"]
 
-        return train_dataset, eval_dataset, test_dataset
+        with open(file=args.output_dir + "/test_dataset.pkl", mode="wb") as f:
+            pickle.dump(test_dataset, f)
+
+        return train_dataset, eval_dataset
 
     else:
 
@@ -77,7 +81,7 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset, Dataset] | tupl
 
         train_dataset = load_dataset(path=args.dataset, split="train")
 
-        return train_dataset, None, None
+        return train_dataset, None
 
 def formatting_func_cookpad(example: LazyBatch) -> list[str]:
 

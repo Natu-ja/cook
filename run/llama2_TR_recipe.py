@@ -122,7 +122,7 @@ def main(args: Namespace):
             Arguments including training settings, dataset paths, model settings, etc.
     """
 
-    train_dataset, _, _ = load_raw_dataset(args)
+    train_dataset, _ = load_raw_dataset(args)
     run_training(args, train_dataset)
 
 if __name__ == "__main__":
