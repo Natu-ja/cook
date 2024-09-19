@@ -43,7 +43,7 @@ Flash Attention を使用したい場合は、[こちらのリンク](https://gi
 | aya-telugu-food-recipes | テルグ語 | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes ||
 | thai_food_v1.0 | タイ語 | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 ||
 
-取得したクックパッドデータセットは、[`data` フォルダ](./data/)に保存してください。
+取得したクックパッドデータセットは、[`data` フォルダ](./run/data/)に保存してください。
 クックパッドデータセットのCSVには、次の内容が保存されています。
 
 ```text

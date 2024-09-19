@@ -43,7 +43,7 @@ For easy fine-tuning, you can use the Jupyter Notebook provided in the [`example
 | aya-telugu-food-recipes | Telugu | $441$ ||| $441$ | https://huggingface.co/datasets/SuryaKrishna02/aya-telugu-food-recipes ||
 | thai_food_v1.0 | Thai | $159$ ||| $159$ | https://huggingface.co/datasets/pythainlp/thai_food_v1.0 ||
 
-Please save the obtained Cookpad dataset in the [`data` folder](./data/).
+Please save the obtained Cookpad dataset in the [`data` folder](./run/data/).
 The CSV file of the Cookpad dataset contains the following information.
 
 ```text
