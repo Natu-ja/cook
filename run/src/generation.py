@@ -51,7 +51,8 @@ def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, mode
         forced_bos_token_id= model.config.forced_bos_token_id,
         forced_eos_token_id=model.config.forced_eos_token_id,
         remove_invalid_values=model.config.remove_invalid_values if args.remove_invalid_values else False,
-        exponential_decay_length_penalty=(args.exponential_decay_length_penalty_start_index, args.exponential_decay_length_penalty_decay_factor),
+        exponential_decay_length_penalty=(args.exponential_decay_length_penalty_start_index, args.exponential_decay_length_penalty_decay_factor) if args.exponential_decay_length_penalty else None,
+        token_healing=args.token_healing,
         guidance_scale=args.guidance_scale,
         low_memory=args.low_memory,
         num_return_sequences=args.num_return_sequences,
@@ -70,7 +71,7 @@ def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, mode
 
     if args.assistant_model is None:  
         for title in tqdm(test_dataset["title"]):
-            input_text = f"# ユーザ\n{title}\n\n# アシスタント\n"
+            input_text = f"# ユーザ\n## タイトル\n{title}\n\n# アシスタント\n"
             input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
             output_text = model.generate(**input_text, generation_config=generation_config)
             output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]

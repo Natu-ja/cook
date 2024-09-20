@@ -318,6 +318,7 @@ if __name__ == "__main__":
     parser.add_argument("--remove-invalid-values", action="store_true")
     parser.add_argument("--exponential-decay-length-penalty-start-index", type=int)
     parser.add_argument("--exponential-decay-length-penalty-decay-factor", type=float)
+    parser.add_argument("--token-healing", action="store_true")
     parser.add_argument("--guidance-scale", type=float)
     parser.add_argument("--low-memory", action="store_true")
     parser.add_argument("--num-return-sequences", default=1, type=int)
