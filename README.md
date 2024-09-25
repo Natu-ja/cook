@@ -76,7 +76,7 @@ ad7d585b06850f8437ff5fb97d3c7a823ff21bb1,豚の角煮,鍋に、水とたっぷ�
 
 ### Prompt
 
-If you want to change the prompts used during training, please modify the [`formatting_func_.+` function](./run/src/data_preprocessing.py#L86-L175) in [`data_preprocessing.py`](./run/src/data_preprocessing.py). The following function is a sample for Cookpad.
+If you want to change the prompts used during training, please modify the [`formatting_func_.+` function](./run/src/data_preprocessing.py#L83-L172) in [`data_preprocessing.py`](./run/src/data_preprocessing.py). The following function is a sample for Cookpad.
 
 ```python:./run/src/data_preprocessing.py
 def formatting_func_cookpad(example):
@@ -84,7 +84,7 @@ def formatting_func_cookpad(example):
     return output_texts
 ```
 
-An example of a dataset with the [`formatting_func_cookpad` function](./run/src/data_preprocessing.py#L86-L97) applied is shown below.
+An example of a dataset with the [`formatting_func_cookpad` function](./run/src/data_preprocessing.py#L83-L94) applied is shown below.
 
 ```text
 # ユーザ

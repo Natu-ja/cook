@@ -40,21 +40,18 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset] | tuple[Dataset
             """
 
             import re
-            from tqdm import tqdm
             import neologdn
             import demoji
 
-            for col in tqdm(df.columns):
-
-                df[col] = df[col].apply(lambda text: text.replace("\n", "").replace("\r", ""))
-                df[col] = df[col].apply(lambda text: re.sub(r"http?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", text))
-                df[col] = df[col].apply(lambda text: re.sub(r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", text))
-                df[col] = df[col].apply(lambda text: demoji.replace(string=text, repl=""))
-                df[col] = df[col].apply(lambda text: re.sub(r'[!"#$%&\'\\()*+,-./:;<=>?@[\\]^_`{|}~「」〔〕“”〈〉『』【】＆＊・（）＄＃＠。、？！｀＋￥％]', "", text))
-                df[col] = df[col].apply(lambda text: re.sub("[\uFF01-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65\u3000-\u303F]", "", text))
-                
-                df[col] = df[col].apply(lambda text: neologdn.normalize(text))
-                df[col] = df[col].apply(lambda text: text.lower())
+            df = df.map(lambda text: text.replace("\n", "").replace("\r", ""))
+            df = df.map(lambda text: re.sub(r"http?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", text))
+            df = df.map(lambda text: re.sub(r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", text))
+            df = df.map(lambda text: demoji.replace(string=text, repl=""))
+            df = df.map(lambda text: re.sub(r'[!"#$%&\'\\()*+,-./:;<=>?@[\\]^_`{|}~「」〔〕“”〈〉『』【】＆＊・（）＄＃＠。、？！｀＋￥％]', "", text))
+            df = df.map(lambda text: re.sub("[\uFF01-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65\u3000-\u303F]", "", text))
+            
+            df = df.map(lambda text: neologdn.normalize(text))
+            df = df.map(lambda text: text.lower())
             
             return df
         
