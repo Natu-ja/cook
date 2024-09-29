@@ -73,14 +73,14 @@ def load_checkpoint(args: Namespace) -> tuple[PreTrainedTokenizerBase, PreTraine
                 pretrained_model_name_or_path=args.model,
                 attn_implementation=args.attn_implementation,
                 torch_dtype=args.torch_dtype,
-                device_map=args.device_map,
+                device_map=args.device_map
             )
 
         else:
             model = AutoModelForCausalLM.from_pretrained(
                 pretrained_model_name_or_path=args.model,
                 torch_dtype=args.torch_dtype,
-                device_map=args.device_map,
+                device_map=args.device_map
             )
 
     if tokenizer.pad_token_id is None and model.config.pad_token_id is None:

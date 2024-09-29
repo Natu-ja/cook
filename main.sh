@@ -12,6 +12,14 @@ if [ $dataset = "./run/data/cookpad_data.csv" ]; then
 
     output_dir=tmp_trainer/cookpad/`date '+%Y_%m_%d_%H_%M_%S'`
 
+    if [ -d tmp_trainer ]; then
+        mkdir tmp_trainer
+    fi
+
+    if [ -d tmp_trainer/cookpad ]; then
+        mkdir tmp_trainer/cookpad
+    fi
+    
     python ./run/cookpad.py \
         --dataset $dataset \
         --output-dir $output_dir \
