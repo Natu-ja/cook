@@ -9,27 +9,6 @@
 
 ![a girl who cooks Japanese cuisine](./fig/image.webp)
 
-<p align="center">
-    <a href="https://github.com/Natu-ja/cook/stargazers">
-        <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Natu-ja/cook">
-    </a>
-    <a href="https://github.com/Natu-ja/cook/watchers">
-        <img alt="GitHub watchers" src="https://img.shields.io/github/watchers/Natu-ja/cook">
-    </a>
-    <a href="https://github.com/Natu-ja/cook/forks">
-        <img alt="GitHub forks" src="https://img.shields.io/github/forks/Natu-ja/cook">
-    </a>
-</p>
-
-<p align="center">
-    <a href=https://github.com/Natu-ja/cook/issues>
-        <img alt="GitHub Issues" src="https://img.shields.io/github/issues/Natu-ja/cook">
-    </a>
-    <a href=https://github.com/Natu-ja/cook/pulls>
-        <img alt="GitHub Pull Requests" src="https://img.shields.io/github/issues-pr/Natu-ja/cook">
-    </a>
-</p>
-
 ## Overview
 
 This program uses cooking datasets, such as those from Cookpad, to generate ingredients and instructions from a recipe title.
