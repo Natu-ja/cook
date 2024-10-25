@@ -54,7 +54,7 @@ ad7d585b06850f8437ff5fb97d3c7a823ff21bb1,豚の角煮,鍋に、水とたっぷ�
 
 ### プロンプト
 
-学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](./run/src/data_preprocessing.py) 内の [`formatting_func_.+` 関数](./run/src/data_preprocessing.py#L83-L172)を変更してください。以下の関数は、Cookpad 用のサンプルです。
+学習時のプロンプトを変更したい場合は、[`data_preprocessing.py`](./run/src/data_preprocessing.py) 内の [`formatting_func_.+` 関数](./run/src/data_preprocessing.py#L93-L182)を変更してください。以下の関数は、Cookpad 用のサンプルです。
 
 ```python:./run/src/data_preprocessing.py
 def formatting_func_cookpad(example):
@@ -62,7 +62,7 @@ def formatting_func_cookpad(example):
     return output_texts
 ```
 
-[`formatting_func_cookpad` 関数](./run/src/data_preprocessing.py#L83-L94) を適用したデータセットの例を示します．
+[`formatting_func_cookpad` 関数](./run/src/data_preprocessing.py#L93-L104) を適用したデータセットの例を示します．
 
 ```text
 # ユーザ

@@ -23,44 +23,54 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset] | tuple[Dataset
 
         import pickle
         import pandas as pd
-        from pandas.core.frame import DataFrame
 
-        def text_preprocessing(df: DataFrame) -> DataFrame:
-
+        def text_preprocessing(example: Dataset) -> Dataset:
+                
             """
-            String normalization processing.
+            Preprocesses the text data.
 
             Args:
-                df (`pandas.core.frame.DataFrame`):
-                    DataFrame containing text data.
-                
+                example (`datasets.arrow_dataset.Dataset`):
+                    A dataset containing text data.
+
             Returns:
-                `pandas.core.frame.DataFrame`:
-                    Returns a DataFrame with normalized text data.
+                `datasets.arrow_dataset.Dataset`:
+                    Returns the preprocessed dataset.
             """
 
             import re
             import neologdn
             import demoji
 
-            df = df.map(lambda text: text.replace("\n", "").replace("\r", ""))
-            df = df.map(lambda text: re.sub(r"http?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", text))
-            df = df.map(lambda text: re.sub(r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", text))
-            df = df.map(lambda text: demoji.replace(string=text, repl=""))
-            df = df.map(lambda text: re.sub(r'[!"#$%&\'\\()*+,-./:;<=>?@[\\]^_`{|}~「」〔〕“”〈〉『』【】＆＊・（）＄＃＠。、？！｀＋￥％]', "", text))
-            df = df.map(lambda text: re.sub("[\uFF01-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65\u3000-\u303F]", "", text))
-            
-            df = df.map(lambda text: neologdn.normalize(text))
-            df = df.map(lambda text: text.lower())
-            
-            return df
+            processed_example = {}
+
+            for key, value in example.items():
+
+                if isinstance(value, str):
+
+                    value = value.replace("\n", "").replace("\r", "")
+                    value = re.sub(r"http?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", value)
+                    value = re.sub(r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+", "", value)
+                    value = demoji.replace(string=value, repl="")
+                    value = re.sub(r'[!"#$%&\'\\()*+,-./:;<=>?@[\\]^_`{|}~「」〔〕“”〈〉『』【】＆＊・（）＄＃＠。、？！｀＋￥％]', "", value)
+                    value = re.sub("[\uFF01-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65\u3000-\u303F]", "", value)
+                    
+                    value = neologdn.normalize(value)
+                    value = value.lower()
+
+                    processed_example[key] = value
+
+                else:
+                    processed_example[key] = value
+
+            return processed_example
         
         dataset = pd.read_csv(filepath_or_buffer=args.dataset)
 
-        if args.text_normalizer:
-            dataset = text_preprocessing(df=dataset)
-
         dataset = Dataset.from_pandas(df=dataset)
+
+        if args.text_normalizer:
+            dataset = dataset.map(text_preprocessing)
 
         dataset = dataset.train_test_split(test_size=0.2, shuffle=True, seed=args.seed)
         tv_dataset, test_dataset = dataset["train"], dataset["test"]
