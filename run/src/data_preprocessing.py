@@ -70,7 +70,7 @@ def load_raw_dataset(args: Namespace) -> tuple[Dataset, Dataset] | tuple[Dataset
         dataset = Dataset.from_pandas(df=dataset)
 
         if args.text_normalizer:
-            dataset = dataset.map(text_preprocessing)
+            dataset = dataset.map(function=text_preprocessing, num_proc=args.num_proc)
 
         dataset = dataset.train_test_split(test_size=0.2, shuffle=True, seed=args.seed)
         tv_dataset, test_dataset = dataset["train"], dataset["test"]
@@ -178,5 +178,5 @@ def formatting_func_thai_food(example: LazyBatch) -> list[str]:
             A batch of recipe examples containing 'name' and 'text' fields.
     """
 
-    output_texts = [f"# ผู้ใช้\n## ชื่อ\n{example['name'][i]}\n\n# ผู้ช่วย\n## ข้อความ\n{example['text'][i]}" for i in range(len(example))]
+    output_texts = [f"# ผู้ใช้\n## ชื��อ\n{example['name'][i]}\n\n# ผู้ช่วย\n## ข้อความ\n{example['text'][i]}" for i in range(len(example))]
     return output_texts

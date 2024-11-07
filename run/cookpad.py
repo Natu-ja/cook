@@ -146,6 +146,7 @@ if __name__ == "__main__":
     parser.add_argument("--tokenizer", default="cyberagent/open-calm-7b", type=str, help="Tokenizer name or path.")
     parser.add_argument("--model", default="cyberagent/open-calm-7b", type=str, help="Model name or path.")
     parser.add_argument("--data-collator", type=str, default="LanguageModeling", choices=["LanguageModeling", "CompletionOnlyLM"], help="Data collator type.")
+    parser.add_argument("--num-proc", default=1, type=int, choices=range(1, os.cpu_count()+1), help="Number of processes to use for data preprocessing.")
     
     # Bits And Bytes Config
     parser.add_argument("--load-in-8bit", action="store_true")

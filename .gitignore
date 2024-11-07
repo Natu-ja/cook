@@ -1,0 +1,11 @@
+# Dataset of the experiment
+run/data/cookpad_data.csv
+
+# Python compiled files
+**/__pycache__/
+
+# Local Python version
+.python-version
+
+# Output of the training
+tmp_trainer/
