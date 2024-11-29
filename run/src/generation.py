@@ -74,7 +74,7 @@ def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, mode
             input_text = f"# ユーザ\n## タイトル\n{title}\n\n# アシスタント\n"
             input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
             output_text = model.generate(**input_text, generation_config=generation_config)
-            output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
+            output_list = tokenizer.batch_decode(output_text, skip_special_tokens=True)
             output_lists.append(output_list)
     
     else:
@@ -86,7 +86,7 @@ def generation_cookpad(args: Namespace, tokenizer: PreTrainedTokenizerBase, mode
             input_text = f"# ユーザ\n{title}\n\n# アシスタント\n"
             input_text = tokenizer(input_text, add_special_tokens=True, return_tensors="pt").to(model.device)
             output_text = model.generate(**input_text, generation_config=generation_config, assistant_model=assistant_model)
-            output_list = [tokenizer.decode(output_text[i], skip_special_tokens=True) for i in range(len(output_text))]
+            output_list = tokenizer.batch_decode(output_text, skip_special_tokens=True)
             output_lists.append(output_list)
 
     output_lists = pd.DataFrame(output_lists)
